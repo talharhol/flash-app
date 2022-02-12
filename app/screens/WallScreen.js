@@ -1,11 +1,16 @@
-import React, { Component } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, { Component, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 
 import Problems from '../assets/problems'
 
 function WallScreen({ navigation }) {
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
     const wall = navigation.getParam('wall')
+    const deleteWall = () => {
+        // delete wall
+        navigation.goBack();
+    }
     return (
         <View style={styles.container}>
             <ScrollView>
@@ -14,12 +19,12 @@ function WallScreen({ navigation }) {
                     <View style={styles.wallIcons}>
                         <Ionicons name="ios-pencil-outline" size={24} color="black" />
                         <Text>{wall.name}</Text>
-                        <MaterialCommunityIcons name="trash-can-outline" size={24} color="black" />
+                        <MaterialCommunityIcons onPress={() => setDeleteModalVisible(true)} name="trash-can-outline" size={24} color="black" />
                     </View>
                 </View>
                 <View style={styles.walls}>
                     <View style={styles.wallsHeader}>
-                        <Ionicons onPress={() => navigation.navigate('CreateProblemScreen')} name="add-circle-outline" size={24} color="black" style={styles.addWall}/>
+                        <Ionicons onPress={() => navigation.navigate('SelectHoldsScreen')} name="add-circle-outline" size={24} color="black" style={styles.addWall}/>
                         <Text>Problems</Text>
                         <Ionicons name="ios-filter-sharp" size={24} color="black" />
                     </View>
@@ -39,6 +44,33 @@ function WallScreen({ navigation }) {
                     </View>
                 </View>
             </ScrollView>
+            <Modal animationType='fade' transparent={true} visible={deleteModalVisible}>
+                <TouchableOpacity onPress={() => setDeleteModalVisible(false)}>
+                    <View style={styles.modalContainer}>
+                        <TouchableWithoutFeedback>
+                            <View style={styles.modal}>
+                                <View style={styles.modalTextContainer}>
+                                    <Text style={styles.modalText}>
+                                        Are you sure?
+                                    </Text>
+                                    <Text>
+                                        All data will be lost (wall, problems, etc)
+                                    </Text>
+                                </View>
+                                <View style={styles.modalButtonsContainer}>
+                                    <TouchableOpacity onPress={() => deleteWall() } style={[styles.modalButton, {borderColor: "red"}]}>
+                                        <Text style={[styles.modalButtonText, {color: "red"}]}>I'm sure</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => setDeleteModalVisible(false) } style={[styles.modalButton, {borderColor: "green"}]}>
+                                        <Text style={[styles.modalButtonText, {color: "green"}]}>Discard</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </View>
+                </TouchableOpacity>
+            </Modal>
         </View>
     );
 }
@@ -92,6 +124,34 @@ const styles = StyleSheet.create({
         backgroundColor: "#222",
         borderRadius: 90,
         marginLeft: 5
-    }
+    },
+    modalContainer: {width: "100%", height: "100%", justifyContent: "center", alignItems: "center"},
+    modal: {width: "80%", backgroundColor: "#E8E8E8", borderRadius: 20, opacity: 0.8, justifyContent: "space-around", alignItems: "center"},
+    modalTextContainer: {
+        width: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: 30,
+        marginBottom: 60
+
+    },
+    modalText: {fontSize: 20, },
+    modalButtonsContainer: {
+        width: "100%",
+        flexDirection: "row",
+        justifyContent: "space-around",
+        alignItems: "center"
+    },
+    modalButton: {
+        height: 40,
+        width: "40%",
+        borderRadius: 10,
+        borderWidth: 2,
+        justifyContent: "center",
+        alignItems: "center"
+    },
+    modalButtonText: {color: "white"}
+    
+
 
 })

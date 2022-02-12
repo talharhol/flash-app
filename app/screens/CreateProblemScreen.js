@@ -1,216 +1,129 @@
-import React, { Component, useRef, useState } from 'react';
-import { PanResponder, Animated, TouchableWithoutFeedback, TouchableOpacity, Platform, SafeAreaView, StatusBar, Text, View, StyleSheet, Image, Dimensions, Modal } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
-import Draggable from 'react-native-draggable';
+import React, { Component, useState } from 'react';
+import { SafeAreaView, View, StyleSheet, StatusBar, Text, TextInput, Modal, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Slider } from '@miblanchard/react-native-slider';
+import { CommonActions } from "@react-navigation/native";
 
-function calcDistance(x1, y1, x2, y2) {
-    let dx = Math.abs(x1 - x2)
-    let dy = Math.abs(y1 - y2)
-    return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-}
+import Grades from '../assets/grades';
+
 
 function CreateProblemScreen({ navigation }) {
-    const [initialDistance, setInitialDistance] = useState(null);
-    const [isZoom, setIsZoom] = useState(false);
-    const [editedHold, setEditedHold] = useState(null);
-    const [modalVisible, setModalVisible] = useState(false);
-    const [shouldAddHold, setShouldAddHold] = useState(false);
-    const [holdColor, setHoldColor] = useState(null);
-    const [holds, setHolds] = useState([]);
+    const [name, setName] = useState(null);
+    const [grade, setGrade] = useState(0);
+    const [viewers, setViewers] = useState([]);
+    const [viewer, setViewer] = useState(null);
+    const [addViewerModal, setAddViewerModal] = useState(false)
 
-    const pan = useRef(new Animated.ValueXY()).current;
-    const panRadius = useRef(new Animated.Value(1)).current;
 
-    const panResponder = useRef(
-        PanResponder.create({
-          onMoveShouldSetPanResponder: (e, {dx, dy}) => {
-            return Math.abs(dx) > 2 || Math.abs(dy) > 2;
-          },
-          onPanResponderGrant: () => {
-            pan.setOffset({
-              x: pan.x._value,
-              y: pan.y._value
+    const grades = Grades;
+
+    const addViewer = () => {
+        if (viewer) {
+            let newViewers = viewers.concat({name: viewer});
+            let seen = {};
+            newViewers = newViewers.filter((v) => {
+                if (seen.hasOwnProperty(v.name)) return false;
+                seen[v.name] = true;
+                return true;
             });
-            panRadius.setOffset(panRadius._value)
-          },
-          onPanResponderMove: (event, gestureState) => {
-            const touches = event.nativeEvent.touches;
-            if (touches.length === 1) {
-                Animated.event(
-                    [
-                      null,
-                      { dx: pan.x, dy: pan.y }
-                    ],
-                    {useNativeDriver: false}
-                  )(event, gestureState);
-            }
-            else if (touches.length === 2) {
-                handleZoom(touches[0], touches[1])
-            }
-            
-          },
-          onPanResponderRelease: (e) => {
-            pan.flattenOffset();
-            //setIsZoom(false);
-          },
-        })
-      ).current;
-    
-    const baseImage = require('../assets/images/Wall.png');
-    const imgData = Image.resolveAssetSource(baseImage)
-    const ratio = Dimensions.get("screen").width / imgData.width;
-    
-    const handleZoom = (t1, t2) => {
-        let distance = calcDistance(t1.locationX, t1.locationY, t2.locationX, t2.locationY)
-        console.log(distance, isZoom);
-        if (!isZoom) {
-            setInitialDistance(distance);
-            setIsZoom(true);
-            return;
+            setViewers([...newViewers]);
+            setViewer("");
         }
-        // let touchZoom = distance /  initialDistance;
-        // console.log(touchZoom);
-
-    }
-    
-    const getImageDimentions = () => {
-        return {
-            width: imgData.width * ratio,
-            height: imgData.height * ratio,
-        }
+        
+        setAddViewerModal(false);
     }
 
-    const addHold = ({ nativeEvent }) => {
-        if (!shouldAddHold) return;
-        setShouldAddHold(false); 
-        const hold = {
-            id: Math.random().toString(36).substr(2, 9),
-            top: (nativeEvent.locationY / getImageDimentions().height),
-            left: (nativeEvent.locationX / getImageDimentions().width),
-            radius: 0.1,
-            color: holdColor
-        };
-        holds.push(hold);
-        setHolds([...holds]);
-        setEditedHold({...hold});
-    }
-
-    const saveHold = (hold) => {
-        hold.top = (((hold.top * getImageDimentions().height) + pan.y._value) / getImageDimentions().height);
-        hold.left = (((hold.left * getImageDimentions().width) + pan.x._value) / getImageDimentions().width);
-        setHolds([...holds.map( h => {
-            if (h.id === hold.id) return hold;
-            return h;
-        })]);
-
-        pan.setValue({x: 0, y: 0});
-        setEditedHold(null);
-    }
-    const discardHold = (hold) => {
-        setHolds([...holds.filter(h => h.id !== hold.id)]);
-        pan.setValue({x: 0, y: 0});
-        setEditedHold(null);
-    }
-    const enableAddHold = (color) => {
-        setHoldColor(color);
-        setShouldAddHold(true);
-        setModalVisible(false)
+    const publishProblem = () => {
+        // send to server 
+        const problem_id = 2;
+        navigation.replace("ProblemScreen", {problem: {id: problem_id, name: name, grade: grade}});
     }
 
     return (
         <SafeAreaView style={styles.container}>
-            <Modal animationType='fade' transparent={true} visible={modalVisible}>
-                <TouchableOpacity onPress={() => setModalVisible(false)}>
-                    <View style={{width: "100%", height: "100%", justifyContent: "center", alignItems: "center"}}>
+            <View style={styles.paramsContainer}>
+                <View style={styles.paramContainer}>
+                    <View style={styles.paramHeader}>
+                        <Text style={styles.paramHeaderText}>Name</Text>
+                    </View>
+                    <View style={styles.paramData}>
+                        <TextInput style={styles.nameParam} placeholder="Enter problem's name" onChangeText={setName} />
+                    </View>
+                </View>
+                <View style={styles.paramContainer}>
+                    <View style={styles.paramHeader}>
+                        <Text style={styles.paramHeaderText}>Grade</Text>
+                    </View>
+                    <View style={styles.paramData}>
+                        <Slider  containerStyle={{width: "90%"}} minimumTrackTintColor={"#1C9174"} thumbTintColor={"#1C9174"} maximumValue={Object.keys(grades).length - 1} step={1} value={grade} onValueChange={v => setGrade(v[0])}/>
+                        <View style={{marginLeft: 10}}>
+                            <AntDesign style={{marginBottom: 10}} onPress={() => console.log(grade) || setGrade(Math.min(Object.keys(grades).length - 1, grade + 1))} name="pluscircleo" size={24} color="black" />
+                            <Text>{grades[grade]}</Text>
+                            <AntDesign style={{marginTop: 10}} onPress={() => setGrade(Math.max(0, grade - 1))} name="minuscircleo" size={24} color="black" />
+                        </View>
+                    </View>
+                </View>
+                <View style={styles.paramContainer}>
+                    <View style={styles.paramHeader}>
+                        <Text style={styles.paramHeaderText}>Description</Text>
+                    </View>
+                    <View style={styles.paramData}>
+                        <TextInput style={styles.nameParam} multiline = {true} placeholder="Enter problem's description" onChangeText={setName} />
+                    </View>
+                </View>
+                <View style={styles.paramContainer}>
+                    <View style={styles.paramHeader}>
+                        <Text style={styles.paramHeaderText}>Who can view this problem?</Text>
+                    </View>
+                    <View style={styles.paramData}>
+                        {
+                            viewers.map(v => {
+                                return (
+                                <View key={v.name} style={styles.viewer}>
+                                    <Text>{v.name}</Text>
+                                    <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setViewers([...viewers.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
+                                </View>);
+                            })
+                        }
+                        <MaterialIcons onPress={() => setAddViewerModal(true)} name="add-box" size={24} color="black" />
+                    </View>
+                </View>
+                
+            </View>
+            <View style={styles.publishContainer}>
+                <TouchableOpacity onPress={publishProblem} style={styles.publishButton}>
+                    <Text style={styles.publishButtonText}>Publish</Text>
+                </TouchableOpacity>
+            </View>
+            <Modal animationType='fade' transparent={true} visible={addViewerModal}>
+                <TouchableOpacity onPress={() => setAddViewerModal(false)}>
+                    <View style={styles.modalContainer}>
                         <TouchableWithoutFeedback>
-                            <View style={{width: "80%", height: 260, backgroundColor: "#E8E8E8", borderRadius: 20, opacity: 0.8, justifyContent: "space-around", alignItems: "center"}}>
-                                <TouchableOpacity onPress={() => enableAddHold("#1563FC")} style={[styles.addHoldButton, {borderColor: "#1563FC"}]}>
-                                    <Text style={{color: "#1563FC", fontWeight: "bold"}}>Hold</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => enableAddHold("#19F02F")} style={[styles.addHoldButton, {borderColor: "#19F02F"}]}>
-                                    <Text style={{color: "#19F02F", fontWeight: "bold"}}>Start</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => enableAddHold("#FF0C0C")} style={[styles.addHoldButton, {borderColor: "#FF0C0C"}]}>
-                                    <Text style={{color: "#FF0C0C", fontWeight: "bold"}}>Top</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => enableAddHold("#FFC90C")} style={[styles.addHoldButton, {borderColor: "#FFC90C"}]}>
-                                    <Text style={{color: "#FFC90C", fontWeight: "bold"}}>Feet</Text>
+                            <View style={styles.modal}>
+                                <TextInput placeholder="Enter user's name" onChangeText={setViewer} style={styles.addViewerTextInput}/>
+                                <TouchableOpacity style={styles.addViewerAddButton} onPress={addViewer}>
+                                    <Text style={styles.addViewerAddButtonText}>Add</Text>
                                 </TouchableOpacity>
                             </View>
                         </TouchableWithoutFeedback>
                     </View>
                 </TouchableOpacity>
             </Modal>
-            {
-                editedHold === null &&
-                <View style={styles.problemHeader}>
-                    <AntDesign name="closecircleo" size={24} color="black" />
-                    <Text onPress={() => setModalVisible(true)} style={{color: "white"}}>Add hold</Text>
-                    <Text style={{color: "#FF0101"}}>Next</Text>
-                </View>
-            }
-                <View style={[styles.problemImageContainer]} {...panResponder.panHandlers}>
-                    <TouchableWithoutFeedback onPress={addHold}>
-                        <Image resizeMode="contain" style={[styles.problemImage, getImageDimentions()]} source={baseImage}/>
-                    </TouchableWithoutFeedback>
-                    {
-                        holds.map((hold) => {
-                            const x = hold.left * getImageDimentions().width;
-                            const y = hold.top * getImageDimentions().height;
-                            const r = hold.radius * getImageDimentions().width;
-                            if ((editedHold && editedHold.id) === hold.id) {
-                                const top = y - (r / 2), left = x - (r / 2) ;
-                                return (
-                                    <Animated.View key={hold.id} style={{ transform: [{ translateX: pan.x }, { translateY: pan.y }], zIndex:100, position: "absolute", width: r, height: r, top: top, left: left}} >
-                                        <View style={{width: r, height: r, borderRadius: r, borderColor: hold.color, borderWidth: 5}} />
-                                    </Animated.View>
-                                );
-                            }
-                            return (
-                                <TouchableOpacity onPress={() => setEditedHold({...hold})} key={hold.id} style={{position: "absolute", height: r, width: r, top: y - (r / 2), left: x - (r / 2), alignItems: "center", justifyContent: "center"}}>
-                                    <View style={{width: r, height: r, borderRadius: r, borderColor: hold.color, borderWidth: 2}} />
-                                </TouchableOpacity>
-                            );
-                        })
-                    }
-                </View>
-            {
-                editedHold !== null &&
-                <View>
-                    <View style={{flexDirection: "row"}}>
-                        <TouchableOpacity onPress={() => saveHold({...editedHold})} style={{height: 40, width: "50%", backgroundColor: "green", justifyContent: "center", alignItems: "center"}}>
-                            <Text>Save</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => discardHold({...editedHold})} style={{height: 40, width: "50%", backgroundColor: "red", justifyContent: "center", alignItems: "center"}}>
-                            <Text>Discard</Text>
-                        </TouchableOpacity>
-                    </View>
-                    
-                </View>
-                
-            }
-            
         </SafeAreaView>
     );
 }
 
 export default CreateProblemScreen;
+
 const styles = StyleSheet.create({
-    addHoldButton: {
-        height: 40,
-        width: "50%",
-        borderRadius: 10,
-        borderWidth: 2,
-        justifyContent: "center",
-        alignItems: "center"
-    },
     container: {
         width: "100%",
         marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
         flex: 1,
     },
-    problemHeader: {
-        height: 50 + StatusBar.currentHeight,
+    header: {
+        height: 50,
         width: "100%",
         flexDirection: "row",
         justifyContent: "space-between",
@@ -219,21 +132,83 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "black",
         opacity: 0.5,
+    },
+    paramsContainer: {
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    paramContainer: {
+        width: "90%",
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderColor: "#999",
+        borderBottomWidth: 2,
+        padding: 10
+    },
+    paramHeader: {
+        paddingBottom: 10
+    },
+    paramHeaderText: {
+        fontSize: 20,
+        fontWeight: "bold",
+    },
+    paramData: {
+        width: "90%",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center"
+    },
+    viewer: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#C2C2C2",
+        marginRight: 10,
+        borderRadius: 5,
+        paddingLeft: 5
+    },
+    viewerTrash: {
+        backgroundColor: "#F8CECE",
+        marginLeft: 5,
+        borderBottomRightRadius: 5, 
+        borderTopRightRadius: 5
+    },
+    publishContainer: {
+        width: "100%",
+        alignItems: 'center',
+        justifyContent: 'center',
         position: "absolute",
-        paddingTop: StatusBar.currentHeight,
-        zIndex: 1000,
-        top: -StatusBar.currentHeight,
+        bottom: 50
     },
-    headerText: {
-        color: "white",
-        
+    publishButton: {
+        backgroundColor: "green",
+        height: 40,
+        width: "40%",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: 5
     },
-    problemImageContainer: {
-        backgroundColor: "black",
+    publishButtonText: {
+        fontSize: 20,
+        fontWeight: "bold",
+        color: "white"
     },
-    problemImage: {
+    modal: {width: "80%", height: 260, backgroundColor: "#E8E8E8", borderRadius: 20, justifyContent: "space-around", alignItems: "center"},
+    modalContainer: {width: "100%", height: "100%", justifyContent: "center", alignItems: "center"},
+    addViewerTextInput: {},
+    addViewerAddButton: {
+        height: 40,
+        width: "50%",
+        borderRadius: 10,
+        borderWidth: 2,
+        justifyContent: "center",
+        alignItems: "center",
+        borderColor: "#86F075"
     },
-    problemData: {
-        width: "100%"
+    addViewerAddButtonText: {
+        color: "#86F075",
+        fontWeight: "bold",
+        fontSize: 20,
     }
+
 })

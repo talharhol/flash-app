@@ -5,17 +5,19 @@ import { SimpleLineIcons } from '@expo/vector-icons';
 
 import Home from "../screens/HomeScreen";
 import GymScreen from "../screens/GymScreen";
-import Settings from "../screens/SettingsScreen";
 import WallScreen from "../screens/WallScreen";
 import ProblemScreen from "../screens/ProblemScreen";
+import SelectHoldsScreen from "../screens/SelectHoldsScreen";
 import CreateProblemScreen from "../screens/CreateProblemScreen";
+import UserSettingScreen from "../screens/UserSettingsScreen";
+import CreateGymScreen from "../screens/CreateGymScreen";
 
 function Header({ navigation, noSettings }) {
     return (
     <View style={styles.headerBox}>
         <Text>Flash</Text>
         {
-            noSettings === undefined ? (<TouchableOpacity style={{ alignSelf: "flex-end", position: "absolute"}} onPress={() => navigation.navigate('Settings')}>
+            noSettings === undefined ? (<TouchableOpacity style={{ alignSelf: "flex-end", position: "absolute"}} onPress={() => navigation.navigate('UserSettingScreen')}>
             <SimpleLineIcons name="settings" size={24} color="black" />
         </TouchableOpacity>) : <View/>
         }
@@ -57,14 +59,26 @@ const screens = {
             headerShown: false,
         }
     },
+    SelectHoldsScreen: {
+        screen: SelectHoldsScreen,
+        navigationOptions: {
+            headerShown: false,
+        }
+    },
     CreateProblemScreen: {
         screen: CreateProblemScreen,
         navigationOptions: {
             headerShown: false,
         }
     },
-    Settings: {
-        screen: Settings,
+    CreateGymScreen: {
+        screen: CreateGymScreen,
+        navigationOptions: {
+            headerShown: false,
+        }
+    },
+    UserSettingScreen: {
+        screen: UserSettingScreen,
         navigationOptions: ({ navigation }) => {
             return {
                 headerTitle: () => <Header navigation={navigation} noSettings/>,

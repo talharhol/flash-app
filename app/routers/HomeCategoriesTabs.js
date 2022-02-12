@@ -6,12 +6,6 @@ import NearBy from '../components/NearBy';
 
 const Tab = createMaterialTopTabNavigator();
 
-function SomeScreen() {
-    return (
-        <Text>1111111111111111</Text>
-    );
-}
-
 function SettingsScreen() {
     return (
         <Text>222222222222222</Text>
