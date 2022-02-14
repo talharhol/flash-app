@@ -11,6 +11,7 @@ import SelectHoldsScreen from "../screens/SelectHoldsScreen";
 import CreateProblemScreen from "../screens/CreateProblemScreen";
 import UserSettingScreen from "../screens/UserSettingsScreen";
 import CreateGymScreen from "../screens/CreateGymScreen";
+import CreateWallScreen from "../screens/CreateWallScreen";
 
 function Header({ navigation, noSettings }) {
     return (
@@ -73,6 +74,12 @@ const screens = {
     },
     CreateGymScreen: {
         screen: CreateGymScreen,
+        navigationOptions: {
+            headerShown: false,
+        }
+    },
+    CreateWallScreen: {
+        screen: CreateWallScreen,
         navigationOptions: {
             headerShown: false,
         }

@@ -6,14 +6,14 @@ import * as ImagePicker from 'expo-image-picker';
 
 
 
-function CreateGymScreen({ navigation }) {
+function CreateWallScreen({ navigation }) {
     const [image, setImage] = useState(null);
 
     const [name, setName] = useState(null);
     const [user, setUser] = useState(null);
 
     const [viewers, setViewers] = useState([]);
-    const [editors, setEditors] = useState([]);
+    const [setters, setSetters] = useState([]);
     const [owners, setOwners] = useState([]);
 
     const [{
@@ -28,7 +28,6 @@ function CreateGymScreen({ navigation }) {
 
     const addUser = () => {
         if (user) {
-            console.log(objectToUpdate);
             let newUsers = objectToUpdate.concat({name: user});
             let seen = {};
             newUsers = newUsers.filter((v) => {
@@ -47,10 +46,10 @@ function CreateGymScreen({ navigation }) {
         });
     }
 
-    const createGym = () => {
+    const createWall = () => {
         // send to server 
-        const gymId = 2;
-        navigation.replace("GymScreen", {gym: {id: gymId, name: name, image: {uri: image}}});
+        const wallId = 2;
+        navigation.replace("WallScreen", {wall: {id: wallId, name: name, image: {uri: image}}});
     }
 
     const openAddModal = (updateFunc, updateObj) => {
@@ -70,7 +69,6 @@ function CreateGymScreen({ navigation }) {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
             allowsEditing: true,
-            aspect: [1, 1],
             quality: 1,
           });
             
@@ -83,12 +81,12 @@ function CreateGymScreen({ navigation }) {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <TouchableWithoutFeedback onPress={selectImage} >
-                    {image === null ? <Image style={styles.gymImage} source={require('../assets/images/upload.png')}/> : <Image source={{ uri: image }} style={styles.gymImage} />}
+                    {image === null ? <Image style={styles.wallImage} source={require('../assets/images/upload.png')}/> : <Image source={{ uri: image }} style={styles.wallImage} />}
                 </TouchableWithoutFeedback>
             </View>
             
-            <View style={styles.gymIcons}>
-                    <TextInput placeholder="Enter gym's name" style={styles.gymNameInput}/>
+            <View style={styles.wallIcons}>
+                    <TextInput placeholder="Enter wall's name" style={styles.wallNameInput}/>
                 </View>
             <View style={styles.paramsContainer}>
                 <View style={styles.paramContainer}>
@@ -96,7 +94,7 @@ function CreateGymScreen({ navigation }) {
                         <Text style={styles.paramHeaderText}>Description</Text>
                     </View>
                     <View style={styles.paramData}>
-                        <TextInput style={styles.nameParam} multiline = {true} placeholder="Enter gym's description" onChangeText={setName} />
+                        <TextInput style={styles.nameParam} multiline = {true} placeholder="Enter wall's description" onChangeText={setName} />
                     </View>
                 </View>
                 <View style={styles.paramContainer}>
@@ -118,19 +116,19 @@ function CreateGymScreen({ navigation }) {
                 </View>
                 <View style={styles.paramContainer}>
                     <View style={styles.paramHeader}>
-                        <Text style={styles.paramHeaderText}>Editors</Text>
+                        <Text style={styles.paramHeaderText}>Setters</Text>
                     </View>
                     <View style={styles.paramData}>
                         {
-                            editors.map(v => {
+                            setters.map(v => {
                                 return (
                                 <View key={v.name} style={styles.viewer}>
                                     <Text>{v.name}</Text>
-                                    <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setEditors([...editors.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
+                                    <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setSetters([...setters.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
                                 </View>);
                             })
                         }
-                        <MaterialIcons onPress={() => openAddModal(setEditors, editors)} name="add-box" size={24} color="black" />
+                        <MaterialIcons onPress={() => openAddModal(setSetters, setters)} name="add-box" size={24} color="black" />
                     </View>
                 </View>
                 <View style={styles.paramContainer}>
@@ -153,7 +151,7 @@ function CreateGymScreen({ navigation }) {
                 
             </View>
             <View style={styles.publishContainer}>
-                <TouchableOpacity onPress={createGym} style={styles.publishButton}>
+                <TouchableOpacity onPress={createWall} style={styles.publishButton}>
                     <Text style={styles.publishButtonText}>Create</Text>
                 </TouchableOpacity>
             </View>
@@ -179,7 +177,7 @@ function CreateGymScreen({ navigation }) {
     );
 }
 
-export default CreateGymScreen;
+export default CreateWallScreen;
 
 const styles = StyleSheet.create({
     container: {
@@ -194,18 +192,18 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         width: "100%"
     },
-    gymImage: {
+    wallImage: {
         margin: 20,
         height: 200,
         width: 200,
         borderRadius: 200,
         backgroundColor: "black",
     },
-    gymIcons: {
+    wallIcons: {
         width: "100%",
         alignItems: "center"
     },
-    gymNameInput: {
+    wallNameInput: {
         fontSize: 25,
         alignContent: "center",
         textAlign: "center"

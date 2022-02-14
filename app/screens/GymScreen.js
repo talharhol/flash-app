@@ -19,7 +19,7 @@ function GymScreen({ navigation }) {
                 </View>
                 <View style={styles.walls}>
                     <View style={styles.wallsHeader}>
-                        <Ionicons name="add-circle-outline" size={24} color="black" style={styles.addWall}/>
+                        <Ionicons onPress={() => navigation.navigate("CreateWallScreen")} name="add-circle-outline" size={24} color="black" style={styles.addWall}/>
                         <Text>Walls</Text>
                     </View>
                     <View style={styles.wallsContainer}>

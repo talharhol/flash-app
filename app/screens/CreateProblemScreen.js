@@ -3,7 +3,6 @@ import { SafeAreaView, View, StyleSheet, StatusBar, Text, TextInput, Modal, Touc
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Slider } from '@miblanchard/react-native-slider';
-import { CommonActions } from "@react-navigation/native";
 
 import Grades from '../assets/grades';
 
@@ -14,9 +13,6 @@ function CreateProblemScreen({ navigation }) {
     const [viewers, setViewers] = useState([]);
     const [viewer, setViewer] = useState(null);
     const [addViewerModal, setAddViewerModal] = useState(false)
-
-
-    const grades = Grades;
 
     const addViewer = () => {
         if (viewer) {
@@ -56,10 +52,10 @@ function CreateProblemScreen({ navigation }) {
                         <Text style={styles.paramHeaderText}>Grade</Text>
                     </View>
                     <View style={styles.paramData}>
-                        <Slider  containerStyle={{width: "90%"}} minimumTrackTintColor={"#1C9174"} thumbTintColor={"#1C9174"} maximumValue={Object.keys(grades).length - 1} step={1} value={grade} onValueChange={v => setGrade(v[0])}/>
+                        <Slider  containerStyle={{width: "90%"}} minimumTrackTintColor={"#1C9174"} thumbTintColor={"#1C9174"} maximumValue={Object.keys(Grades).length - 1} step={1} value={grade} onValueChange={v => setGrade(v[0])}/>
                         <View style={{marginLeft: 10}}>
-                            <AntDesign style={{marginBottom: 10}} onPress={() => console.log(grade) || setGrade(Math.min(Object.keys(grades).length - 1, grade + 1))} name="pluscircleo" size={24} color="black" />
-                            <Text>{grades[grade]}</Text>
+                            <AntDesign style={{marginBottom: 10}} onPress={() => console.log(grade) || setGrade(Math.min(Object.keys(Grades).length - 1, grade + 1))} name="pluscircleo" size={24} color="black" />
+                            <Text>{Grades[grade]}</Text>
                             <AntDesign style={{marginTop: 10}} onPress={() => setGrade(Math.max(0, grade - 1))} name="minuscircleo" size={24} color="black" />
                         </View>
                     </View>

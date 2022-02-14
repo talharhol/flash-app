@@ -1,16 +1,93 @@
 import React, { Component, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
-import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Modal, TouchableWithoutFeedback, TextInput } from 'react-native';
+import { MaterialCommunityIcons, Ionicons, AntDesign, MaterialIcons } from '@expo/vector-icons';
 
 import Problems from '../assets/problems'
+import Grades from '../assets/grades';
+import { Slider } from '@miblanchard/react-native-slider';
+import SelectBox from 'react-native-multi-selectbox'
+import { xorBy } from 'lodash'
+
+
+const FILTERS = [
+    {
+        item: "grade",
+        id: 1
+    },
+    {
+        item: "created",
+        id: 2
+    },
+    {
+        item: "name",
+        id: 3
+    }, 
+    {
+        item: "setter",
+        id: 4
+    }
+];
 
 function WallScreen({ navigation }) {
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-    const wall = navigation.getParam('wall')
+    const [filterModalVisible, setFilterModalVisible] = useState(false);
+    const [gradesFilter, setGradesFilter] = useState([0, Object.keys(Grades).length-1]);
+    const [settersFilter, setSettersFilter] = useState([]);
+    const [sortBy, setSortBy] = useState([FILTERS[0]]);
+    const [user, setUser] = useState(null);
+    const [{
+        addModal,
+        objectToUpdate,
+        updateFunction
+    }, setAddModal] = useState({
+        addModal: false,
+        objectToUpdate: null,
+        updateFunction: null
+    });
+
+    const wall = navigation.getParam('wall');
+    const addUser = () => {
+        if (user) {
+            let newUsers = objectToUpdate.concat({name: user});
+            let seen = {};
+            newUsers = newUsers.filter((v) => {
+                if (seen.hasOwnProperty(v.name)) return false;
+                seen[v.name] = true;
+                return true;
+            });
+            updateFunction([...newUsers]);
+            setUser("");
+        }
+        
+        setAddModal({
+            objectToUpdate: null,
+            updateFunction: null,
+            addModal: false
+        });
+    }
+
+    const openAddModal = (updateFunc, updateObj) => {
+        setAddModal({
+            objectToUpdate: updateObj,
+            updateFunction: updateFunc,
+            addModal: true
+        });
+    }
+
+    function onMultiChange() {
+        return (item) => setSortBy(xorBy(sortBy, [item], 'id'))
+    }
+
     const deleteWall = () => {
         // delete wall
         navigation.goBack();
     }
+
+    const apllyFilters = () => {
+        // apply
+        setFilterModalVisible(false);
+    }
+
     return (
         <View style={styles.container}>
             <ScrollView>
@@ -26,7 +103,7 @@ function WallScreen({ navigation }) {
                     <View style={styles.wallsHeader}>
                         <Ionicons onPress={() => navigation.navigate('SelectHoldsScreen')} name="add-circle-outline" size={24} color="black" style={styles.addWall}/>
                         <Text>Problems</Text>
-                        <Ionicons name="ios-filter-sharp" size={24} color="black" />
+                        <Ionicons onPress={() => setFilterModalVisible(true)} name="ios-filter-sharp" size={24} color="black" />
                     </View>
                     <View style={styles.wallsContainer}>
                         {
@@ -48,7 +125,7 @@ function WallScreen({ navigation }) {
                 <TouchableOpacity onPress={() => setDeleteModalVisible(false)}>
                     <View style={styles.modalContainer}>
                         <TouchableWithoutFeedback>
-                            <View style={styles.modal}>
+                            <View style={styles.deleteModal}>
                                 <View style={styles.modalTextContainer}>
                                     <Text style={styles.modalText}>
                                         Are you sure?
@@ -66,6 +143,90 @@ function WallScreen({ navigation }) {
                                     </TouchableOpacity>
                                 </View>
                                 
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </View>
+                </TouchableOpacity>
+            </Modal>
+            <Modal animationType='fade' transparent={true} visible={filterModalVisible}>
+                <TouchableOpacity onPress={() => setFilterModalVisible(false)}>
+                    <View style={styles.modalContainer}>
+                        <TouchableWithoutFeedback>
+                            <View style={styles.filterModal}>
+                                <View style={styles.paramContainer}>
+                                    <View style={styles.paramHeader}>
+                                        <Text style={styles.paramHeaderText}>Grade</Text>
+                                    </View>
+                                    <View style={styles.paramData}>
+                                        <View style={{marginLeft: 10}}>
+                                            <AntDesign style={{marginBottom: 10}} onPress={() => setGradesFilter([...[Math.min(gradesFilter[0] + 1, gradesFilter[1]), gradesFilter[1]]])} name="pluscircleo" size={24} color="black" />
+                                            <Text>{Grades[gradesFilter[0]]}</Text>
+                                            <AntDesign style={{marginTop: 10}} onPress={() => setGradesFilter([...[Math.max(0, gradesFilter[0] - 1), gradesFilter[1]]])} name="minuscircleo" size={24} color="black" />
+                                        </View>
+                                        <Slider  containerStyle={{width: "90%"}} minimumTrackTintColor={"#1C9174"} thumbTintColor={"#1C9174"} maximumValue={Object.keys(Grades).length - 1} step={1} value={gradesFilter} onValueChange={v => setGradesFilter([...v])}/>
+                                        <View style={{marginLeft: 10}}>
+                                            <AntDesign style={{marginBottom: 10}} onPress={() => setGradesFilter([...[gradesFilter[0], Math.min(Object.keys(Grades).length - 1, gradesFilter[1] + 1)]])} name="pluscircleo" size={24} color="black" />
+                                            <Text>{Grades[gradesFilter[1]]}</Text>
+                                            <AntDesign style={{marginTop: 10}} onPress={() => setGradesFilter([...[gradesFilter[0], Math.max(gradesFilter[0], gradesFilter[1] - 1)]])} name="minuscircleo" size={24} color="black" />
+                                        </View>
+                                    </View>
+                                </View>
+                                <View style={styles.paramContainer}>
+                                    <View style={styles.paramHeader}>
+                                        <Text style={styles.paramHeaderText}>Setters</Text>
+                                    </View>
+                                    <View style={styles.paramData}>
+                                        {
+                                            settersFilter.map(v => {
+                                                return (
+                                                <View key={v.name} style={styles.viewer}>
+                                                    <Text>{v.name}</Text>
+                                                    <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setSettersFilter([...settersFilter.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
+                                                </View>);
+                                            })
+                                        }
+                                        <MaterialIcons onPress={() => openAddModal(setSettersFilter, settersFilter)} name="add-box" size={24} color="black" />
+                                    </View>
+                                </View>
+                                <View style={styles.paramContainer}>
+                                    <View style={styles.paramHeader}>
+                                        <Text style={styles.paramHeaderText}>Sort by</Text>
+                                    </View>
+                                    <View style={styles.paramData}>
+                                        <SelectBox
+                                            label="Select sort fields"
+                                            options={FILTERS}
+                                            selectedValues={sortBy}
+                                            onMultiSelect={onMultiChange()}
+                                            onTapClose={onMultiChange()}
+                                            isMulti
+                                        />
+                                    </View>
+                                </View>
+                                <View style={styles.publishContainer}>
+                                    <TouchableOpacity onPress={apllyFilters} style={styles.publishButton}>
+                                        <Text style={styles.publishButtonText}>Apply</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                            
+                        </TouchableWithoutFeedback>
+                    </View>
+                </TouchableOpacity>
+            </Modal>
+            <Modal animationType='fade' transparent={true} visible={addModal}>
+                <TouchableOpacity onPress={() => setAddModal({
+            objectToUpdate: null,
+            updateFunction: null,
+            addModal: false
+        })}>
+                    <View style={styles.modalContainer}>
+                        <TouchableWithoutFeedback>
+                            <View style={styles.modal}>
+                                <TextInput placeholder="Enter user's name" onChangeText={setUser} style={styles.addViewerTextInput}/>
+                                <TouchableOpacity style={styles.addViewerAddButton} onPress={addUser}>
+                                    <Text style={styles.addViewerAddButtonText}>Add</Text>
+                                </TouchableOpacity>
                             </View>
                         </TouchableWithoutFeedback>
                     </View>
@@ -126,7 +287,7 @@ const styles = StyleSheet.create({
         marginLeft: 5
     },
     modalContainer: {width: "100%", height: "100%", justifyContent: "center", alignItems: "center"},
-    modal: {width: "80%", backgroundColor: "#E8E8E8", borderRadius: 20, opacity: 0.8, justifyContent: "space-around", alignItems: "center"},
+    deleteModal: {width: "80%", backgroundColor: "#E8E8E8", borderRadius: 20, opacity: 0.8, justifyContent: "space-around", alignItems: "center"},
     modalTextContainer: {
         width: "100%",
         alignItems: "center",
@@ -150,8 +311,89 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center"
     },
-    modalButtonText: {color: "white"}
-    
-
-
+    modalButtonText: {color: "white"},
+    filterModal: {
+        width: "90%",
+        backgroundColor: "#E8E8E8", 
+        borderRadius: 20, 
+        opacity: 1, 
+        justifyContent: "space-around", 
+        alignItems: "center"
+    },
+    paramsContainer: {
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    paramContainer: {
+        width: "90%",
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderColor: "#999",
+        borderBottomWidth: 2,
+        padding: 10
+    },
+    paramHeader: {
+        paddingBottom: 10
+    },
+    paramHeaderText: {
+        fontSize: 20,
+        fontWeight: "bold",
+    },
+    paramData: {
+        width: "90%",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center"
+    },
+    viewer: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#C2C2C2",
+        marginRight: 10,
+        borderRadius: 5,
+        paddingLeft: 5
+    },
+    viewerTrash: {
+        backgroundColor: "#F8CECE",
+        marginLeft: 5,
+        borderBottomRightRadius: 5, 
+        borderTopRightRadius: 5
+    },
+    publishContainer: {
+        width: "100%",
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+    },
+    publishButton: {
+        marginTop: 80,
+        marginBottom: 30,
+        backgroundColor: "green",
+        height: 40,
+        width: "40%",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: 5
+    },
+    publishButtonText: {
+        fontSize: 20,
+        fontWeight: "bold",
+        color: "white"
+    },
+    modal: {width: "80%", height: 180, backgroundColor: "#A8A8A8", borderRadius: 20, opacity: 1, justifyContent: "space-around", alignItems: "center"},
+    addViewerTextInput: {},
+    addViewerAddButton: {
+        height: 40,
+        width: "50%",
+        borderRadius: 10,
+        borderWidth: 2,
+        justifyContent: "center",
+        alignItems: "center",
+        borderColor: "#86F075"
+    },
+    addViewerAddButtonText: {
+        color: "#86F075",
+        fontWeight: "bold",
+        fontSize: 20,
+    },
 })
