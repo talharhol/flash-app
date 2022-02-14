@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, View, StyleSheet, StatusBar, Text, TextInput, Modal, TouchableOpacity, TouchableWithoutFeedback, Image } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 
 
@@ -28,7 +28,6 @@ function CreateGymScreen({ navigation }) {
 
     const addUser = () => {
         if (user) {
-            console.log(objectToUpdate);
             let newUsers = objectToUpdate.concat({name: user});
             let seen = {};
             newUsers = newUsers.filter((v) => {
@@ -232,6 +231,7 @@ const styles = StyleSheet.create({
     paramData: {
         width: "90%",
         flexDirection: "row",
+        flexWrap: 'wrap',
         alignItems: "center",
         justifyContent: "center"
     },
@@ -241,6 +241,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "#C2C2C2",
         marginRight: 10,
+        marginTop: 5,
         borderRadius: 5,
         paddingLeft: 5
     },

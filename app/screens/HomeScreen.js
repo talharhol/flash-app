@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Text, View } from 'react-native';
 import HomeCategoriesTabs from '../routers/HomeCategoriesTabs';
 
-function Home({ navigation }) {
+function HomeScreen({ navigation }) {
     return (
         <View style={{height: "100%", width: "100%", }}>
             <HomeCategoriesTabs navigation={navigation} />
@@ -10,4 +10,4 @@ function Home({ navigation }) {
     );
 }
 
-export default Home;
+export default HomeScreen;

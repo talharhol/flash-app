@@ -46,6 +46,7 @@ function WallScreen({ navigation }) {
     });
 
     const wall = navigation.getParam('wall');
+
     const addUser = () => {
         if (user) {
             let newUsers = objectToUpdate.concat({name: user});
@@ -94,7 +95,7 @@ function WallScreen({ navigation }) {
                 <View style={styles.header}>
                     <Image style={styles.wallImage} source={wall.image}/>
                     <View style={styles.wallIcons}>
-                        <Ionicons name="ios-pencil-outline" size={24} color="black" />
+                        <Ionicons onPress={() => navigation.navigate("EditWallScreen", {wall})} name="ios-pencil-outline" size={24} color="black" />
                         <Text>{wall.name}</Text>
                         <MaterialCommunityIcons onPress={() => setDeleteModalVisible(true)} name="trash-can-outline" size={24} color="black" />
                     </View>
@@ -287,7 +288,7 @@ const styles = StyleSheet.create({
         marginLeft: 5
     },
     modalContainer: {width: "100%", height: "100%", justifyContent: "center", alignItems: "center"},
-    deleteModal: {width: "80%", backgroundColor: "#E8E8E8", borderRadius: 20, opacity: 0.8, justifyContent: "space-around", alignItems: "center"},
+    deleteModal: {width: "80%", backgroundColor: "#E8E8E8", borderRadius: 20, justifyContent: "space-around", alignItems: "center"},
     modalTextContainer: {
         width: "100%",
         alignItems: "center",
@@ -301,7 +302,8 @@ const styles = StyleSheet.create({
         width: "100%",
         flexDirection: "row",
         justifyContent: "space-around",
-        alignItems: "center"
+        alignItems: "center",
+        marginBottom: 15
     },
     modalButton: {
         height: 40,
@@ -342,6 +344,7 @@ const styles = StyleSheet.create({
     paramData: {
         width: "90%",
         flexDirection: "row",
+        flexWrap: 'wrap',
         alignItems: "center",
         justifyContent: "center"
     },
@@ -351,6 +354,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "#C2C2C2",
         marginRight: 10,
+        marginTop: 5,
         borderRadius: 5,
         paddingLeft: 5
     },

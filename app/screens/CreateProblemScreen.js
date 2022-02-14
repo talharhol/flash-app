@@ -54,7 +54,7 @@ function CreateProblemScreen({ navigation }) {
                     <View style={styles.paramData}>
                         <Slider  containerStyle={{width: "90%"}} minimumTrackTintColor={"#1C9174"} thumbTintColor={"#1C9174"} maximumValue={Object.keys(Grades).length - 1} step={1} value={grade} onValueChange={v => setGrade(v[0])}/>
                         <View style={{marginLeft: 10}}>
-                            <AntDesign style={{marginBottom: 10}} onPress={() => console.log(grade) || setGrade(Math.min(Object.keys(Grades).length - 1, grade + 1))} name="pluscircleo" size={24} color="black" />
+                            <AntDesign style={{marginBottom: 10}} onPress={() => setGrade(Math.min(Object.keys(Grades).length - 1, grade + 1))} name="pluscircleo" size={24} color="black" />
                             <Text>{Grades[grade]}</Text>
                             <AntDesign style={{marginTop: 10}} onPress={() => setGrade(Math.max(0, grade - 1))} name="minuscircleo" size={24} color="black" />
                         </View>
@@ -151,6 +151,7 @@ const styles = StyleSheet.create({
     paramData: {
         width: "90%",
         flexDirection: "row",
+        flexWrap: 'wrap',
         alignItems: "center",
         justifyContent: "center"
     },
@@ -160,6 +161,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "#C2C2C2",
         marginRight: 10,
+        marginTop: 5,
         borderRadius: 5,
         paddingLeft: 5
     },

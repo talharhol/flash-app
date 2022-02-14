@@ -3,7 +3,7 @@ import { createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import { SimpleLineIcons } from '@expo/vector-icons';
 
-import Home from "../screens/HomeScreen";
+import HomeScreen from "../screens/HomeScreen";
 import GymScreen from "../screens/GymScreen";
 import WallScreen from "../screens/WallScreen";
 import ProblemScreen from "../screens/ProblemScreen";
@@ -12,11 +12,14 @@ import CreateProblemScreen from "../screens/CreateProblemScreen";
 import UserSettingScreen from "../screens/UserSettingsScreen";
 import CreateGymScreen from "../screens/CreateGymScreen";
 import CreateWallScreen from "../screens/CreateWallScreen";
+import EditGymScreen from "../screens/EditGymScreen";
+import EditWallScreen from "../screens/EditWallScreen";
+
 
 function Header({ navigation, noSettings }) {
     return (
     <View style={styles.headerBox}>
-        <Text>Flash</Text>
+        <Text onPress={() => navigation.navigate("HomeScreen")} >Flash</Text>
         {
             noSettings === undefined ? (<TouchableOpacity style={{ alignSelf: "flex-end", position: "absolute"}} onPress={() => navigation.navigate('UserSettingScreen')}>
             <SimpleLineIcons name="settings" size={24} color="black" />
@@ -27,8 +30,8 @@ function Header({ navigation, noSettings }) {
 
 
 const screens = {
-    Home: {
-        screen: Home,
+    HomeScreen: {
+        screen: HomeScreen,
         navigationOptions: ({ navigation }) => {
             return {
                 headerTitle: () => <Header navigation={navigation} />,
@@ -86,6 +89,24 @@ const screens = {
     },
     UserSettingScreen: {
         screen: UserSettingScreen,
+        navigationOptions: ({ navigation }) => {
+            return {
+                headerTitle: () => <Header navigation={navigation} noSettings/>,
+                headerLeft: () => null
+            }
+        }
+    },
+    EditGymScreen: {
+        screen: EditGymScreen,
+        navigationOptions: ({ navigation }) => {
+            return {
+                headerTitle: () => <Header navigation={navigation} noSettings/>,
+                headerLeft: () => null
+            }
+        }
+    },
+    EditWallScreen: {
+        screen: EditWallScreen,
         navigationOptions: ({ navigation }) => {
             return {
                 headerTitle: () => <Header navigation={navigation} noSettings/>,
