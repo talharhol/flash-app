@@ -102,7 +102,7 @@ function WallScreen({ navigation }) {
                 </View>
                 <View style={styles.walls}>
                     <View style={styles.wallsHeader}>
-                        <Ionicons onPress={() => navigation.navigate('SelectHoldsScreen')} name="add-circle-outline" size={24} color="black" style={styles.addWall}/>
+                        <Ionicons onPress={() => navigation.navigate('SelectHoldsScreen', {wall})} name="add-circle-outline" size={24} color="black" style={styles.addWall}/>
                         <Text>Problems</Text>
                         <Ionicons onPress={() => setFilterModalVisible(true)} name="ios-filter-sharp" size={24} color="black" />
                     </View>
