@@ -6,8 +6,11 @@ import { imageSize } from "./SizeContext";
 
 const MAX_MOVEMENT_FOR_PRESS = 6;
 const cirlceRadius = 10;
-
-// For SOME REASON svg doesn't like being "position: absolute".... So I wrap it with a postiion:absolut element and everyhing works nice.
+/*
+    Renders an svg which the user draws on it hold markings, "returning" the drawn shape using the `OnFinishedDrawingShape`.
+    
+    For SOME REASON svg doesn't like being "position: absolute".... So I wrap it with a postiion:absolut element and everyhing works nice.
+*/
 const DrawHold: React.FC<{ onFinishedDrawingShape?: (shape: string) => void; currentHoldType: HoldType; }> = ({ currentHoldType, onFinishedDrawingShape }) => {
     const dimensions = useContext(imageSize);
     const [currentPaths, setCurrentPath] = useState<{ x: number, y: number; }[]>([]);
@@ -20,6 +23,7 @@ const DrawHold: React.FC<{ onFinishedDrawingShape?: (shape: string) => void; cur
     };
     const onTouchEnd: React.ComponentProps<(typeof Svg)>["onTouchEnd"] = ({ nativeEvent: { locationX: x, locationY: y } }) => {
         let pathToSend = "";
+        // Check if it's a tap by measuring the distance the finger did.
         if (
             Math.max(...currentPaths.map(({ x }) => x)) - Math.min(...currentPaths.map(({ x }) => x)) < MAX_MOVEMENT_FOR_PRESS &&
             Math.max(...currentPaths.map(({ y }) => y)) - Math.min(...currentPaths.map(({ y }) => y)) < MAX_MOVEMENT_FOR_PRESS
@@ -50,16 +54,6 @@ const DrawHold: React.FC<{ onFinishedDrawingShape?: (shape: string) => void; cur
                         strokeLinecap='round'
                     />
                 }
-                {/* {
-                currentPaths.length > 0 && <Polygon
-                    points={currentPaths.reduce((acc, ele) => acc + `${Math.ceil(ele.x)},${Math.ceil(ele.y)} `, "")}
-                    stroke={currentHoldType.color}
-                    fill='none'
-                    strokeWidth={2}
-                    strokeLinejoin='round'
-                    strokeLinecap='round'
-                />
-            } */}
             </Svg >
         </View>
     );
