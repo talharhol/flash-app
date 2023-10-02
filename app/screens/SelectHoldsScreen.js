@@ -17,7 +17,7 @@ import Svg, { Polygon, Polyline } from "react-native-svg";
 import { withAnchorPoint } from "react-native-anchor-point";
 import { AntDesign } from "@expo/vector-icons";
 import { Slider } from "@miblanchard/react-native-slider";
-import React, { Component, useRef } from "react";
+import React, { Component, useState } from "react";
 
 function calcDistance(x1, y1, x2, y2) {
   let dx = Math.abs(x1 - x2);
@@ -191,7 +191,7 @@ class SelectHoldsScreen extends Component {
           initialYSVG: 0,
         });
       },
-      onPanResponderTerminate: (evt, gestureState) => {},
+      onPanResponderTerminate: (evt, gestureState) => { },
       onShouldBlockNativeResponder: (evt, gestureState) => true,
     });
     this.image = props.navigation.getParam("wall").image;
@@ -250,10 +250,9 @@ class SelectHoldsScreen extends Component {
       });
     } else {
       let touchZoom = distance / this.state.initialDistance;
-      let zoom =
-        touchZoom * this.state.initialZoom > this.state.minZoom
-          ? touchZoom * this.state.initialZoom
-          : this.state.minZoom;
+      let zoom = touchZoom * this.state.initialZoom > this.state.minZoom
+        ? touchZoom * this.state.initialZoom
+        : this.state.minZoom;
 
       let offsetByZoom = calcOffsetByZoom(
         this.state.width,
@@ -262,8 +261,7 @@ class SelectHoldsScreen extends Component {
         this.getImageDimentions().height,
         zoom
       );
-      let left =
-        this.state.initialLeftWithoutZoom * touchZoom + offsetByZoom.left;
+      let left = this.state.initialLeftWithoutZoom * touchZoom + offsetByZoom.left;
       let top = this.state.initialTopWithoutZoom * touchZoom + offsetByZoom.top;
 
       this.setState({
@@ -274,18 +272,18 @@ class SelectHoldsScreen extends Component {
           left > 0
             ? 0
             : maxOffset(
-                left,
-                this.state.width,
-                this.getImageDimentions().width * zoom
-              ),
+              left,
+              this.state.width,
+              this.getImageDimentions().width * zoom
+            ),
         top:
           top > 0
             ? 0
             : maxOffset(
-                top,
-                this.state.height,
-                this.getImageDimentions().height * zoom
-              ),
+              top,
+              this.state.height,
+              this.getImageDimentions().height * zoom
+            ),
       });
     }
   }
@@ -308,18 +306,18 @@ class SelectHoldsScreen extends Component {
           left > 0
             ? 0
             : maxOffset(
-                left,
-                this.state.width,
-                this.getImageDimentions().width * this.state.zoom
-              ),
+              left,
+              this.state.width,
+              this.getImageDimentions().width * this.state.zoom
+            ),
         top:
           top > 0
             ? 0
             : maxOffset(
-                top,
-                this.state.height,
-                this.getImageDimentions().height * this.state.zoom
-              ),
+              top,
+              this.state.height,
+              this.getImageDimentions().height * this.state.zoom
+            ),
       });
     }
   }
@@ -518,9 +516,8 @@ class SelectHoldsScreen extends Component {
           <Svg
             width={"100%"}
             height={"100%"}
-            viewBox={`0 0 ${this.getImageDimentions().width} ${
-              this.getImageDimentions().height
-            }`}
+            viewBox={`0 0 ${this.getImageDimentions().width} ${this.getImageDimentions().height
+              }`}
             style={[
               { position: "absolute", zIndex: 100 },
               {
