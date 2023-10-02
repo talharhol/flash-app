@@ -12,7 +12,7 @@ import EditWallScreen from "../screens/EditWallScreen";
 import GymScreen from "../screens/GymScreen";
 import HomeScreen from "../screens/HomeScreen";
 import ProblemScreen from "../screens/ProblemScreen";
-import SelectHoldsScreen from "../screens/SelectHoldsScreen";
+import SelectHoldsScreen from "../screens/SelectHoldsScreen/SelectHoldsScreen";
 import UserSettingScreen from "../screens/UserSettingsScreen";
 import WallScreen from "../screens/WallScreen";
 
@@ -20,25 +20,29 @@ import WallScreen from "../screens/WallScreen";
 const Header: React.FC<{ navigation: any, noSettings?: boolean; }> = ({ navigation, noSettings }) => {
     return (
         <View style={styles.headerBox}>
-            <Text onPress={() => navigation.navigate("HomeScreen")} >Flash</Text>
+            <Text style={{ alignSelf: "center" }} onPress={() => navigation.navigate("HomeScreen")} >Flash</Text>
             {
-                noSettings ? <View /> : (
-                    <TouchableOpacity style={{ alignSelf: "flex-end", position: "absolute" }} onPress={() => navigation.navigate('UserSettingScreen')}>
+                noSettings ? null : (
+                    <TouchableOpacity style={{ alignSelf: "flex-end" }} onPress={() => navigation.navigate('UserSettingScreen')}>
                         <SimpleLineIcons name="settings" size={24} color="black" />
                     </TouchableOpacity>
                 )
             }
-        </View>);
+        </View>
+    );
 };
 
 
 const Stack = createStackNavigator();
 const HeaderNavigatorOptions: React.ComponentProps<(typeof Stack)["Screen"]>["options"] = ({ navigation }) => ({
-    headerTitle: () => <Header navigation={navigation} />
+    headerTitle: () => <Header navigation={navigation} />,
+    headerLeft: null,
 });
 const HeaderNavigatorOptionsNoSettings: React.ComponentProps<(typeof Stack)["Screen"]>["options"] = ({ navigation }) => ({
-    headerTitle: () => <Header navigation={navigation} noSettings />
+    headerTitle: () => <Header navigation={navigation} noSettings />,
+    headerLeft: null,
 });
+
 function AppContainer() {
     return (
         <NavigationContainer>
@@ -59,6 +63,7 @@ function AppContainer() {
     );
 }
 export default AppContainer;
+const headerSidePadding = 20;
 const styles = StyleSheet.create({
-    headerBox: { height: 50, width: "100%", justifyContent: "center", alignItems: "center" }
+    headerBox: { height: 30, width: "100%", justifyContent: "space-between", paddingLeft: headerSidePadding, paddingRight: headerSidePadding, display: "flex", flexDirection: "row" }
 });

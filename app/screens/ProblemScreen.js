@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import { Platform, SafeAreaView, StatusBar, Text, View, StyleSheet, Image, Dimensions } from 'react-native';
 import Grades from '../assets/grades';
 
-function ProblemScreen({ navigation }) {
+function ProblemScreen({ route, navigation }) {
     const getProblemFullData = () => {
         return {
-            id: navigation.getParam('problem').id,
-            grade: navigation.getParam('problem').grade,
-            name: navigation.getParam('problem').name,
+            id: route.params.problem.id,
+            grade: route.params.problem.grade,
+            name: route.params.problem.name,
             baseImage: require('../assets/images/Wall.png'),
             setter: {
                 name: "User1"

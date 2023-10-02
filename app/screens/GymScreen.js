@@ -2,43 +2,43 @@ import React, { Component, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 
-import Walls from '../assets/walls'
+import Walls from '../assets/walls';
 
-function GymScreen({ navigation }) {
+function GymScreen({ navigation, route }) {
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
-    const gym = navigation.getParam('gym')
+    const { gym } = route.params;
 
     const deleteGym = () => {
         // delete wall
         navigation.goBack();
-    }
+    };
     return (
         <View style={styles.container}>
             <ScrollView>
                 <View style={styles.header}>
-                    <Image style={styles.gymImage} source={gym.image}/>
+                    <Image style={styles.gymImage} source={gym.image} />
                     <View style={styles.gymIcons}>
-                        <Ionicons onPress={() => navigation.navigate('EditGymScreen', {gym})} name="ios-pencil-outline" size={24} color="black" />
+                        <Ionicons onPress={() => navigation.navigate('EditGymScreen', { gym })} name="ios-pencil-outline" size={24} color="black" />
                         <Text>{gym.name}</Text>
                         <MaterialCommunityIcons onPress={() => setDeleteModalVisible(true)} name="trash-can-outline" size={24} color="black" />
                     </View>
                 </View>
                 <View style={styles.walls}>
                     <View style={styles.wallsHeader}>
-                        <Ionicons onPress={() => navigation.navigate("CreateWallScreen")} name="add-circle-outline" size={24} color="black" style={styles.addWall}/>
+                        <Ionicons onPress={() => navigation.navigate("CreateWallScreen")} name="add-circle-outline" size={24} color="black" style={styles.addWall} />
                         <Text>Walls</Text>
                     </View>
                     <View style={styles.wallsContainer}>
                         {
                             Walls.map((wall) => {
                                 return (
-                                    <TouchableOpacity key={wall.id} onPress={() => navigation.navigate('WallScreen', {wall})}>
+                                    <TouchableOpacity key={wall.id} onPress={() => navigation.navigate('WallScreen', { wall })}>
                                         <View style={styles.wall} >
                                             <View style={styles.wallImageContainer}>
                                                 <Image source={wall.image} resizeMode={"contain"} style={styles.wallImage} />
                                             </View>
-                                            <Text style={{marginLeft: 20}}>{wall.name}</Text>
+                                            <Text style={{ marginLeft: 20 }}>{wall.name}</Text>
                                         </View>
                                     </TouchableOpacity>
                                 );
@@ -61,14 +61,14 @@ function GymScreen({ navigation }) {
                                     </Text>
                                 </View>
                                 <View style={styles.modalButtonsContainer}>
-                                    <TouchableOpacity onPress={() => deleteGym() } style={[styles.modalButton, {borderColor: "red"}]}>
-                                        <Text style={[styles.modalButtonText, {color: "red"}]}>I'm sure</Text>
+                                    <TouchableOpacity onPress={() => deleteGym()} style={[styles.modalButton, { borderColor: "red" }]}>
+                                        <Text style={[styles.modalButtonText, { color: "red" }]}>I'm sure</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => setDeleteModalVisible(false) } style={[styles.modalButton, {borderColor: "green"}]}>
-                                        <Text style={[styles.modalButtonText, {color: "green"}]}>Discard</Text>
+                                    <TouchableOpacity onPress={() => setDeleteModalVisible(false)} style={[styles.modalButton, { borderColor: "green" }]}>
+                                        <Text style={[styles.modalButtonText, { color: "green" }]}>Discard</Text>
                                     </TouchableOpacity>
                                 </View>
-                                
+
                             </View>
                         </TouchableWithoutFeedback>
                     </View>
@@ -105,19 +105,19 @@ const styles = StyleSheet.create({
     wallsHeader: {
         height: 40,
         width: "100%",
-        justifyContent: "center", 
+        justifyContent: "center",
         alignItems: "center",
     },
     addWall: {
         position: "absolute",
         left: 15
     },
-    walls: {flex: 1},
-    wallsContainer: {flex: 1},
+    walls: { flex: 1 },
+    wallsContainer: { flex: 1 },
     wall: {
         height: 100,
         marginLeft: 20,
-        marginTop: 20, 
+        marginTop: 20,
         marginRight: 20,
         borderRadius: 10,
         backgroundColor: '#B0AFAF',
@@ -125,8 +125,8 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     wallImage: {
-        height: 90, 
-        width: 90, 
+        height: 90,
+        width: 90,
         borderRadius: 90,
     },
     wallImageContainer: {
@@ -134,8 +134,8 @@ const styles = StyleSheet.create({
         borderRadius: 90,
         marginLeft: 5
     },
-    modalContainer: {width: "100%", height: "100%", justifyContent: "center", alignItems: "center"},
-    deleteModal: {width: "80%", backgroundColor: "#E8E8E8", borderRadius: 20, justifyContent: "space-around", alignItems: "center"},
+    modalContainer: { width: "100%", height: "100%", justifyContent: "center", alignItems: "center" },
+    deleteModal: { width: "80%", backgroundColor: "#E8E8E8", borderRadius: 20, justifyContent: "space-around", alignItems: "center" },
     modalTextContainer: {
         width: "100%",
         alignItems: "center",
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
         marginBottom: 60
 
     },
-    modalText: {fontSize: 20, },
+    modalText: { fontSize: 20, },
     modalButtonsContainer: {
         width: "100%",
         flexDirection: "row",
@@ -160,6 +160,6 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center"
     },
-    modalButtonText: {color: "white"},
+    modalButtonText: { color: "white" },
 
-})
+});

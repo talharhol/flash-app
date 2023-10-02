@@ -194,7 +194,7 @@ class SelectHoldsScreen extends Component {
       onPanResponderTerminate: (evt, gestureState) => { },
       onShouldBlockNativeResponder: (evt, gestureState) => true,
     });
-    this.image = props.navigation.getParam("wall").image;
+    this.image = props.route.params.wall.image;
     this.imageData = Image.resolveAssetSource(this.image);
     this.imageToScreenRation =
       Dimensions.get("screen").width / this.imageData.width;

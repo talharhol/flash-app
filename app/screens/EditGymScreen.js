@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, StyleSheet, StatusBar, Text, TextInput, Modal, TouchableOpacity, TouchableWithoutFeedback, Image, ScrollView } from 'react-native';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import React, { useState } from 'react';
+import { Image, Modal, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 
 
 
 
-function EditGymScreen({ navigation }) {
+function EditGymScreen({ route, navigation }) {
 
-    const gym = navigation.getParam('gym');
+    const { gym } = route.params;
 
     const [image, setImage] = useState(null);
 
@@ -32,7 +32,7 @@ function EditGymScreen({ navigation }) {
 
     const addUser = () => {
         if (user) {
-            let newUsers = objectToUpdate.concat({name: user});
+            let newUsers = objectToUpdate.concat({ name: user });
             let seen = {};
             newUsers = newUsers.filter((v) => {
                 if (seen.hasOwnProperty(v.name)) return false;
@@ -42,19 +42,19 @@ function EditGymScreen({ navigation }) {
             updateFunction([...newUsers]);
             setUser("");
         }
-        
+
         setAddModal({
             objectToUpdate: null,
             updateFunction: null,
             addModal: false
         });
-    }
+    };
 
     const createGym = () => {
         // send to server 
         const gymId = 2;
-        navigation.replace("GymScreen", {gym: {id: gymId, name: name, image: {uri: image}}});
-    }
+        navigation.replace("GymScreen", { gym: { id: gymId, name: name, image: { uri: image } } });
+    };
 
     const openAddModal = (updateFunc, updateObj) => {
         setAddModal({
@@ -62,7 +62,7 @@ function EditGymScreen({ navigation }) {
             updateFunction: updateFunc,
             addModal: true
         });
-    }
+    };
 
     const selectImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -75,32 +75,32 @@ function EditGymScreen({ navigation }) {
             allowsEditing: true,
             aspect: [1, 1],
             quality: 1,
-          });
-            
-          if (!result.cancelled) {
+        });
+
+        if (!result.cancelled) {
             setImage(result.uri);
-          }
-    }
+        }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView>
                 <View style={styles.header}>
                     <TouchableWithoutFeedback onPress={selectImage} >
-                        {image === null ? <Image style={styles.gymImage} source={gym.image}/> : <Image source={{ uri: image }} style={styles.gymImage} />}
+                        {image === null ? <Image style={styles.gymImage} source={gym.image} /> : <Image source={{ uri: image }} style={styles.gymImage} />}
                     </TouchableWithoutFeedback>
                 </View>
-                
+
                 <View style={styles.gymIcons}>
-                        <TextInput onChangeText={setName} value={name} placeholder="Enter gym's name" style={styles.gymNameInput}/>
-                    </View>
+                    <TextInput onChangeText={setName} value={name} placeholder="Enter gym's name" style={styles.gymNameInput} />
+                </View>
                 <View style={styles.paramsContainer}>
                     <View style={styles.paramContainer}>
                         <View style={styles.paramHeader}>
                             <Text style={styles.paramHeaderText}>Description</Text>
                         </View>
                         <View style={styles.paramData}>
-                            <TextInput value={description} onChangeText={setDescription} style={styles.nameParam} multiline = {true} placeholder="Enter gym's description" />
+                            <TextInput value={description} onChangeText={setDescription} style={styles.nameParam} multiline={true} placeholder="Enter gym's description" />
                         </View>
                     </View>
                     <View style={styles.paramContainer}>
@@ -111,10 +111,10 @@ function EditGymScreen({ navigation }) {
                             {
                                 viewers.map(v => {
                                     return (
-                                    <View key={v.name} style={styles.viewer}>
-                                        <Text>{v.name}</Text>
-                                        <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setViewers([...viewers.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
-                                    </View>);
+                                        <View key={v.name} style={styles.viewer}>
+                                            <Text>{v.name}</Text>
+                                            <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setViewers([...viewers.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
+                                        </View>);
                                 })
                             }
                             <MaterialIcons onPress={() => openAddModal(setViewers, viewers)} name="add-box" size={24} color="black" />
@@ -128,10 +128,10 @@ function EditGymScreen({ navigation }) {
                             {
                                 editors.map(v => {
                                     return (
-                                    <View key={v.name} style={styles.viewer}>
-                                        <Text>{v.name}</Text>
-                                        <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setEditors([...editors.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
-                                    </View>);
+                                        <View key={v.name} style={styles.viewer}>
+                                            <Text>{v.name}</Text>
+                                            <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setEditors([...editors.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
+                                        </View>);
                                 })
                             }
                             <MaterialIcons onPress={() => openAddModal(setEditors, editors)} name="add-box" size={24} color="black" />
@@ -145,16 +145,16 @@ function EditGymScreen({ navigation }) {
                             {
                                 owners.map(v => {
                                     return (
-                                    <View key={v.name} style={styles.viewer}>
-                                        <Text>{v.name}</Text>
-                                        <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setOwners([...owners.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
-                                    </View>);
+                                        <View key={v.name} style={styles.viewer}>
+                                            <Text>{v.name}</Text>
+                                            <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setOwners([...owners.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
+                                        </View>);
                                 })
                             }
                             <MaterialIcons onPress={() => openAddModal(setOwners, owners)} name="add-box" size={24} color="black" />
                         </View>
                     </View>
-                    
+
                 </View>
                 <View style={styles.publishContainer}>
                     <TouchableOpacity onPress={createGym} style={styles.publishButton}>
@@ -164,14 +164,14 @@ function EditGymScreen({ navigation }) {
             </ScrollView>
             <Modal animationType='fade' transparent={true} visible={addModal}>
                 <TouchableOpacity onPress={() => setAddModal({
-            objectToUpdate: null,
-            updateFunction: null,
-            addModal: false
-        })}>
+                    objectToUpdate: null,
+                    updateFunction: null,
+                    addModal: false
+                })}>
                     <View style={styles.modalContainer}>
                         <TouchableWithoutFeedback>
                             <View style={styles.modal}>
-                                <TextInput placeholder="Enter user's name" onChangeText={setUser} style={styles.addViewerTextInput}/>
+                                <TextInput placeholder="Enter user's name" onChangeText={setUser} style={styles.addViewerTextInput} />
                                 <TouchableOpacity style={styles.addViewerAddButton} onPress={addUser}>
                                     <Text style={styles.addViewerAddButtonText}>Add</Text>
                                 </TouchableOpacity>
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
         height: "100%",
         marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
         flex: 1,
-        
+
     },
     header: {
         alignItems: "center",
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     viewerTrash: {
         backgroundColor: "#F8CECE",
         marginLeft: 5,
-        borderBottomRightRadius: 5, 
+        borderBottomRightRadius: 5,
         borderTopRightRadius: 5
     },
     publishContainer: {
@@ -276,8 +276,8 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: "white"
     },
-    modal: {width: "80%", height: 260, backgroundColor: "#E8E8E8", borderRadius: 20, justifyContent: "space-around", alignItems: "center"},
-    modalContainer: {width: "100%", height: "100%", justifyContent: "center", alignItems: "center"},
+    modal: { width: "80%", height: 260, backgroundColor: "#E8E8E8", borderRadius: 20, justifyContent: "space-around", alignItems: "center" },
+    modalContainer: { width: "100%", height: "100%", justifyContent: "center", alignItems: "center" },
     addViewerTextInput: {},
     addViewerAddButton: {
         height: 40,
@@ -294,4 +294,4 @@ const styles = StyleSheet.create({
         fontSize: 20,
     }
 
-})
+});

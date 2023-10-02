@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, StyleSheet, StatusBar, Text, TextInput, Modal, TouchableOpacity, TouchableWithoutFeedback, Image, ScrollView } from 'react-native';
+import { SafeAreaView, View, StyleSheet, StatusBar, Text, TextInput, Modal, TouchableOpacity, TouchableWithoutFeedback, Image, ScrollView, Platform } from 'react-native';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 
 
 
 
-function EditWallScreen({ navigation }) {
+function EditWallScreen({ route, navigation }) {
 
 
-    const wall = navigation.getParam('wall');
+    const { wall } = route.params;
 
     const [name, setName] = useState(wall.name);
     const [description, setDescription] = useState(null);
@@ -31,7 +31,7 @@ function EditWallScreen({ navigation }) {
 
     const addUser = () => {
         if (user) {
-            let newUsers = objectToUpdate.concat({name: user});
+            let newUsers = objectToUpdate.concat({ name: user });
             let seen = {};
             newUsers = newUsers.filter((v) => {
                 if (seen.hasOwnProperty(v.name)) return false;
@@ -41,19 +41,19 @@ function EditWallScreen({ navigation }) {
             updateFunction([...newUsers]);
             setUser("");
         }
-        
+
         setAddModal({
             objectToUpdate: null,
             updateFunction: null,
             addModal: false
         });
-    }
+    };
 
     const updateWall = () => {
         // send to server 
         const wallId = 2;
-        navigation.replace("WallScreen", {wall: {id: wallId, name: name, image: wall.image}});
-    }
+        navigation.replace("WallScreen", { wall: { id: wallId, name: name, image: wall.image } });
+    };
 
     const openAddModal = (updateFunc, updateObj) => {
         setAddModal({
@@ -61,25 +61,25 @@ function EditWallScreen({ navigation }) {
             updateFunction: updateFunc,
             addModal: true
         });
-    }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView>
                 <View style={styles.header}>
-                        <Image style={styles.wallImage} source={wall.image}/>
+                    <Image style={styles.wallImage} source={wall.image} />
                 </View>
-                
+
                 <View style={styles.wallIcons}>
-                        <TextInput onChangeText={setName} value={name} placeholder="Enter wall's name" style={styles.wallNameInput}/>
-                    </View>
+                    <TextInput onChangeText={setName} value={name} placeholder="Enter wall's name" style={styles.wallNameInput} />
+                </View>
                 <View style={styles.paramsContainer}>
                     <View style={styles.paramContainer}>
                         <View style={styles.paramHeader}>
                             <Text style={styles.paramHeaderText}>Description</Text>
                         </View>
                         <View style={styles.paramData}>
-                            <TextInput value={description} onChangeText={setDescription} style={styles.nameParam} multiline = {true} placeholder="Enter wall's description" />
+                            <TextInput value={description} onChangeText={setDescription} style={styles.nameParam} multiline={true} placeholder="Enter wall's description" />
                         </View>
                     </View>
                     <View style={styles.paramContainer}>
@@ -90,10 +90,10 @@ function EditWallScreen({ navigation }) {
                             {
                                 viewers.map(v => {
                                     return (
-                                    <View key={v.name} style={styles.viewer}>
-                                        <Text>{v.name}</Text>
-                                        <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setViewers([...viewers.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
-                                    </View>);
+                                        <View key={v.name} style={styles.viewer}>
+                                            <Text>{v.name}</Text>
+                                            <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setViewers([...viewers.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
+                                        </View>);
                                 })
                             }
                             <MaterialIcons onPress={() => openAddModal(setViewers, viewers)} name="add-box" size={24} color="black" />
@@ -107,10 +107,10 @@ function EditWallScreen({ navigation }) {
                             {
                                 setters.map(v => {
                                     return (
-                                    <View key={v.name} style={styles.viewer}>
-                                        <Text>{v.name}</Text>
-                                        <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setSetters([...setters.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
-                                    </View>);
+                                        <View key={v.name} style={styles.viewer}>
+                                            <Text>{v.name}</Text>
+                                            <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setSetters([...setters.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
+                                        </View>);
                                 })
                             }
                             <MaterialIcons onPress={() => openAddModal(setSetters, setters)} name="add-box" size={24} color="black" />
@@ -124,16 +124,16 @@ function EditWallScreen({ navigation }) {
                             {
                                 owners.map(v => {
                                     return (
-                                    <View key={v.name} style={styles.viewer}>
-                                        <Text>{v.name}</Text>
-                                        <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setOwners([...owners.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
-                                    </View>);
+                                        <View key={v.name} style={styles.viewer}>
+                                            <Text>{v.name}</Text>
+                                            <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setOwners([...owners.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
+                                        </View>);
                                 })
                             }
                             <MaterialIcons onPress={() => openAddModal(setOwners, owners)} name="add-box" size={24} color="black" />
                         </View>
                     </View>
-                    
+
                 </View>
                 <View style={styles.publishContainer}>
                     <TouchableOpacity onPress={updateWall} style={styles.publishButton}>
@@ -143,14 +143,14 @@ function EditWallScreen({ navigation }) {
             </ScrollView>
             <Modal animationType='fade' transparent={true} visible={addModal}>
                 <TouchableOpacity onPress={() => setAddModal({
-            objectToUpdate: null,
-            updateFunction: null,
-            addModal: false
-        })}>
+                    objectToUpdate: null,
+                    updateFunction: null,
+                    addModal: false
+                })}>
                     <View style={styles.modalContainer}>
                         <TouchableWithoutFeedback>
                             <View style={styles.modal}>
-                                <TextInput placeholder="Enter user's name" onChangeText={setUser} style={styles.addViewerTextInput}/>
+                                <TextInput placeholder="Enter user's name" onChangeText={setUser} style={styles.addViewerTextInput} />
                                 <TouchableOpacity style={styles.addViewerAddButton} onPress={addUser}>
                                     <Text style={styles.addViewerAddButtonText}>Add</Text>
                                 </TouchableOpacity>
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
         height: "100%",
         marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
         flex: 1,
-        
+
     },
     header: {
         alignItems: "center",
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     viewerTrash: {
         backgroundColor: "#F8CECE",
         marginLeft: 5,
-        borderBottomRightRadius: 5, 
+        borderBottomRightRadius: 5,
         borderTopRightRadius: 5
     },
     publishContainer: {
@@ -256,8 +256,8 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: "white"
     },
-    modal: {width: "80%", height: 260, backgroundColor: "#E8E8E8", borderRadius: 20, justifyContent: "space-around", alignItems: "center"},
-    modalContainer: {width: "100%", height: "100%", justifyContent: "center", alignItems: "center"},
+    modal: { width: "80%", height: 260, backgroundColor: "#E8E8E8", borderRadius: 20, justifyContent: "space-around", alignItems: "center" },
+    modalContainer: { width: "100%", height: "100%", justifyContent: "center", alignItems: "center" },
     addViewerTextInput: {},
     addViewerAddButton: {
         height: 40,
@@ -274,4 +274,4 @@ const styles = StyleSheet.create({
         fontSize: 20,
     }
 
-})
+});

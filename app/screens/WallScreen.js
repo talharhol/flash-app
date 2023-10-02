@@ -2,11 +2,11 @@ import React, { Component, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Modal, TouchableWithoutFeedback, TextInput } from 'react-native';
 import { MaterialCommunityIcons, Ionicons, AntDesign, MaterialIcons } from '@expo/vector-icons';
 
-import Problems from '../assets/problems'
+import Problems from '../assets/problems';
 import Grades from '../assets/grades';
 import { Slider } from '@miblanchard/react-native-slider';
-import SelectBox from 'react-native-multi-selectbox'
-import { xorBy } from 'lodash'
+import SelectBox from 'react-native-multi-selectbox';
+import { xorBy } from 'lodash';
 
 
 const FILTERS = [
@@ -21,17 +21,17 @@ const FILTERS = [
     {
         item: "name",
         id: 3
-    }, 
+    },
     {
         item: "setter",
         id: 4
     }
 ];
 
-function WallScreen({ navigation }) {
+function WallScreen({ route, navigation }) {
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
     const [filterModalVisible, setFilterModalVisible] = useState(false);
-    const [gradesFilter, setGradesFilter] = useState([0, Object.keys(Grades).length-1]);
+    const [gradesFilter, setGradesFilter] = useState([0, Object.keys(Grades).length - 1]);
     const [settersFilter, setSettersFilter] = useState([]);
     const [sortBy, setSortBy] = useState([FILTERS[0]]);
     const [user, setUser] = useState(null);
@@ -45,11 +45,11 @@ function WallScreen({ navigation }) {
         updateFunction: null
     });
 
-    const wall = navigation.getParam('wall');
+    const { wall } = route.params;
 
     const addUser = () => {
         if (user) {
-            let newUsers = objectToUpdate.concat({name: user});
+            let newUsers = objectToUpdate.concat({ name: user });
             let seen = {};
             newUsers = newUsers.filter((v) => {
                 if (seen.hasOwnProperty(v.name)) return false;
@@ -59,13 +59,13 @@ function WallScreen({ navigation }) {
             updateFunction([...newUsers]);
             setUser("");
         }
-        
+
         setAddModal({
             objectToUpdate: null,
             updateFunction: null,
             addModal: false
         });
-    }
+    };
 
     const openAddModal = (updateFunc, updateObj) => {
         setAddModal({
@@ -73,36 +73,36 @@ function WallScreen({ navigation }) {
             updateFunction: updateFunc,
             addModal: true
         });
-    }
+    };
 
     function onMultiChange() {
-        return (item) => setSortBy(xorBy(sortBy, [item], 'id'))
+        return (item) => setSortBy(xorBy(sortBy, [item], 'id'));
     }
 
     const deleteWall = () => {
         // delete wall
         navigation.goBack();
-    }
+    };
 
     const apllyFilters = () => {
         // apply
         setFilterModalVisible(false);
-    }
+    };
 
     return (
         <View style={styles.container}>
             <ScrollView>
                 <View style={styles.header}>
-                    <Image style={styles.wallImage} source={wall.image}/>
+                    <Image style={styles.wallImage} source={wall.image} />
                     <View style={styles.wallIcons}>
-                        <Ionicons onPress={() => navigation.navigate("EditWallScreen", {wall})} name="ios-pencil-outline" size={24} color="black" />
+                        <Ionicons onPress={() => navigation.navigate("EditWallScreen", { wall })} name="ios-pencil-outline" size={24} color="black" />
                         <Text>{wall.name}</Text>
                         <MaterialCommunityIcons onPress={() => setDeleteModalVisible(true)} name="trash-can-outline" size={24} color="black" />
                     </View>
                 </View>
                 <View style={styles.walls}>
                     <View style={styles.wallsHeader}>
-                        <Ionicons onPress={() => navigation.navigate('SelectHoldsScreen', {wall})} name="add-circle-outline" size={24} color="black" style={styles.addWall}/>
+                        <Ionicons onPress={() => navigation.navigate('SelectHoldsScreen', { wall })} name="add-circle-outline" size={24} color="black" style={styles.addWall} />
                         <Text>Problems</Text>
                         <Ionicons onPress={() => setFilterModalVisible(true)} name="ios-filter-sharp" size={24} color="black" />
                     </View>
@@ -110,10 +110,10 @@ function WallScreen({ navigation }) {
                         {
                             Problems.map((problem) => {
                                 return (
-                                    <TouchableOpacity key={problem.id} onPress={() => navigation.navigate('ProblemScreen', {problem})}>
+                                    <TouchableOpacity key={problem.id} onPress={() => navigation.navigate('ProblemScreen', { problem })}>
                                         <View style={styles.problem} >
-                                            <Text style={{marginLeft: 20, fontSize: 20}}>{problem.name}</Text>
-                                            <Text style={{marginRight: 20, fontSize: 20}}>{problem.grade}</Text>
+                                            <Text style={{ marginLeft: 20, fontSize: 20 }}>{problem.name}</Text>
+                                            <Text style={{ marginRight: 20, fontSize: 20 }}>{problem.grade}</Text>
                                         </View>
                                     </TouchableOpacity>
                                 );
@@ -136,14 +136,14 @@ function WallScreen({ navigation }) {
                                     </Text>
                                 </View>
                                 <View style={styles.modalButtonsContainer}>
-                                    <TouchableOpacity onPress={() => deleteWall() } style={[styles.modalButton, {borderColor: "red"}]}>
-                                        <Text style={[styles.modalButtonText, {color: "red"}]}>I'm sure</Text>
+                                    <TouchableOpacity onPress={() => deleteWall()} style={[styles.modalButton, { borderColor: "red" }]}>
+                                        <Text style={[styles.modalButtonText, { color: "red" }]}>I'm sure</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => setDeleteModalVisible(false) } style={[styles.modalButton, {borderColor: "green"}]}>
-                                        <Text style={[styles.modalButtonText, {color: "green"}]}>Discard</Text>
+                                    <TouchableOpacity onPress={() => setDeleteModalVisible(false)} style={[styles.modalButton, { borderColor: "green" }]}>
+                                        <Text style={[styles.modalButtonText, { color: "green" }]}>Discard</Text>
                                     </TouchableOpacity>
                                 </View>
-                                
+
                             </View>
                         </TouchableWithoutFeedback>
                     </View>
@@ -159,16 +159,16 @@ function WallScreen({ navigation }) {
                                         <Text style={styles.paramHeaderText}>Grade</Text>
                                     </View>
                                     <View style={styles.paramData}>
-                                        <View style={{marginLeft: 10}}>
-                                            <AntDesign style={{marginBottom: 10}} onPress={() => setGradesFilter([...[Math.min(gradesFilter[0] + 1, gradesFilter[1]), gradesFilter[1]]])} name="pluscircleo" size={24} color="black" />
+                                        <View style={{ marginLeft: 10 }}>
+                                            <AntDesign style={{ marginBottom: 10 }} onPress={() => setGradesFilter([...[Math.min(gradesFilter[0] + 1, gradesFilter[1]), gradesFilter[1]]])} name="pluscircleo" size={24} color="black" />
                                             <Text>{Grades[gradesFilter[0]]}</Text>
-                                            <AntDesign style={{marginTop: 10}} onPress={() => setGradesFilter([...[Math.max(0, gradesFilter[0] - 1), gradesFilter[1]]])} name="minuscircleo" size={24} color="black" />
+                                            <AntDesign style={{ marginTop: 10 }} onPress={() => setGradesFilter([...[Math.max(0, gradesFilter[0] - 1), gradesFilter[1]]])} name="minuscircleo" size={24} color="black" />
                                         </View>
-                                        <Slider  containerStyle={{width: "90%"}} minimumTrackTintColor={"#1C9174"} thumbTintColor={"#1C9174"} maximumValue={Object.keys(Grades).length - 1} step={1} value={gradesFilter} onValueChange={v => setGradesFilter([...v])}/>
-                                        <View style={{marginLeft: 10}}>
-                                            <AntDesign style={{marginBottom: 10}} onPress={() => setGradesFilter([...[gradesFilter[0], Math.min(Object.keys(Grades).length - 1, gradesFilter[1] + 1)]])} name="pluscircleo" size={24} color="black" />
+                                        <Slider containerStyle={{ width: "90%" }} minimumTrackTintColor={"#1C9174"} thumbTintColor={"#1C9174"} maximumValue={Object.keys(Grades).length - 1} step={1} value={gradesFilter} onValueChange={v => setGradesFilter([...v])} />
+                                        <View style={{ marginLeft: 10 }}>
+                                            <AntDesign style={{ marginBottom: 10 }} onPress={() => setGradesFilter([...[gradesFilter[0], Math.min(Object.keys(Grades).length - 1, gradesFilter[1] + 1)]])} name="pluscircleo" size={24} color="black" />
                                             <Text>{Grades[gradesFilter[1]]}</Text>
-                                            <AntDesign style={{marginTop: 10}} onPress={() => setGradesFilter([...[gradesFilter[0], Math.max(gradesFilter[0], gradesFilter[1] - 1)]])} name="minuscircleo" size={24} color="black" />
+                                            <AntDesign style={{ marginTop: 10 }} onPress={() => setGradesFilter([...[gradesFilter[0], Math.max(gradesFilter[0], gradesFilter[1] - 1)]])} name="minuscircleo" size={24} color="black" />
                                         </View>
                                     </View>
                                 </View>
@@ -180,10 +180,10 @@ function WallScreen({ navigation }) {
                                         {
                                             settersFilter.map(v => {
                                                 return (
-                                                <View key={v.name} style={styles.viewer}>
-                                                    <Text>{v.name}</Text>
-                                                    <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setSettersFilter([...settersFilter.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
-                                                </View>);
+                                                    <View key={v.name} style={styles.viewer}>
+                                                        <Text>{v.name}</Text>
+                                                        <MaterialCommunityIcons style={styles.viewerTrash} onPress={() => setSettersFilter([...settersFilter.filter(i => i.name !== v.name)])} name="trash-can-outline" size={24} color="black" />
+                                                    </View>);
                                             })
                                         }
                                         <MaterialIcons onPress={() => openAddModal(setSettersFilter, settersFilter)} name="add-box" size={24} color="black" />
@@ -210,21 +210,21 @@ function WallScreen({ navigation }) {
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                            
+
                         </TouchableWithoutFeedback>
                     </View>
                 </TouchableOpacity>
             </Modal>
             <Modal animationType='fade' transparent={true} visible={addModal}>
                 <TouchableOpacity onPress={() => setAddModal({
-            objectToUpdate: null,
-            updateFunction: null,
-            addModal: false
-        })}>
+                    objectToUpdate: null,
+                    updateFunction: null,
+                    addModal: false
+                })}>
                     <View style={styles.modalContainer}>
                         <TouchableWithoutFeedback>
                             <View style={styles.modal}>
-                                <TextInput placeholder="Enter user's name" onChangeText={setUser} style={styles.addViewerTextInput}/>
+                                <TextInput placeholder="Enter user's name" onChangeText={setUser} style={styles.addViewerTextInput} />
                                 <TouchableOpacity style={styles.addViewerAddButton} onPress={addUser}>
                                     <Text style={styles.addViewerAddButtonText}>Add</Text>
                                 </TouchableOpacity>
@@ -269,12 +269,12 @@ const styles = StyleSheet.create({
     },
     addWall: {
     },
-    walls: {flex: 1},
-    wallsContainer: {flex: 1},
+    walls: { flex: 1 },
+    wallsContainer: { flex: 1 },
     problem: {
         height: 100,
         marginLeft: 20,
-        marginTop: 20, 
+        marginTop: 20,
         marginRight: 20,
         borderRadius: 10,
         backgroundColor: '#B0AFAF',
@@ -287,8 +287,8 @@ const styles = StyleSheet.create({
         borderRadius: 90,
         marginLeft: 5
     },
-    modalContainer: {width: "100%", height: "100%", justifyContent: "center", alignItems: "center"},
-    deleteModal: {width: "80%", backgroundColor: "#E8E8E8", borderRadius: 20, justifyContent: "space-around", alignItems: "center"},
+    modalContainer: { width: "100%", height: "100%", justifyContent: "center", alignItems: "center" },
+    deleteModal: { width: "80%", backgroundColor: "#E8E8E8", borderRadius: 20, justifyContent: "space-around", alignItems: "center" },
     modalTextContainer: {
         width: "100%",
         alignItems: "center",
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
         marginBottom: 60
 
     },
-    modalText: {fontSize: 20, },
+    modalText: { fontSize: 20, },
     modalButtonsContainer: {
         width: "100%",
         flexDirection: "row",
@@ -313,13 +313,13 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center"
     },
-    modalButtonText: {color: "white"},
+    modalButtonText: { color: "white" },
     filterModal: {
         width: "90%",
-        backgroundColor: "#E8E8E8", 
-        borderRadius: 20, 
-        opacity: 1, 
-        justifyContent: "space-around", 
+        backgroundColor: "#E8E8E8",
+        borderRadius: 20,
+        opacity: 1,
+        justifyContent: "space-around",
         alignItems: "center"
     },
     paramsContainer: {
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     viewerTrash: {
         backgroundColor: "#F8CECE",
         marginLeft: 5,
-        borderBottomRightRadius: 5, 
+        borderBottomRightRadius: 5,
         borderTopRightRadius: 5
     },
     publishContainer: {
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: "white"
     },
-    modal: {width: "80%", height: 180, backgroundColor: "#A8A8A8", borderRadius: 20, opacity: 1, justifyContent: "space-around", alignItems: "center"},
+    modal: { width: "80%", height: 180, backgroundColor: "#A8A8A8", borderRadius: 20, opacity: 1, justifyContent: "space-around", alignItems: "center" },
     addViewerTextInput: {},
     addViewerAddButton: {
         height: 40,
@@ -400,4 +400,4 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         fontSize: 20,
     },
-})
+});
