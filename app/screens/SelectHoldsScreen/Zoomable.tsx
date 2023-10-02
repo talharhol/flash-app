@@ -1,15 +1,15 @@
-import { ReactNativeZoomableView, ReactNativeZoomableViewProps } from "@openspacelabs/react-native-zoomable-view";
+import { ReactNativeZoomableView } from "@openspacelabs/react-native-zoomable-view";
 import React, { useCallback } from "react";
-import { PanResponder, View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { View } from "react-native";
+import { imageSize } from "./SizeContext";
 
-const Zoomable: React.FC<React.ComponentProps<typeof View> & { dimensions?: { height: number, width: number; }; disableMovement?: boolean; }> = ({
+const Zoomable: React.FC<React.ComponentProps<typeof View> & { disableMovement?: boolean; }> = ({
     children,
-    dimensions,
     disableMovement,
     ...props
 }) => {
     const disableGesturesCallback = useCallback(() => { return disableMovement; }, [disableMovement]);
+    const dimensions = React.useContext(imageSize);
     return (
         <ReactNativeZoomableView
             {...props}

@@ -12,45 +12,73 @@ import {
 } from "react-native";
 import Zoomable from "./Zoomable";
 import AddHoldModal from "./AddHoldModal";
-import Drawable from "./Drawable";
+import DrawHold from "./Drawable";
+import { Hold, HoldType } from "../../dataTypes/holds";
+import Svg, { Path } from "react-native-svg";
+import { imageSize } from "./SizeContext";
 
-// const HoldsLayout: React.FC = () => {
-//   return (
-//       <View>
-//           <Drawable />
-//           <ExistingHolds />
-//       </View>
-//   )
-// }
 const SelectHoldsScreen: React.FC<NativeStackScreenProps<any>> = ({ route, }) => {
-  const [isChoosingNewHold, setIsChoosingNewHold] = useState(false);
-  const [isDrawing, setIsDrawing] = useState(false);
+  const [isHoldModalVisible, setIsHoldModalVisible] = useState(false);
+  const [currentHoldType, setCurrentHoldType] = useState<HoldType | null>(null);
+  const isDrawing = currentHoldType !== null;
+  const [holds, setHolds] = useState<Hold[]>([]);
   const screenDimension = useWindowDimensions();
-  const [imageSize, setTrueValue] = useState({ height: 0, width: 0 });
+  const [imageHeight, setImageHeight] = useState(0);
+  const startCreatingHold = (holdType: HoldType) => {
+    setIsHoldModalVisible(false);
+    setCurrentHoldType(holdType);
+  };
+  const onCreatedHold = (path: string) => {
+    setHolds(holds => holds.concat([new Hold({ svgPath: path, type: currentHoldType })]));
+    setCurrentHoldType(null);
+  };
+
   useEffect(() => {
-    Image.getSize(Image.resolveAssetSource(route.params.wall.image).uri, (width, height) => setTrueValue({ height, width }));
+    // Image.getSize(Image.resolveAssetSource(route.params.wall.image).uri, (width, height) => setImageHeight(screenDimension.width / (width || 1) * height));
+    setImageHeight(550);
   }, []);
+
   return (
-    <View style={styles.container}>
-      {
-        isChoosingNewHold && <AddHoldModal closeModal={setIsChoosingNewHold.bind(this, false)} addHold={holdType => setIsChoosingNewHold(false) || console.log(holdType)} />
-      }
-      <View style={[styles.zoomedContainer]}>
-        <Zoomable dimensions={{ width: screenDimension.width, height: screenDimension.width / (imageSize.width || 1) * imageSize.height }} disableMovement={isDrawing}>
-          <View style={styles.zoomedContent}>
-            {
-              isDrawing && <Drawable />
-            }
-            <Image style={[styles.problemImage, { width: screenDimension.width, height: screenDimension.width / (imageSize.width || 1) * imageSize.height }]} source={route.params.wall.image} />
-          </View>
-          {/* <HoldsLayout />  */}
-        </Zoomable>
+    <imageSize.Provider value={{ width: screenDimension.width, height: imageHeight }}>
+      <View style={styles.container}>
+        {
+          isHoldModalVisible && <AddHoldModal closeModal={setIsHoldModalVisible.bind(this, false)} addHold={startCreatingHold} />
+        }
+        <View style={[styles.zoomedContainer]}>
+          <Zoomable disableMovement={isDrawing}>
+            <View style={styles.zoomedContent}>
+              {
+                isDrawing && <DrawHold currentHoldType={currentHoldType} onFinishedDrawingShape={onCreatedHold} />
+              }
+              <View style={{ position: "absolute", zIndex: 1 }}>
+                <Svg
+                  viewBox={`0 0 ${screenDimension.width} ${imageHeight}`}
+                  style={[{ position: "relative", width: screenDimension.width, height: imageHeight }]}>
+                  {
+                    holds.map(hold => (
+                      <Path key={hold.id}
+                        d={hold.svgPath}
+                        stroke={hold.type.color}
+                        fill='transparent'
+                        strokeWidth={2}
+                        strokeLinejoin='round'
+                        strokeLinecap='round'
+                      />
+                    ))
+                  }
+                </Svg>
+              </View>
+              <Image style={[styles.problemImage, { width: screenDimension.width, height: imageHeight }]} source={route.params.wall.image} />
+            </View>
+            {/* <HoldsLayout />  */}
+          </Zoomable>
+        </View>
+        <View style={styles.buttonContainer}>
+          <Button title="Add Hold" onPress={setIsHoldModalVisible.bind(this, true)} />
+          {/* <Button title="Start Drawing" onPress={() => setIsDrawing(a => !a)}></Button> */}
+        </View>
       </View>
-      <View style={styles.buttonContainer}>
-        <Button title="Add Hold" onPress={setIsChoosingNewHold.bind(this, true)} />
-        <Button title="Start Drawing" onPress={() => setIsDrawing(a => !a)}></Button>
-      </View>
-    </View>
+    </imageSize.Provider>
   );
 };
 
@@ -74,6 +102,8 @@ const styles = StyleSheet.create({
   },
   zoomedContent: {
     flex: 1,
+    position: "relative",
+    display: "flex"
   },
   saveHoldButton: {
     height: 40,

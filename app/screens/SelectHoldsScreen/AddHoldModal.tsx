@@ -9,22 +9,7 @@ import {
     TouchableWithoutFeedback,
     View
 } from "react-native";
-
-enum HoldType {
-    start,
-    feet,
-    top,
-}
-const holdTypeToHoldColor: Record<HoldType, string> = {
-    [HoldType.feet]: "#FFC90C",
-    [HoldType.start]: "#19F02F",
-    [HoldType.top]: "#FF0C0C",
-};
-const holdTypeToTitle: Record<HoldType, string> = {
-    [HoldType.feet]: "Feet",
-    [HoldType.start]: "Start",
-    [HoldType.top]: "Top",
-};
+import { HoldType, HoldTypes } from "../../dataTypes/holds";
 
 const AddHoldModal: React.FC<{ closeModal: () => void; addHold: (holdType: HoldType) => void; }> = ({ closeModal, addHold }) => {
     return (
@@ -34,22 +19,22 @@ const AddHoldModal: React.FC<{ closeModal: () => void; addHold: (holdType: HoldT
             visible
         >
             <TouchableOpacity
-            style={{backgroundColor: "rgba(50, 50, 50, 0.4)"}}
+                style={{ backgroundColor: "rgba(50, 50, 50, 0.4)" }}
                 onPress={closeModal}
             >
                 <View style={styles.modalContainer}>
                     <TouchableWithoutFeedback>
                         <View style={styles.modal}>
                             {
-                                Object.values(HoldType).filter(isFinite).map(hold => {
+                                Object.values(HoldTypes).filter(isFinite).map(type => new HoldType(type as HoldTypes)).map(hold => {
                                     return (
                                         <TouchableOpacity
-                                            key={hold}
-                                            onPress={addHold.bind(this, HoldType.start)}
-                                            style={[styles.addHoldButton, { borderColor: holdTypeToHoldColor[hold] }]}
+                                            key={hold.type}
+                                            onPress={addHold.bind(this, hold)}
+                                            style={[styles.addHoldButton, { borderColor: hold.color }]}
                                         >
-                                            <Text style={[styles.addHoldText, { color: holdTypeToHoldColor[hold] }]}>
-                                                {holdTypeToTitle[hold]}
+                                            <Text style={[styles.addHoldText, { color: hold.color }]}>
+                                                {hold.title}
                                             </Text>
                                         </TouchableOpacity>
                                     );

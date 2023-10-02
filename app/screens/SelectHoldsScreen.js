@@ -516,8 +516,7 @@ class SelectHoldsScreen extends Component {
           <Svg
             width={"100%"}
             height={"100%"}
-            viewBox={`0 0 ${this.getImageDimentions().width} ${this.getImageDimentions().height
-              }`}
+            viewBox={`0 0 ${this.getImageDimentions().width} ${this.getImageDimentions().height}`}
             style={[
               { position: "absolute", zIndex: 100 },
               {
