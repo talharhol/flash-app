@@ -17,12 +17,14 @@ import { GetWall } from "@/scripts/utils";
 import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
+import PublishProblemModal from "./PublishProblemModal";
 
 
 const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
   const wall = GetWall(useLocalSearchParams());
   const [isDrawingHold, setIsDrawingHold] = useState(false);
   const [editedHold, setEditedHold] = useState<string | null>(null);
+  const [isPublishModal, setIsPublishModal] = useState<boolean>(false);
   const [drawingHoldType, setDrawingHoldType] = useState<HoldType | null>(null);
   const [holds, setHolds] = useState<Hold[]>([]);
   const startDrawingHold = () => {
@@ -64,15 +66,22 @@ const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
     setHolds(holds.filter(h => h.id !== id).concat([hold]));
   }
 
+  const publishProblem =  ({ name, grade }: { name: string, grade: number }) => {
+    alert("published: " + name)
+  }
+
   return (
     <View>
         <ThemedView style={styles.headerContainer}>
           <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Create problem</ThemedText>
           <Ionicons
-            onPress={() => alert("publish")}
+            onPress={() => setIsPublishModal(true)}
             name='checkmark-circle-outline' size={35} color={'#A1CEDC'} style={{ right: 0, padding: 10 }} />
         </ThemedView>
       <View>
+        {
+         isPublishModal && <PublishProblemModal publishProblem={publishProblem} closeModal={() => setIsPublishModal(false)} />
+        }
         <View style={{ flexDirection: "row" }}>
           {
             Object.values(HoldTypes).filter(x => typeof x === "number").map(type => new HoldType(type as HoldTypes)).map(hold => {
