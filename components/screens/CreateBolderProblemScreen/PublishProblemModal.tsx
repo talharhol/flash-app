@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { HoldType, HoldTypes } from "../../../dataTypes/hold";
 import BasicModal from "@/components/general/modals/BasicModal";
 import { Picker } from '@react-native-picker/picker';
 import { TextInput } from "react-native";
 import { grades } from "@/app/debugData";
+import { getRandomName } from "@/scripts/randomNames";
 import BasicButton from "@/components/general/Buttom";
 
 const PublishProblemModal: React.FC<React.ComponentProps<typeof BasicModal> & {
@@ -12,7 +12,7 @@ const PublishProblemModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     const [selectedGrade, setSelectedGrade] = useState<number>(9);
     const [name, setName] = useState<string>('');
     const onPublish = () => {
-        publishProblem({ name, grade: selectedGrade });
+        publishProblem({ name: name || getRandomName(), grade: selectedGrade });
         props.closeModal();
     }
 

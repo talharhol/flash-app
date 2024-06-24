@@ -67,7 +67,7 @@ const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
   }
 
   const publishProblem =  ({ name, grade }: { name: string, grade: number }) => {
-    alert("published: " + name)
+    alert("published: " + name);
   }
 
   return (
