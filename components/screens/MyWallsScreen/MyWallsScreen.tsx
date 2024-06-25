@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, Button, Touchable, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, Platform, Button, Touchable, TouchableOpacity, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
@@ -9,6 +9,7 @@ import ActionValidationModal from '@/components/general/modals/ActionValidationM
 import PreviewItem from '@/components/general/PreviewItem';
 import ThemedView from '@/components/general/ThemedView';
 import { useRouter } from 'expo-router';
+import SwipeableComponent from '@/components/general/Swipeable';
 
 const MyWalssScreen: React.FC = () => {
     const router = useRouter();
@@ -28,15 +29,29 @@ const MyWalssScreen: React.FC = () => {
             {wallToRemove && <ActionValidationModal closeModal={setWallToRemove.bind(this, null)} approveAction={RemoveWall.bind(this, wallToRemove)} text={`Remove ${wallToRemove.name} from your walls?`} />}
             {
                 walls.map(wall =>
-                    <TouchableOpacity key={wall.id} onPress={() => router.push({ pathname: "/ViewWall", params: { id: wall.id }})}>
-                        <PreviewItem
-                        image={wall.image}
-                        title={`${wall.name}@${wall.gym}`}
-                        subTitle={wall.angle && `${wall.angle}°` || undefined}
-                        onRemove={setWallToRemove.bind(this, wall)}
-                    />
-                    </TouchableOpacity>
-                    
+                    <SwipeableComponent
+                        frontComponent={() => {
+                            return (
+                                <PreviewItem
+                                    key={wall.id}
+                                    image={wall.image}
+                                    title={`${wall.name}@${wall.gym}`}
+                                    subTitle={wall.angle && `${wall.angle}°` || undefined}
+                                    onRemove={setWallToRemove.bind(this, wall)}
+                                    onImagePress={() => router.push({ pathname: "/ViewWall", params: { id: wall.id } })}
+                                    style={{ height: 120, borderRadius: 8}}
+                                />
+                            )
+                        }
+                        }
+                        hiddenComponent={() => {
+                            return (
+                                <View style={{ height: 120, borderRadius: 8, backgroundColor: "blue" }}>
+
+                                </View>
+                            )
+                        }}
+                        disableRightSwipe rightOpenValue={-120} />
                 )
             }
         </ParallaxScrollView>

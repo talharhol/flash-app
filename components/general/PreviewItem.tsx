@@ -1,6 +1,7 @@
 import { Image, ImageSourcePropType, View } from "react-native"
 import { ThemedText } from "./ThemedText"
 import ThemedView from "./ThemedView";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 const PreviewItem: React.FC<React.ComponentProps<typeof View> & {
     onRemove?: () => void;
@@ -8,10 +9,13 @@ const PreviewItem: React.FC<React.ComponentProps<typeof View> & {
     title: string;
     subTitle?: string;
     descriprion?: string;
-}> = ({ onRemove, image, title, subTitle, descriprion, ...props }) => {
+    onImagePress?: () => void;
+}> = ({ onRemove, image, title, subTitle, descriprion, onImagePress, ...props }) => {
     return (
-        <ThemedView {...props} style={{ flexDirection: 'row', backgroundColor: 'red', height: 120, borderRadius: 8 }}>
-            <Image source={image} style={{ height: 120, width: 100, borderBottomLeftRadius: 8, borderTopLeftRadius: 8 }} />
+        <ThemedView {...props} style={[{ flexDirection: 'row', backgroundColor: 'red', height: 120, borderRadius: 8 }, props.style]}>
+            <TouchableWithoutFeedback onPress={onImagePress}>
+                <Image source={image} style={{ height: 120, width: 100, borderBottomLeftRadius: 8, borderTopLeftRadius: 8 }} />
+            </TouchableWithoutFeedback>
             <ThemedView style={{ backgroundColor: 'transparent', flexDirection: 'column' }}>
                 <ThemedText type="title" style={{ marginLeft: 10 }}>{title}</ThemedText>
                 {subTitle && <ThemedText type="subtitle" style={{ marginLeft: 10 }}>{subTitle}</ThemedText>}
