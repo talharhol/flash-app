@@ -50,7 +50,7 @@ const CreateWallScreen: React.FC = ({ }) => {
         walls.push(
             wall
         );
-        router.push({ pathname: "/", params: { id: wall.id } });
+        router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } });
     };
     const SaveWallImage: (uri: string) => void = (uri) => {
         setSelectedImage(uri);

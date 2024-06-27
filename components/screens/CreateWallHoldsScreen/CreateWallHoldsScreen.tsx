@@ -11,8 +11,12 @@ import BolderProblem from "@/components/general/BolderProblem";
 import { Notifier, Easing } from "react-native-notifier";
 import WithCancelNotification from "@/components/general/notifications/WithCancelNotification";
 import ActionValidationModal from "@/components/general/modals/ActionValidationModal";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { GetWall } from "@/scripts/utils";
+import { walls } from "@/app/debugData";
+import ThemedView from "@/components/general/ThemedView";
+import { ThemedText } from "@/components/general/ThemedText";
+import { Ionicons } from "@expo/vector-icons";
 
 
 const CreateWallHoldsScreen: React.FC = ({ }) => {
@@ -41,10 +45,23 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
     const editHold = (id: string) => {
         setHolds(holds.filter(h => h.id !== id));
         setEditedHold(null);
+    };
+    const SaveHolds = () => {
+        wall.configuredHolds = holds.map(h => {return {id: h.id, svgPath: h.svgPath}});
+        router.push("/");
     }
 
     return (
         <View style={[styles.container]}>
+            <ThemedView style={styles.headerContainer}>
+            <Ionicons
+                    onPress={() => router.push("/")}
+                    name='close-circle-outline' size={35} color={'#A1CEDC'} style={{ right: 0, padding: 10 }} />
+                <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Config Holds</ThemedText>
+                <Ionicons
+                    onPress={SaveHolds}
+                    name='checkmark-circle-outline' size={35} color={'#A1CEDC'} style={{ right: 0, padding: 10 }} />
+            </ThemedView>
             {
                 editedHold && <ActionValidationModal
                     text="Delete this hold?"
@@ -53,7 +70,7 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
             }
             <BolderProblem
                 wallImage={wall.image}
-                existingHolds={holds}
+                existingHolds={isDrawingHold ? [] : holds}
                 onHoldClick={setEditedHold}
                 onDrawHoldFinish={onDrawHoldFinish}
                 drawingHoldType={isDrawingHold ? new HoldType(HoldTypes.route) : null}
@@ -68,6 +85,14 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
 export default CreateWallHoldsScreen;
 
 const styles = StyleSheet.create({
+    headerContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'transparent',
+        width: "100%",
+        flexDirection: "row",
+        paddingTop: StatusBar.currentHeight
+    },
     problemImage: {
         resizeMode: "center"
     },

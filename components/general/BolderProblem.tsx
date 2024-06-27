@@ -118,6 +118,9 @@ const styles = StyleSheet.create({
     flex: 1,
     position: "relative",
     display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    alignContent: "center"
   },
   saveHoldButton: {
     height: 40,

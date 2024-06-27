@@ -32,18 +32,18 @@ const MyWalssScreen: React.FC = () => {
             {
                 walls.map(wall =>
                     <SwipeableComponent
+                        key={wall.id}
                         frontComponent={() => {
                             return (
                                 <View>
                                     <PreviewItem
-                                        key={wall.id}
                                         image={wall.image}
                                         title={`${wall.name}@${wall.gym}`}
                                         subTitle={wall.angle && `${wall.angle}°` || undefined}
                                         onImagePress={() => router.push({ pathname: "/ViewWall", params: { id: wall.id } })}
                                         style={{ height: 120, borderRadius: 8 }}
                                     />
-                                    <View style={{ position: 'absolute', right: 0, height: 120, justifyContent: "center"}}>
+                                    <View style={{ position: 'absolute', right: 0, height: 120, justifyContent: "center" }}>
                                         <Ionicons size={15} name='arrow-back' />
                                     </View>
                                 </View>
@@ -62,6 +62,7 @@ const MyWalssScreen: React.FC = () => {
                                             style={{ width: 100 }}
                                         />
                                         <BasicButton
+                                            onPress={() => router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } })}
                                             text='Edit'
                                             color="red"
                                             style={{ width: 100 }}
