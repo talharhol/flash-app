@@ -10,7 +10,6 @@ import PreviewItem from '@/components/general/PreviewItem';
 import ThemedView from '@/components/general/ThemedView';
 import { useRouter } from 'expo-router';
 import SwipeableComponent from '@/components/general/Swipeable';
-import BasicModal from '@/components/general/modals/BasicModal';
 import BasicButton from '@/components/general/Buttom';
 import { Ionicons } from '@expo/vector-icons';
 

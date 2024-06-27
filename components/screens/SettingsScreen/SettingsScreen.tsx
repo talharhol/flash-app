@@ -35,7 +35,7 @@ const SettingsScreen: React.FC = () => {
                 />
             </TouchableOpacity>
             <View style={{ flexDirection: "row", width: "100%", justifyContent: "space-between" }}>
-                <BaseButton onPress={alert} style={styles.actionButton}>
+                <BaseButton onPress={() => router.push("/CreateWall")} style={styles.actionButton}>
                     <ThemedText type='subtitle'>New Wall</ThemedText>
                 </BaseButton>
                 <BaseButton onPress={alert} style={styles.actionButton}>
