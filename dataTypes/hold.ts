@@ -40,7 +40,17 @@ export class Hold {
         this.type = type;
         this.svgPath = svgPath;
     }
+
+    get color() {
+        return this.type.color
+    }
 };
+
+export interface HoldInterface {
+    id: string;
+    color?: string;
+    svgPath: string;
+}
 
 interface SortHold {
     svgPath: string;

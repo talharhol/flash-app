@@ -4,7 +4,7 @@ import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import ThemedView from "@/components/general/ThemedView";
 import React, { useState } from 'react';
-import { GetGroup, GetProblem, GetWall } from '@/scripts/utils';
+import { GetGroup, GetWall } from '@/scripts/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -44,17 +44,20 @@ const SelectWallScreen: React.FC = () => {
                             name='add-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 0, padding: 5 }} />
                     </ThemedView>
                 }>
-                {selectImageModal && <SelectImageModal
-                    closeModal={() => setSelectImageModal(false)}
-                    getImage={CreateAnonimusWall}
-                    text='Choose source' />
-
+                {
+                    selectImageModal &&
+                    <SelectImageModal
+                        closeModal={() => setSelectImageModal(false)}
+                        getImage={CreateAnonimusWall}
+                        text='Choose source'
+                    />
                 }
                 {
                     group.walls.map(wall_id => {
                         let wall = GetWall({ id: wall_id });
                         return (
-                            <TouchableOpacity key={wall.id}
+                            <TouchableOpacity
+                                key={wall.id}
                                 onPress={() => createProblem(wall)}
                             >
                                 <PreviewItem

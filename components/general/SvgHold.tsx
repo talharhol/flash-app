@@ -1,11 +1,10 @@
-import { Hold } from "@/dataTypes/hold";
-import React, { useContext, useEffect, useState } from "react";
-import { PanResponder } from "react-native";
+import { HoldInterface } from "@/dataTypes/hold";
+import React, { useContext, useState } from "react";
 import { Path } from "react-native-svg";
 import { zoomSize } from "./SizeContext";
 
 const SVGHold: React.FC<{
-  hold: { id: string, svgPath: string, color?: string },
+  hold: HoldInterface,
   onHoldClick?: (id: string) => void,
   zoomableViewRef?: any,
 }> = ({ hold, onHoldClick, zoomableViewRef }) => {
@@ -13,9 +12,6 @@ const SVGHold: React.FC<{
   const [firstPos, setFirstPos] = useState<{ x: number, y: number } | null>(null);
   const [firstPosPage, setFirstPosPage] = useState<{ x: number, y: number } | null>(null);
   const zoom = useContext(zoomSize);
-  useEffect(() => {
-
-  }, [zoom])
   return (
     <Path
       key={hold.id}

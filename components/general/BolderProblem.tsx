@@ -10,12 +10,10 @@ import {
   useWindowDimensions,
   ImageSourcePropType,
 } from "react-native";
-import Svg, { Path } from "react-native-svg";
+import Svg from "react-native-svg";
 import Zoomable from "./Zoomable";
 import DrawHold from "./DrawHold";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
-import { ReactNativeZoomableView } from "@openspacelabs/react-native-zoomable-view";
-import SVGHold from "./RespondingPath";
+import SVGHold from "./SvgHold";
 
 const BolderProblem: React.FC<React.ComponentProps<typeof View> & {
   wallImage: ImageSourcePropType;
@@ -52,7 +50,7 @@ const BolderProblem: React.FC<React.ComponentProps<typeof View> & {
   const zoomableViewRef = createRef<typeof Zoomable>();
 
   return (
-    <View {...props} style={[styles.zoomedContainer, { height: screenDimension.width * 1.5 * (scale || 1), width: screenDimension.width * (scale || 1)  }, props.style]}>
+    <View {...props} style={[styles.zoomedContainer, { height: screenDimension.width * 1.5 * (scale || 1), width: screenDimension.width * (scale || 1) }, props.style]}>
       <imageSize.Provider value={{ width: imageWidth, height: imageHeight }}>
         <Zoomable
           ref={zoomableViewRef}
@@ -79,7 +77,7 @@ const BolderProblem: React.FC<React.ComponentProps<typeof View> & {
                   existingHolds?.sort(SortHolds).map((hold) => (
                     <SVGHold
                       key={hold.id}
-                      hold={{ id: hold.id, svgPath: hold.svgPath, color: hold.type.color }}
+                      hold={hold}
                       onHoldClick={onHoldClick}
                       zoomableViewRef={zoomableViewRef}
                     />
