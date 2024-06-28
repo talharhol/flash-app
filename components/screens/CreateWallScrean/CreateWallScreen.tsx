@@ -18,6 +18,7 @@ import BasicButton from "@/components/general/Buttom";
 import { Wall } from "@/dataTypes/wall";
 import { walls } from "@/app/debugData";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 
 const CreateWallScreen: React.FC = ({ }) => {
@@ -73,9 +74,16 @@ const CreateWallScreen: React.FC = ({ }) => {
                 text='Choose source' />
 
             }
-            <TouchableWithoutFeedback onPress={() => setSelectImageModal(true)} style={{ backgroundColor: "red", alignSelf: "center", height: 200, width: 200, borderRadius: 200 }}>
-                <Image style={{ height: 200, width: 200, borderRadius: 200 }} source={selectedImage ? { uri: selectedImage } : require('../../../assets/images/upload.png')} />
-            </TouchableWithoutFeedback>
+            <View style={{ alignSelf: "center", height: 200, width: 200}}>
+                <Image style={{ height: "100%", width: "100%", borderRadius: 10000 }} source={selectedImage ? { uri: selectedImage } : require('../../../assets/images/upload.png')} />
+                <Ionicons 
+                style={{position: "absolute", bottom: 0, right: 0}}
+                onPress={() => setSelectImageModal(true)}
+                size={30}
+                color="gray"
+                name="pencil-outline"
+                />
+            </View>
             <TextInput value={wallName} onChangeText={setWallName} placeholder="Wall's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: "grey", padding: 10 }} />
             <TextInput value={gymName} onChangeText={setGymName} placeholder="Gym's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: "grey", padding: 10 }} />
             <View style={{ alignSelf: "center" }}>
