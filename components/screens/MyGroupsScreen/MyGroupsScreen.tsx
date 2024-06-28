@@ -41,7 +41,7 @@ const MyGroupsScreen: React.FC = () => {
                                 <View style={{ height: "100%", flexDirection: "column", alignItems: 'center', justifyContent: "space-evenly" }}>
                                     <BasicButton
                                         text='Remove'
-                                        onPress={() => setGroupToRemove.bind(group)}
+                                        onPress={() => setGroupToRemove(group)}
                                         color="red"
                                         style={{ width: 100 }}
                                     />
