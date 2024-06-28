@@ -26,12 +26,14 @@ const SelectWallScreen: React.FC = () => {
         walls.push(
             wall
         );
-        router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id } });
+        createProblem(wall);
     };
+    const createProblem = (wall: Wall) => {
+        router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id } })
+    }
 
     return (
         <View style={{ height: "100%" }}>
-
             <ParallaxScrollView
                 headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
                 headerImage={
@@ -53,12 +55,13 @@ const SelectWallScreen: React.FC = () => {
                         let wall = GetWall({ id: wall_id });
                         return (
                             <TouchableOpacity key={wall.id}
-                                onPress={() => router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id } })}
+                                onPress={() => createProblem(wall)}
                             >
                                 <PreviewItem
                                     image={wall.image}
                                     title={`${wall.name}@${wall.gym}`}
                                     subTitle={wall.angle && `${wall.angle}°` || undefined}
+                                    onImagePress={() => createProblem(wall)}
                                 />
                             </TouchableOpacity>
                         )

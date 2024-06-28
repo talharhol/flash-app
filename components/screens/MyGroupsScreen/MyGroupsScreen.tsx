@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
@@ -6,9 +6,10 @@ import ThemedView from '@/components/general/ThemedView';
 import { groups as debugGroups } from '@/app/debugData';
 import React, { useState } from 'react';
 import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
-import PreviewItem from '@/components/general/PreviewItem';
 import { Group } from '@/dataTypes/group';
 import { useRouter } from 'expo-router';
+import SwipablePreviewItem from '@/components/general/SwipeablePreviewItem';
+import BasicButton from '@/components/general/Buttom';
 
 const MyGroupsScreen: React.FC = () => {
     const router = useRouter();
@@ -29,14 +30,25 @@ const MyGroupsScreen: React.FC = () => {
             {groupToRemove && <ActionValidationModal closeModal={setGroupToRemove.bind(this, null)} approveAction={RemoveGroup.bind(this, groupToRemove)} text={`Remove ${groupToRemove.name} from your walls?`} />}
             {
                 groups.map(group =>
-                    <TouchableOpacity key={group.id} onPress={() => router.push({ pathname: "/ViewGroupScreen", params: { id: group.id }})}>
-                        <PreviewItem
-                            image={group.image}
-                            title={group.name}
-                            descriprion={group.getDescription()}
-                            onRemove={setGroupToRemove.bind(this, group)}
-                        />
-                    </TouchableOpacity>
+                    <SwipablePreviewItem
+                        key={group.id}
+                        onImagePress={() => router.push({ pathname: "/ViewGroupScreen", params: { id: group.id } })}
+                        image={group.image}
+                        title={group.name}
+                        descriprion={group.getDescription()}
+                        hiddenComponent={() => {
+                            return (
+                                <View style={{ height: "100%", flexDirection: "column", alignItems: 'center', justifyContent: "space-evenly" }}>
+                                    <BasicButton
+                                        text='Remove'
+                                        onPress={() => setGroupToRemove.bind(group)}
+                                        color="red"
+                                        style={{ width: 100 }}
+                                    />
+                                </View>
+                            )
+                        }}
+                    />
                 )
             }
         </ParallaxScrollView>
