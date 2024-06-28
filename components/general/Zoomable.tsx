@@ -36,7 +36,6 @@ const Zoomable: React.FC<React.ComponentProps<typeof ReactNativeZoomableView> & 
                 </View>
             </zoomSize.Provider>
         </ReactNativeZoomableView>
-
     );
 };
-export default forwardRef(Zoomable as any);
+export default forwardRef(Zoomable) as Zoomable;

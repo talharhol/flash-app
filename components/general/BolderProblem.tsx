@@ -49,7 +49,7 @@ const BolderProblem: React.FC<React.ComponentProps<typeof View> & {
       setImageWidth(tmpWidth);
     });
   }, [wallImage]);
-  const zoomableViewRef = createRef<ReactNativeZoomableView>();
+  const zoomableViewRef = createRef<typeof Zoomable>();
 
   return (
     <View {...props} style={[styles.zoomedContainer, { height: screenDimension.width * 1.5 * (scale || 1), width: screenDimension.width * (scale || 1)  }, props.style]}>

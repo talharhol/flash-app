@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { View, useWindowDimensions } from "react-native";
 import Svg, { Path } from 'react-native-svg';
-import { imageSize } from './SizeContext';
+import { imageSize, zoomSize } from './SizeContext';
 import { HoldType } from '@/dataTypes/hold';
 import SetRadiusModal from '../screens/CreateBolderProblemScreen/SelectRadiusModal';
 
@@ -13,9 +13,9 @@ const MAX_MOVEMENT_FOR_PRESS = 6;
     For SOME REASON svg doesn't like being "position: absolute".... So I wrap it with a postiion:absolut element and everyhing works nice.
 */
 const DrawHold: React.FC<{
-     onFinishedDrawingShape?: (shape: string) => void; 
-     currentHoldType: HoldType; 
-    }> = ({ currentHoldType, onFinishedDrawingShape }) => {
+    onFinishedDrawingShape?: (shape: string) => void;
+    currentHoldType: HoldType;
+}> = ({ currentHoldType, onFinishedDrawingShape }) => {
     const dimensions = useContext(imageSize);
     const [currentPaths, setCurrentPath] = useState<{ x: number, y: number; }[]>([]);
     const [centerShift, setCenterShift] = useState({ x: 0, y: 0 });
@@ -28,22 +28,22 @@ const DrawHold: React.FC<{
         let lastPath = currentPaths[currentPaths.length - 1]
         if (touches.length !== 1)
             return;
-        if (currentPaths.length && !(Math.abs(lastPath.x - x) > 2 || Math.abs(lastPath.y - y) > 2 ))
+        if (currentPaths.length && !(Math.abs(lastPath.x - x) > 2 || Math.abs(lastPath.y - y) > 2))
             return;
         const newPaths = [...currentPaths];
         newPaths.push({ x, y });
         setCurrentPath(newPaths);
     };
     const setCenter = () => {
-        let newPath = {x: currentPaths[currentPaths.length - 1].x + centerShift.x, y: currentPaths[currentPaths.length - 1].y + centerShift.y};
-        setCenterShift({x: 0, y: 0});
+        let newPath = { x: currentPaths[currentPaths.length - 1].x + centerShift.x, y: currentPaths[currentPaths.length - 1].y + centerShift.y };
+        setCenterShift({ x: 0, y: 0 });
         setCurrentPath(currentPaths.concat([newPath]));
     };
     const onRadiusSet = () => {
         setShowRadiusModal(false);
         onFinishedDrawingShape?.(`M ${currentPaths[currentPaths.length - 1].x + centerShift.x - holdRadius}, ${currentPaths[currentPaths.length - 1].y + centerShift.y} a ${holdRadius},${holdRadius} 0 1,0 ${holdRadius * 2},0 a ${holdRadius},${holdRadius} 0 1,0 -${holdRadius * 2},0`);
         setCurrentPath([]);
-        setCenterShift({x:0, y: 0});
+        setCenterShift({ x: 0, y: 0 });
         setHoldRedius(defaultRadius);
     };
     const moveCenter = (dx: number, dy: number) => {
@@ -64,6 +64,8 @@ const DrawHold: React.FC<{
         setCurrentPath([]);
         onFinishedDrawingShape?.(pathToSend);
     };
+    const zoom = useContext(zoomSize);
+
     return (
         <View style={{ zIndex: 2, position: "absolute", height: dimensions.height, width: dimensions.width }}>
             {
@@ -72,9 +74,9 @@ const DrawHold: React.FC<{
                     closeModal={onRadiusSet}
                     setRadius={setHoldRedius}
                     radius={holdRadius}
-                    moveCenter={moveCenter} 
+                    moveCenter={moveCenter}
                     setCenter={setCenter}
-                    />
+                />
             }
             <Svg
                 viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
@@ -87,7 +89,7 @@ const DrawHold: React.FC<{
                         d={`M${currentPaths.map(({ x, y }) => `${x.toFixed(0)},${y.toFixed(0)}`)}`}
                         stroke={currentHoldType.color}
                         fill='transparent'
-                        strokeWidth={2}
+                        strokeWidth={2 / (Math.max(1, zoom / 2))}
                         strokeLinejoin='round'
                         strokeLinecap='round'
                     />
@@ -97,7 +99,7 @@ const DrawHold: React.FC<{
                         d={`M ${currentPaths[currentPaths.length - 1].x + centerShift.x - holdRadius}, ${currentPaths[currentPaths.length - 1].y + centerShift.y} a ${holdRadius},${holdRadius} 0 1,0 ${holdRadius * 2},0 a ${holdRadius},${holdRadius} 0 1,0 -${holdRadius * 2},0`}
                         stroke={currentHoldType.color}
                         fill='transparent'
-                        strokeWidth={2}
+                        strokeWidth={2 / (Math.max(1, zoom / 2))}
                         strokeLinejoin='round'
                         strokeLinecap='round'
                     />
