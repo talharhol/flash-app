@@ -32,7 +32,7 @@ const MyWalssScreen: React.FC = () => {
                     <SwipablePreviewItem key={wall.id} image={wall.image}
                         title={`${wall.name}@${wall.gym}`}
                         subTitle={wall.angle && `${wall.angle}°` || undefined}
-                        onImagePress={() => router.push({ pathname: "/ViewWall", params: { id: wall.id } })}
+                        onPress={() => router.push({ pathname: "/ViewWall", params: { id: wall.id } })}
                         hiddenComponent={() => {
                             return (
                                 <View style={{ height: "100%", flexDirection: "column", alignItems: 'center', justifyContent: "space-evenly" }}>

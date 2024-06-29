@@ -22,10 +22,11 @@ const BolderProblem: React.FC<React.ComponentProps<typeof View> & {
   drawingHoldType?: HoldType | null;
   disableMovment?: boolean;
   scale?: number
+  fullScreen?: boolean;
   onDrawHoldFinish?: (hold: Hold) => void;
   onConfiguredHoldClick?: (hold_id: string) => void;
   onHoldClick?: (hold_id: string) => void;
-}> = ({ wallImage, configuredHolds, existingHolds, drawingHoldType, disableMovment, scale, onDrawHoldFinish, onConfiguredHoldClick, onHoldClick, ...props }) => {
+}> = ({ wallImage, configuredHolds, existingHolds, drawingHoldType, disableMovment, scale, fullScreen, onDrawHoldFinish, onConfiguredHoldClick, onHoldClick, ...props }) => {
   const screenDimension = useWindowDimensions();
   const [imageHeight, setImageHeight] = useState(0);
   const [imageWidth, setImageWidth] = useState(screenDimension.width * (scale || 1));
@@ -50,7 +51,7 @@ const BolderProblem: React.FC<React.ComponentProps<typeof View> & {
   const zoomableViewRef = createRef<typeof Zoomable>();
 
   return (
-    <View {...props} style={[styles.zoomedContainer, { height: screenDimension.width * 1.5 * (scale || 1), width: screenDimension.width * (scale || 1) }, props.style]}>
+    <View {...props} style={[styles.zoomedContainer, { height: fullScreen ? screenDimension.height * (scale || 1) : screenDimension.width * 1.5 * (scale || 1), width: screenDimension.width * (scale || 1) }, props.style]}>
       <imageSize.Provider value={{ width: imageWidth, height: imageHeight }}>
         <Zoomable
           ref={zoomableViewRef}
