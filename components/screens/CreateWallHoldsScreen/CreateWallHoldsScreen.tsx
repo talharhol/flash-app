@@ -73,6 +73,7 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
                 existingHolds={isDrawingHold ? [] : holds}
                 onHoldClick={setEditedHold}
                 onDrawHoldFinish={onDrawHoldFinish}
+                onDrawHoldCancel={() => setIsDrawingHold(false)}
                 drawingHoldType={isDrawingHold ? new HoldType(HoldTypes.route) : null}
             />
             <View style={styles.buttonContainer}>

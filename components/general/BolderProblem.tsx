@@ -24,9 +24,10 @@ const BolderProblem: React.FC<React.ComponentProps<typeof View> & {
   scale?: number
   fullScreen?: boolean;
   onDrawHoldFinish?: (hold: Hold) => void;
+  onDrawHoldCancel?: () => void;
   onConfiguredHoldClick?: (hold_id: string) => void;
   onHoldClick?: (hold_id: string) => void;
-}> = ({ wallImage, configuredHolds, existingHolds, drawingHoldType, disableMovment, scale, fullScreen, onDrawHoldFinish, onConfiguredHoldClick, onHoldClick, ...props }) => {
+}> = ({ wallImage, configuredHolds, existingHolds, drawingHoldType, disableMovment, scale, fullScreen, onDrawHoldFinish, onDrawHoldCancel, onConfiguredHoldClick, onHoldClick, ...props }) => {
   const screenDimension = useWindowDimensions();
   const [imageHeight, setImageHeight] = useState(0);
   const [imageWidth, setImageWidth] = useState(screenDimension.width * (scale || 1));
@@ -58,7 +59,11 @@ const BolderProblem: React.FC<React.ComponentProps<typeof View> & {
           disableMovement={!!disableMovment || !!drawingHoldType} maxZoom={20}>
           <View style={styles.zoomedContent}>
             {
-              !!drawingHoldType && <DrawHold currentHoldType={drawingHoldType} onFinishedDrawingShape={onCreatedHold} />
+              !!drawingHoldType && <DrawHold 
+              onCancel={onDrawHoldCancel}
+              currentHoldType={drawingHoldType} 
+              onFinishedDrawingShape={onCreatedHold} 
+              />
             }
             <View style={{ position: "absolute", zIndex: 1 }}>
               <Svg

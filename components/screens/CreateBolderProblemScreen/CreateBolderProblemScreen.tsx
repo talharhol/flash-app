@@ -108,6 +108,7 @@ const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
           onConfiguredHoldClick={onConfiguredHoldPress}
           onHoldClick={setEditedHold}
           onDrawHoldFinish={onDrawHoldFinish}
+          onDrawHoldCancel={() => setIsDrawingHold(false)}
           disableMovment={isDrawingHold}
           drawingHoldType={isDrawingHold ? (drawingHoldType || new HoldType(HoldTypes.route)) : null}
         />

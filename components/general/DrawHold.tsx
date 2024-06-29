@@ -6,7 +6,6 @@ import { HoldType } from '@/dataTypes/hold';
 import SetRadiusModal from '../screens/CreateBolderProblemScreen/SelectRadiusModal';
 
 
-const MAX_MOVEMENT_FOR_PRESS = 6;
 /*
     Renders an svg which the user draws on it hold markings, "returning" the drawn shape using the `OnFinishedDrawingShape`.
     
@@ -14,25 +13,35 @@ const MAX_MOVEMENT_FOR_PRESS = 6;
 */
 const DrawHold: React.FC<{
     onFinishedDrawingShape?: (shape: string) => void;
+    onCancel?: () => void;
+    minimalMovingDistance?: number;
     currentHoldType: HoldType;
-}> = ({ currentHoldType, onFinishedDrawingShape }) => {
+}> = ({ currentHoldType, onFinishedDrawingShape, onCancel, minimalMovingDistance }) => {
+    minimalMovingDistance = minimalMovingDistance || 2;
     const dimensions = useContext(imageSize);
     const [currentPaths, setCurrentPath] = useState<{ x: number, y: number; }[]>([]);
     const [centerShift, setCenterShift] = useState({ x: 0, y: 0 });
     const [showRadiusModal, setShowRadiusModal] = useState(false);
     const screenDimension = useWindowDimensions();
     const defaultRadius = screenDimension.width / 25;
-
+    const [isDrawing, setIsDrawing] = useState(false);
     const [holdRadius, setHoldRedius] = useState(defaultRadius);
+    const isMoved = (x1: number, x2: number, y1: number, y2: number) => {
+        return  (Math.abs(x1 - x2) > minimalMovingDistance || Math.abs(y1 - y2) > minimalMovingDistance)
+    }
+    const onTouchStart: React.ComponentProps<typeof Svg>["onTouchStart"] = ({ nativeEvent: { locationX: x, locationY: y } }) => {
+        setCurrentPath(currentPaths.concat([{ x, y }]));
+    };
     const onTouchMove: React.ComponentProps<typeof Svg>["onTouchMove"] = ({ nativeEvent: { locationX: x, locationY: y, touches: touches } }) => {
         let lastPath = currentPaths[currentPaths.length - 1]
-        if (touches.length !== 1)
+        if (touches.length !== 1) {
+            onCancel?.();
             return;
-        if (currentPaths.length && !(Math.abs(lastPath.x - x) > 2 || Math.abs(lastPath.y - y) > 2))
+        }
+        if (currentPaths.length && !isMoved(x, lastPath.x, y, lastPath.y))
             return;
-        const newPaths = [...currentPaths];
-        newPaths.push({ x, y });
-        setCurrentPath(newPaths);
+        setIsDrawing(true);
+        setCurrentPath(currentPaths.concat([{ x, y }]));
     };
     const setCenter = () => {
         let newPath = { x: currentPaths[currentPaths.length - 1].x + centerShift.x, y: currentPaths[currentPaths.length - 1].y + centerShift.y };
@@ -53,10 +62,7 @@ const DrawHold: React.FC<{
         let pathToSend = "";
         if (touches.length !== 0) return;
         // Check if it's a tap by measuring the distance the finger did.
-        if (
-            Math.max(...currentPaths.map(({ x }) => x)) - Math.min(...currentPaths.map(({ x }) => x)) < MAX_MOVEMENT_FOR_PRESS &&
-            Math.max(...currentPaths.map(({ y }) => y)) - Math.min(...currentPaths.map(({ y }) => y)) < MAX_MOVEMENT_FOR_PRESS
-        ) {
+        if (!isDrawing) {
             setShowRadiusModal(true);
             return;
         }
@@ -83,6 +89,7 @@ const DrawHold: React.FC<{
                 style={[dimensions, { position: "relative" }]}
                 onTouchMove={onTouchMove}
                 onTouchEnd={onTouchEnd}
+                onTouchStart={onTouchStart}
             >
                 {
                     currentPaths.length > 0 && !showRadiusModal && <Path
