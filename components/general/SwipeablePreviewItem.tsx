@@ -2,17 +2,17 @@ import { View } from "react-native"
 import PreviewItem from "./PreviewItem";
 import { Ionicons } from "@expo/vector-icons";
 import { SwipeRow } from "react-native-swipe-list-view";
-import { createRef, useCallback, useState } from "react";
+import { createRef, useState } from "react";
 
 const SwipablePreviewItem: React.FC<React.ComponentProps<typeof PreviewItem> & {
     hiddenComponent?: () => React.JSX.Element;
-    onPress: () => void;
+    onPress?: () => void;
 }> = ({ hiddenComponent, onPress, ...props }) => {
     const swipeRow = createRef<SwipeRow<View>>();
     const [isOpen, setIsOpen]= useState(false);
     const OnPressWrapper = () => {
         if (isOpen) swipeRow.current?.closeRow();
-        else onPress();
+        else onPress?.();
     };
     return (
         <SwipeRow ref={swipeRow} rightOpenValue={- 120} onRowPress={OnPressWrapper} onRowOpen={() => setIsOpen(true)} onRowClose={() => setIsOpen(false)}>

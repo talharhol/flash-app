@@ -32,7 +32,7 @@ const MyGroupsScreen: React.FC = () => {
                 groups.map(group =>
                     <SwipablePreviewItem
                         key={group.id}
-                        onImagePress={() => router.push({ pathname: "/ViewGroupScreen", params: { id: group.id } })}
+                        onPress={() => router.push({ pathname: "/ViewGroupScreen", params: { id: group.id } })}
                         image={group.image}
                         title={group.name}
                         descriprion={group.getDescription()}
