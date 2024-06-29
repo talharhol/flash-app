@@ -38,7 +38,7 @@ const SettingsScreen: React.FC = () => {
                 <BaseButton onPress={() => router.push("/CreateWall")} style={styles.actionButton}>
                     <ThemedText type='subtitle'>New Wall</ThemedText>
                 </BaseButton>
-                <BaseButton onPress={alert} style={styles.actionButton}>
+                <BaseButton onPress={() => router.push("/CreateGroup")} style={styles.actionButton}>
                     <ThemedText type='subtitle'>New Group</ThemedText>
                 </BaseButton>
             </View>
