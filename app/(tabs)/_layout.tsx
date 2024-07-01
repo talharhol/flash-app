@@ -56,43 +56,50 @@ export default function TabLayout() {
       <Tabs.Screen
         name="ViewWall"
         options={{
-          href: null
+          href: null,
+          unmountOnBlur: true
         }}
       />
       <Tabs.Screen
         name="CreateBolderProblem"
         options={{
-          href: null
+          href: null,
+          unmountOnBlur: true
         }}
       />
       <Tabs.Screen
         name="ViewGroupScreen"
         options={{
-          href: null
+          href: null,
+          unmountOnBlur: true
         }}
       />
       <Tabs.Screen
         name="SelectWallScreen"
         options={{
-          href: null
+          href: null,
+          unmountOnBlur: true
         }}
       />
       <Tabs.Screen
         name="CreateWall"
         options={{
-          href: null
+          href: null,
+          unmountOnBlur: true
         }}
       />
       <Tabs.Screen
         name="CreateWallHolds"
         options={{
-          href: null
+          href: null,
+          unmountOnBlur: true
         }}
       />
       <Tabs.Screen
         name="CreateGroup"
         options={{
-          href: null
+          href: null,
+          unmountOnBlur: true
         }}
       />
     </Tabs>
