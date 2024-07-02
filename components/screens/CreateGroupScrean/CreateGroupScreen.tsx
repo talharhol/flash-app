@@ -4,6 +4,7 @@ import {
     Platform,
     StatusBar,
     StyleSheet,
+    Text,
     TextInput,
     View,
 } from "react-native";
@@ -17,21 +18,35 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Group } from "@/dataTypes/group";
 import MultiSelect from "react-native-multiple-select";
-
+import SelectWallModal from "./SelectWallsModal";
+import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
+import { Wall } from "@/dataTypes/wall";
+import { GetWall } from "@/scripts/utils";
+const WallItem = ({ wall, onRemove }: { wall: Wall, onRemove: (id: string) => void }) => (
+    <View style={{ flexDirection: "row", borderRadius: 17, backgroundColor: "gray", justifyContent: "space-between", margin: 5}}>
+        <Image source={wall.image} style={{ height: 30, width: 30, borderRadius: 15, margin: 2 }} />
+        <Text style={{ alignSelf: "center", fontSize: 18, padding: 5 }}>{wall.fullName}</Text>
+        <TouchableOpacity onPress={() => onRemove(wall.id)} style={{ height: 30, width: 30, borderRadius: 15, margin: 2, justifyContent: "center", backgroundColor: "white" }}>
+            <Text style={{ alignSelf: "center", fontSize: 18 }}>X</Text>
+        </TouchableOpacity>
+    </View>
+);
 
 const CreateGroupScreen: React.FC = ({ }) => {
     const router = useRouter();
     const [selectedImage, setSelectedImage] = useState<string>('');
     const [selectImageModal, setSelectImageModal] = useState(true);
+    const [selectWallModal, setSelectWallModal] = useState(false);
     const [groupName, setGroupName] = useState('');
     const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+    const [selectedWalls, setSelectedWalls] = useState<Wall[]>([]);
     const usersMultiSelect = useRef<MultiSelect>()
     const createGroup = () => {
         if (!selectedImage) {
             alert("missing image");
             return
         }
-        
+
         if (!groupName) {
             alert("missing group name");
             return
@@ -41,6 +56,7 @@ const CreateGroupScreen: React.FC = ({ }) => {
             name: groupName,
             image: { uri: selectedImage },
             members: selectedUsers,
+            walls: selectedWalls.map(w => w.id)
         });
         groups.push(group);
         router.push({ pathname: "/MyGroupsScreen" });
@@ -66,43 +82,53 @@ const CreateGroupScreen: React.FC = ({ }) => {
                 text='Choose source' />
 
             }
-            <View style={{ alignSelf: "center", height: 200, width: 200}}>
+            {selectWallModal &&
+                <SelectWallModal selectedWalls={selectedWalls} onSelect={(id: string) => setSelectedWalls(selectedWalls.concat([GetWall({ id })]))} closeModal={() => setSelectWallModal(false)} />}
+            <View style={{ alignSelf: "center", height: 200, width: 200 }}>
                 <Image style={{ height: "100%", width: "100%", borderRadius: 10000 }} source={selectedImage ? { uri: selectedImage } : require('../../../assets/images/upload.png')} />
-                <Ionicons 
-                style={{position: "absolute", bottom: 0, right: 0}}
-                onPress={() => setSelectImageModal(true)}
-                size={30}
-                color="gray"
-                name="pencil-outline"
+                <Ionicons
+                    style={{ position: "absolute", bottom: 0, right: 0 }}
+                    onPress={() => setSelectImageModal(true)}
+                    size={30}
+                    color="gray"
+                    name="pencil-outline"
                 />
             </View>
             <TextInput value={groupName} onChangeText={setGroupName} placeholder="Group's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: "grey", padding: 10 }} />
             <View>
-          {usersMultiSelect.current?.getSelectedItemsExt(selectedUsers)}
-        </View>
+                {usersMultiSelect.current?.getSelectedItemsExt(selectedUsers)}
+            </View>
             <MultiSelect
-          hideTags
-          ref={(component) => { usersMultiSelect.current = component || undefined }}
-          items={users}
-          uniqueKey="id"
-          onSelectedItemsChange={setSelectedUsers}
-          selectedItems={selectedUsers}
-          selectText="Pick Items"
-          searchInputPlaceholderText="Search Items..."
-          onChangeInput={ (text)=> console.log(text)}
-          altFontFamily="ProximaNova-Light"
-          tagRemoveIconColor="#CCC"
-          tagBorderColor="#CCC"
-          tagTextColor="#CCC"
-          selectedItemTextColor="#CCC"
-          selectedItemIconColor="#CCC"
-          itemTextColor="#000"
-          displayKey="name"
-          searchInputStyle={{ color: '#CCC' }}
-          submitButtonColor="#CCC"
-          submitButtonText="Submit"
-        />
-            <BasicButton onPress={createGroup} style={{ alignSelf: "center", margin: 30 }} text="Create" color="green" />
+                hideTags
+                ref={(component) => { usersMultiSelect.current = component || undefined }}
+                items={users}
+                uniqueKey="id"
+                onSelectedItemsChange={setSelectedUsers}
+                selectedItems={selectedUsers}
+                selectText="Pick members"
+                searchInputPlaceholderText="Search Items..."
+                onChangeInput={(text) => console.log(text)}
+                altFontFamily="ProximaNova-Light"
+                tagRemoveIconColor="#CCC"
+                tagBorderColor="#CCC"
+                tagTextColor="#CCC"
+                selectedItemTextColor="#CCC"
+                selectedItemIconColor="#CCC"
+                itemTextColor="#000"
+                displayKey="name"
+                searchInputStyle={{ color: '#CCC' }}
+                submitButtonColor="#CCC"
+                submitButtonText="Submit"
+            />
+            <FlatList
+                data={selectedWalls}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => <WallItem wall={item} onRemove={(id) => setSelectedWalls(selectedWalls.filter(w => w.id !== id))} />}
+                numColumns={1} // Set the number of columns
+                contentContainerStyle={{}}
+            />
+            <BasicButton onPress={() => setSelectWallModal(true)} style={{ alignSelf: "center" }} text="Add wall" color="blue" />
+            <BasicButton onPress={createGroup} style={{ alignSelf: "center", margin: 20 }} text="Create" color="green" />
         </ParallaxScrollView>
     );
 };

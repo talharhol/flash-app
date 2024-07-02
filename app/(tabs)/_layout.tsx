@@ -4,7 +4,6 @@ import React from 'react';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { TabBarIcon } from '@/components/general/TabBarIcon';
-import { walls } from '../debugData';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();

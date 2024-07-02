@@ -12,9 +12,9 @@ const PreviewItem: React.FC<React.ComponentProps<typeof View> & {
     onImagePress?: () => void;
 }> = ({ onRemove, image, title, subTitle, descriprion, onImagePress, ...props }) => {
     return (
-        <ThemedView {...props} style={[{ flexDirection: 'row', backgroundColor: 'red', height: 120, borderRadius: 8 }, props.style]}>
+        <ThemedView {...props} style={[{ flexDirection: 'row', backgroundColor: 'gray', height: 120, borderRadius: 8 }, props.style]}>
             <TouchableWithoutFeedback onPress={onImagePress}>
-                <Image source={image} style={{ height: 120, width: 100, borderBottomLeftRadius: 8, borderTopLeftRadius: 8 }} />
+                <Image source={image} style={{ height: "100%", width: 100, borderBottomLeftRadius: 8, borderTopLeftRadius: 8 }} />
             </TouchableWithoutFeedback>
             <ThemedView style={{ backgroundColor: 'transparent', flexDirection: 'column' }}>
                 <ThemedText type="title" style={{ marginLeft: 10 }}>{title}</ThemedText>

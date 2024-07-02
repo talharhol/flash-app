@@ -15,4 +15,8 @@ export class Wall {
         this.angle = angle;
         this.configuredHolds = configuredHolds || [];
     }
+
+    get fullName() {
+        return `${this.name}@${this.gym}`
+    }
 };
