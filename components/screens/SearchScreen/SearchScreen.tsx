@@ -19,7 +19,8 @@ const SearchScreen: React.FC = () => {
     };
     const filterWalls = (wall: Wall) => {
         return (
-            wall.name.toLocaleLowerCase().includes(filterWallName.toLocaleLowerCase())
+            wall.isPublic
+            && wall.name.toLocaleLowerCase().includes(filterWallName.toLocaleLowerCase())
             && wall.gym.toLocaleLowerCase().includes(filterGymName.toLocaleLowerCase())
         )
     }

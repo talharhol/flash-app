@@ -20,7 +20,8 @@ const SelectWallModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     const [filterGymName, setFilterGymName] = useState<string>(''); const [name, setName] = useState<string>('');
     const filterWalls = (wall: Wall) => {
         return (
-            wall.name.toLocaleLowerCase().includes(filterWallName.toLocaleLowerCase())
+            wall.isPublic
+            && wall.name.toLocaleLowerCase().includes(filterWallName.toLocaleLowerCase())
             && wall.gym.toLocaleLowerCase().includes(filterGymName.toLocaleLowerCase())
         )
     }

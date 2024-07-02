@@ -22,7 +22,9 @@ const SelectWallScreen: React.FC = () => {
             name: "Anonimus",
             gym: group.id,
             image: { uri },
+            isPublic: false
         });
+        group.walls.push(wall.id)
         walls.push(
             wall
         );
@@ -53,7 +55,10 @@ const SelectWallScreen: React.FC = () => {
                     />
                 }
                 {
-                    group.walls.map(wall_id => {
+                    group.walls.filter(wall_id => {
+                        let wall = GetWall({ id: wall_id });
+                        return wall.isPublic;
+                    }).map(wall_id => {
                         let wall = GetWall({ id: wall_id });
                         return (
                             <TouchableOpacity
@@ -64,6 +69,31 @@ const SelectWallScreen: React.FC = () => {
                                     image={wall.image}
                                     title={`${wall.name}@${wall.gym}`}
                                     subTitle={wall.angle && `${wall.angle}°` || undefined}
+                                    onImagePress={() => createProblem(wall)}
+                                />
+                            </TouchableOpacity>
+                        )
+                    }
+                    )
+                }
+                <View style={{alignItems: "center"}}>
+                    <ThemedText type='subtitle'>In group walls</ThemedText>
+                    <View style={{height: 2, borderRadius:1, width: "100%", backgroundColor: "gray"}}/>
+                </View>
+                {
+                    group.walls.filter(wall_id => {
+                        let wall = GetWall({ id: wall_id });
+                        return !wall.isPublic;
+                    }).map(wall_id => {
+                        let wall = GetWall({ id: wall_id });
+                        return (
+                            <TouchableOpacity
+                                key={wall.id}
+                                onPress={() => createProblem(wall)}
+                            >
+                                <PreviewItem
+                                    image={wall.image}
+                                    title={wall.name}
                                     onImagePress={() => createProblem(wall)}
                                 />
                             </TouchableOpacity>

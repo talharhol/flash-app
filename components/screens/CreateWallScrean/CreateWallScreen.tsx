@@ -47,6 +47,7 @@ const CreateWallScreen: React.FC = ({ }) => {
             name: wallName,
             gym: gymName,
             image: { uri: selectedImage },
+            isPublic: isPublic
         });
         walls.push(
             wall
