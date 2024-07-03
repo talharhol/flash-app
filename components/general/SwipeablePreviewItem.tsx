@@ -2,7 +2,7 @@ import { View } from "react-native"
 import PreviewItem from "./PreviewItem";
 import { Ionicons } from "@expo/vector-icons";
 import { SwipeRow } from "react-native-swipe-list-view";
-import { createRef, useState } from "react";
+import React, { createRef, useState } from "react";
 
 const SwipablePreviewItem: React.FC<React.ComponentProps<typeof PreviewItem> & {
     hiddenComponent?: () => React.JSX.Element;

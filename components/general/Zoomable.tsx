@@ -1,9 +1,9 @@
-import { ReactNativeZoomableView, ZoomableViewEvent } from "@openspacelabs/react-native-zoomable-view";
+import { ReactNativeZoomableView, ReactNativeZoomableViewProps, ZoomableViewEvent } from "@openspacelabs/react-native-zoomable-view";
 import React, { forwardRef, useCallback, useState } from "react";
 import { View } from "react-native";
 import { imageSize, zoomSize } from "./SizeContext";
 
-const Zoomable: React.FC<React.ComponentProps<typeof ReactNativeZoomableView> & { disableMovement: boolean; }> = ({
+const Zoomable = forwardRef<ReactNativeZoomableView, ReactNativeZoomableViewProps & { disableMovement: boolean; }>(({
     children,
     disableMovement,
     maxZoom,
@@ -18,7 +18,6 @@ const Zoomable: React.FC<React.ComponentProps<typeof ReactNativeZoomableView> & 
     const disableGesturesCallback = useCallback(disableGestureEvent!, [disableMovement, zoom]);
     const dimensions = React.useContext(imageSize);
     return (
-
         <ReactNativeZoomableView
             {...props}
             contentWidth={dimensions?.width}
@@ -37,5 +36,5 @@ const Zoomable: React.FC<React.ComponentProps<typeof ReactNativeZoomableView> & 
             </zoomSize.Provider>
         </ReactNativeZoomableView>
     );
-};
-export default forwardRef(Zoomable) as Zoomable;
+});
+export default Zoomable;

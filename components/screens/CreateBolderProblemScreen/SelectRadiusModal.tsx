@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { Slider } from '@miblanchard/react-native-slider';
 import { zoomSize } from "../../general/SizeContext";
 import ResponsiveBackgroundModal from "@/components/general/modals/ResponsivBackgroundModal";
+import { svgZoom } from "@/constants/consts";
 
 const SetRadiusModal: React.FC<{
     closeModal: () => void;
@@ -22,7 +23,7 @@ const SetRadiusModal: React.FC<{
         <ResponsiveBackgroundModal onDrage={onDragg} onDrageEnd={onDraggEnd} closeModal={closeModal}>
             <Slider
                 value={radius}
-                maximumValue={100}
+                maximumValue={100 * svgZoom}
                 onValueChange={v => { setRadius(v[0]) }}
             />
         </ResponsiveBackgroundModal>

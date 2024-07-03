@@ -4,6 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 import { imageSize, zoomSize } from './SizeContext';
 import { HoldType } from '@/dataTypes/hold';
 import SetRadiusModal from '../screens/CreateBolderProblemScreen/SelectRadiusModal';
+import { svgZoom } from '@/constants/consts';
 
 
 /*
@@ -23,16 +24,20 @@ const DrawHold: React.FC<{
     const [centerShift, setCenterShift] = useState({ x: 0, y: 0 });
     const [showRadiusModal, setShowRadiusModal] = useState(false);
     const screenDimension = useWindowDimensions();
-    const defaultRadius = screenDimension.width / 25;
+    const defaultRadius = screenDimension.width * svgZoom / 25 ;
     const [isDrawing, setIsDrawing] = useState(false);
     const [holdRadius, setHoldRedius] = useState(defaultRadius);
     const isMoved = (x1: number, x2: number, y1: number, y2: number) => {
         return  (Math.abs(x1 - x2) > minimalMovingDistance || Math.abs(y1 - y2) > minimalMovingDistance)
     }
     const onTouchStart: React.ComponentProps<typeof Svg>["onTouchStart"] = ({ nativeEvent: { locationX: x, locationY: y } }) => {
+        x = x * svgZoom;
+        y = y * svgZoom;
         setCurrentPath(currentPaths.concat([{ x, y }]));
     };
     const onTouchMove: React.ComponentProps<typeof Svg>["onTouchMove"] = ({ nativeEvent: { locationX: x, locationY: y, touches: touches } }) => {
+        x = x * svgZoom;
+        y = y * svgZoom;
         let lastPath = currentPaths[currentPaths.length - 1]
         if (touches.length !== 1) {
             onCancel?.();
@@ -56,6 +61,8 @@ const DrawHold: React.FC<{
         setHoldRedius(defaultRadius);
     };
     const moveCenter = (dx: number, dy: number) => {
+        dx = dx * svgZoom;
+        dy = dy * svgZoom;
         setCenterShift({ x: dx, y: dy });
     };
     const onTouchEnd: React.ComponentProps<(typeof Svg)>["onTouchEnd"] = ({ nativeEvent: { locationX: x, locationY: y, touches: touches } }) => {
@@ -85,7 +92,7 @@ const DrawHold: React.FC<{
                 />
             }
             <Svg
-                viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
+                viewBox={`0 0 ${dimensions.width * svgZoom} ${dimensions.height * svgZoom}`}
                 style={[dimensions, { position: "relative" }]}
                 onTouchMove={onTouchMove}
                 onTouchEnd={onTouchEnd}
@@ -96,7 +103,7 @@ const DrawHold: React.FC<{
                         d={`M${currentPaths.map(({ x, y }) => `${x.toFixed(0)},${y.toFixed(0)}`)}`}
                         stroke={currentHoldType.color}
                         fill='transparent'
-                        strokeWidth={2 / (Math.max(1, zoom / 2))}
+                        strokeWidth={2 * svgZoom / (Math.max(1, zoom / 2))}
                         strokeLinejoin='round'
                         strokeLinecap='round'
                     />
@@ -106,7 +113,7 @@ const DrawHold: React.FC<{
                         d={`M ${currentPaths[currentPaths.length - 1].x + centerShift.x - holdRadius}, ${currentPaths[currentPaths.length - 1].y + centerShift.y} a ${holdRadius},${holdRadius} 0 1,0 ${holdRadius * 2},0 a ${holdRadius},${holdRadius} 0 1,0 -${holdRadius * 2},0`}
                         stroke={currentHoldType.color}
                         fill='transparent'
-                        strokeWidth={2 / (Math.max(1, zoom / 2))}
+                        strokeWidth={2 * svgZoom / (Math.max(1, zoom / 2))}
                         strokeLinejoin='round'
                         strokeLinecap='round'
                     />

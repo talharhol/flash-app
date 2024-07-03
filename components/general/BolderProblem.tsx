@@ -1,6 +1,6 @@
 import { Hold, HoldType, SortHolds } from "@/dataTypes/hold";
-import { imageSize } from "../general/SizeContext";
-import React, { createRef, useEffect, useState } from "react";
+import { imageSize, zoomSize } from "../general/SizeContext";
+import React, { createRef, useContext, useEffect, useRef, useState } from "react";
 import {
   Image,
   Platform,
@@ -14,6 +14,8 @@ import Svg from "react-native-svg";
 import Zoomable from "./Zoomable";
 import DrawHold from "./DrawHold";
 import SVGHold from "./SvgHold";
+import { ReactNativeZoomableView } from "@openspacelabs/react-native-zoomable-view";
+import { svgZoom } from "@/constants/consts";
 
 const BolderProblem: React.FC<React.ComponentProps<typeof View> & {
   wallImage: ImageSourcePropType;
@@ -49,7 +51,7 @@ const BolderProblem: React.FC<React.ComponentProps<typeof View> & {
       setImageWidth(tmpWidth);
     });
   }, [wallImage]);
-  const zoomableViewRef = createRef<typeof Zoomable>();
+  const zoomableViewRef = useRef<React.ElementRef<typeof Zoomable>>(null);
 
   return (
     <View {...props} style={[styles.zoomedContainer, { height: fullScreen ? screenDimension.height * (scale || 1) : screenDimension.width * 1.5 * (scale || 1), width: screenDimension.width * (scale || 1) }, props.style]}>
@@ -59,15 +61,16 @@ const BolderProblem: React.FC<React.ComponentProps<typeof View> & {
           disableMovement={!!disableMovment || !!drawingHoldType} maxZoom={20}>
           <View style={styles.zoomedContent}>
             {
-              !!drawingHoldType && <DrawHold 
-              onCancel={onDrawHoldCancel}
-              currentHoldType={drawingHoldType} 
-              onFinishedDrawingShape={onCreatedHold} 
+              !!drawingHoldType &&
+              <DrawHold
+                onCancel={onDrawHoldCancel}
+                currentHoldType={drawingHoldType}
+                onFinishedDrawingShape={onCreatedHold}
               />
             }
             <View style={{ position: "absolute", zIndex: 1 }}>
               <Svg
-                viewBox={`0 0 ${imageWidth} ${imageHeight}`}
+                viewBox={`0 0 ${imageWidth * svgZoom} ${imageHeight * svgZoom}`}
                 style={[{ position: "relative", width: imageWidth, height: imageHeight }]}>
                 {
                   configuredHolds?.sort(SortHolds).map(hold => (
@@ -89,14 +92,12 @@ const BolderProblem: React.FC<React.ComponentProps<typeof View> & {
                     />
                   ))
                 }
-
               </Svg>
             </View>
             <Image style={[styles.problemImage, { width: imageWidth, height: imageHeight }]} source={wallImage} />
           </View>
         </Zoomable>
       </imageSize.Provider>
-
     </View>
   );
 };

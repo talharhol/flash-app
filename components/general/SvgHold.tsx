@@ -2,11 +2,13 @@ import { HoldInterface } from "@/dataTypes/hold";
 import React, { useContext, useState } from "react";
 import { Path } from "react-native-svg";
 import { zoomSize } from "./SizeContext";
+import Zoomable from "./Zoomable";
+import { svgZoom } from "@/constants/consts";
 
 const SVGHold: React.FC<{
   hold: HoldInterface,
   onHoldClick?: (id: string) => void,
-  zoomableViewRef?: any,
+  zoomableViewRef?: React.RefObject<React.ElementRef<typeof Zoomable>>,
 }> = ({ hold, onHoldClick, zoomableViewRef }) => {
 
   const [firstPos, setFirstPos] = useState<{ x: number, y: number } | null>(null);
@@ -18,10 +20,9 @@ const SVGHold: React.FC<{
       d={hold.svgPath}
       stroke={hold.color}
       fill='transparent'
-      strokeWidth={2 / (Math.max(1, zoom / 2))}
+      strokeWidth={2 * svgZoom / (Math.max(1, zoom / 2))}
       strokeLinejoin='round'
       strokeLinecap='round'
-      // onPress={() => onHoldClick?.(hold.id)}
       onStartShouldSetResponder={() => true}
       onMoveShouldSetResponder={() => true}
       onResponderMove={e => {
