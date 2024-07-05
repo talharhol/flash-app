@@ -32,15 +32,19 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     }
 
     return (
-        <BasicModal {...props} closeModal={() => { }} style={[{
-            width: "80%",
-            height: 600,
-            backgroundColor: "#E8E8E8",
-            borderRadius: 20,
-            opacity: 0.8,
-            justifyContent: "space-around",
-            alignItems: "center",
-        }, props.style]} >
+        <BasicModal
+            {...props}
+            closeModal={() => { }}
+            onRequestClose={props.closeModal}
+            style={[{
+                width: "80%",
+                height: 600,
+                backgroundColor: "#E8E8E8",
+                borderRadius: 20,
+                opacity: 0.8,
+                justifyContent: "space-around",
+                alignItems: "center",
+            }, props.style]} >
             <ThemedText lightColor="black" darkColor="black" type="subtitle">Filter Problems</ThemedText>
             <View style={{ flex: 1, height: 500, width: "100%", padding: 10, justifyContent: "space-around" }}>
                 <View style={styles.filterContainer}>

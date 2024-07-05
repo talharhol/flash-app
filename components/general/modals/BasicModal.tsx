@@ -1,25 +1,22 @@
-import { Wall } from "@/dataTypes/wall";
-import { ThemedText } from "@/components/general/ThemedText";
 import React from "react";
 import {
     Modal,
     Platform,
     StatusBar,
     StyleSheet,
-    Text,
-    TouchableOpacity,
     TouchableWithoutFeedback,
     View
 } from "react-native";
 
 const BasicModal: React.FC<React.ComponentProps<typeof Modal> & {
     closeModal: () => void;
-}> = ({ closeModal, children, style }) => {
+}> = ({ closeModal, children, style, ...props }) => {
     return (
         <Modal
             animationType="fade"
             transparent
             visible
+            onRequestClose={props.onRequestClose ?? closeModal}
         >
             <TouchableWithoutFeedback
                 onPress={closeModal}
