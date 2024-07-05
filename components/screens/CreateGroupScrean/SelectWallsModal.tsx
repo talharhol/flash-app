@@ -25,10 +25,6 @@ const SelectWallModal: React.FC<React.ComponentProps<typeof BasicModal> & {
             && wall.gym.toLocaleLowerCase().includes(filterGymName.toLocaleLowerCase())
         )
     }
-    // const onPublish = () => {
-    //     publishProblem({ name: name || getRandomName(), grade: selectedGrade });
-    //     props.closeModal();
-    // }
 
     return (
         <BasicModal {...props} style={[{height: "70%", overflow: "hidden", borderRadius: 8}, props.style]}>

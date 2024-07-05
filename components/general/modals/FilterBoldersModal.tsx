@@ -1,26 +1,155 @@
 import { ThemedText } from "@/components/general/ThemedText";
-import React from "react";
-import { View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 import BasicModal from "./BasicModal";
 import BasicButton from "../Buttom";
+import { Picker } from "@react-native-picker/picker";
+import { grades, users } from "@/app/debugData";
+import MultiSelect from "react-native-multiple-select";
+import DropDown from "../DropDown";
+import { Marker } from "react-native-svg";
 
 interface filtersType {
-
+    minGrade: number;
+    maxGrade: number;
+    name: string;
+    setters: string[];
 }
 
-const FilterBoldersModal: React.FC<React.ComponentProps<typeof BasicModal> & {
-    filters: filtersType,
+const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
+    initialFilters: filtersType,
     onFiltersChange: (filters: filtersType) => void;
-}> = ({ ...props  }) => {
+}> = ({ initialFilters, onFiltersChange, ...props }) => {
+    const [minGrade, setMinGrade] = useState(initialFilters.minGrade);
+    const [maxGrade, setMaxGrade] = useState(initialFilters.maxGrade);
+    const [name, setName] = useState(initialFilters.name);
+    const [setters, setSetters] = useState<string[]>([]);
+    useEffect(() => setSetters(initialFilters.setters), [])
+    const usersMultiSelect = useRef<MultiSelect>()
+    const Submit = () => {
+        onFiltersChange(
+            {
+                minGrade: minGrade,
+                maxGrade: maxGrade,
+                name: name,
+                setters: setters
+            }
+        );
+        props.closeModal();
+    }
+
     return (
-        <BasicModal {...props}>
-            <ThemedText lightColor="black" darkColor="black" type="subtitle">bla bla</ThemedText>
-            <View style={{ flexDirection: "row" }}>
-                <BasicButton text="cancel" color="red" onPress={props.closeModal} />
-                <BasicButton text="ok" color="green" onPress={() => {props.closeModal()}} />
+        <BasicModal {...props} closeModal={() => { }} style={[{
+            width: "80%",
+            height: 600,
+            backgroundColor: "#E8E8E8",
+            borderRadius: 20,
+            opacity: 0.8,
+            justifyContent: "space-around",
+            alignItems: "center",
+        }, props.style]} >
+            <ThemedText lightColor="black" darkColor="black" type="subtitle">Filter Problems</ThemedText>
+            <View style={{ flex: 1, height: 500, width: "100%", padding: 10, justifyContent: "space-around" }}>
+                <View style={styles.filterContainer}>
+                    <Text>Min grade</Text>
+                    <Picker
+                        style={{ paddingLeft: 20, height: 30, width: "90%", borderColor: "black", overflow: "hidden", borderWidth: 2, borderRadius: 8, marginTop: -20, marginBottom: 20 }}
+                        selectedValue={minGrade}
+                        onValueChange={(itemValue, itemIndex) => {
+                            setMinGrade(itemValue);
+                        }
+                        }>
+                        {
+                            Object.keys(grades).map((key) => (
+                                <Picker.Item
+                                    key={key}
+                                    label={grades[parseInt(key)]}
+                                    value={parseInt(key)}
+                                />
+                            ))
+                        }
+                    </Picker>
+                </View>
+                <View style={styles.filterContainer}>
+                    <Text>Max grade</Text>
+                    <Picker
+                        style={{ paddingLeft: 20, height: 30, width: "90%", borderColor: "black", overflow: "hidden", borderWidth: 2, borderRadius: 8, marginTop: -20, marginBottom: 20 }}
+                        selectedValue={maxGrade}
+                        onValueChange={(itemValue, itemIndex) => {
+                            setMaxGrade(itemValue);
+                        }
+                        }>
+                        {
+                            Object.keys(grades).map((key) => (
+                                <Picker.Item
+                                    style={{ height: 20 }}
+                                    key={key}
+                                    label={grades[parseInt(key)]}
+                                    value={parseInt(key)}
+                                />
+                            ))
+                        }
+                    </Picker>
+                </View>
+                <View style={styles.filterContainer}>
+                    <Text>Problem's name</Text>
+                    <TextInput
+                        style={{ borderRadius: 8, height: 40, borderWidth: 2, borderColor: "black", width: "90%", padding: 10, fontSize: 18, margin: 5 }}
+                        placeholder="name" value={name} onChangeText={(text) => {
+                            setName(text)
+                        }} />
+                </View>
+                <View style={styles.filterContainer}>
+                    <Text>Setters</Text>
+                    <View>
+                        {usersMultiSelect.current?.getSelectedItemsExt(setters)}
+                    </View>
+                    <View style={{ width: "100%" }}>
+                        <MultiSelect
+                            fixedHeight={true}
+                            hideTags
+                            ref={(component) => { usersMultiSelect.current = component || undefined }}
+                            items={users}
+                            uniqueKey="id"
+                            onSelectedItemsChange={(v) => {
+                                setSetters(v);
+                            }}
+                            selectedItems={setters}
+                            selectText="Pick setters"
+                            searchInputPlaceholderText="Search Setters..."
+                            onChangeInput={(text) => console.log(text)}
+                            altFontFamily="ProximaNova-Light"
+                            tagRemoveIconColor="black"
+                            tagBorderColor="black"
+                            tagTextColor="black"
+                            selectedItemTextColor="#CCC"
+                            selectedItemIconColor="#CCC"
+                            itemTextColor="black"
+                            displayKey="name"
+                            searchInputStyle={{ color: '#CCC' }}
+                            submitButtonColor="black"
+                            styleDropdownMenu={{ margin: 5, borderRadius: 8, overflow: "hidden" }}
+                            styleSelectorContainer={{ margin: 5, borderRadius: 8, overflow: "hidden" }}
+                            submitButtonText="Submit"
+
+                        />
+                    </View>
+
+                </View>
             </View>
+            <BasicButton text="Submit" color="green" style={{ margin: 10 }} onPress={Submit} />
+
         </BasicModal>
     );
 };
 
-export default FilterBoldersModal;
+export default FilterProblemssModal;
+
+const styles = StyleSheet.create({
+    filterContainer: {
+        backgroundColor: "gray",
+        alignItems: "center",
+        borderRadius: 8,
+        margin: 5,
+    }
+})

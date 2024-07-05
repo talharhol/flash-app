@@ -11,19 +11,41 @@ import BolderProblemPreview from '../../general/BolderProblemPreview';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import DisplayBolderProblemModal from '../../general/DisplayBolderProblemModal';
+import FilterProblemssModal from '@/components/general/modals/FilterBoldersModal';
 
 const ViewWallScreen: React.FC = () => {
     const router = useRouter();
     const wall = GetWall(useLocalSearchParams());
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(null);
+    const [filterProblemsModal, setFilterProblemsModal] = useState(false);
+    const [filters, setFilters] = useState<{
+        minGrade: number;
+        maxGrade: number;
+        name: string;
+        setters: string[];
+    }>({
+        minGrade: 1,
+        maxGrade: 15,
+        name: "",
+        setters: []
+    });
 
     return (
         <View style={{ height: "100%" }}>
 
-            {displayedProblem && <DisplayBolderProblemModal
-                problem={GetProblem({id: displayedProblem})}
-                closeModal={setDisplayedProblem.bind(this, null)} />}
-
+            {displayedProblem &&
+                <DisplayBolderProblemModal
+                    problem={GetProblem({ id: displayedProblem })}
+                    closeModal={setDisplayedProblem.bind(this, null)} />
+            }
+            {
+                filterProblemsModal &&
+                <FilterProblemssModal
+                    closeModal={() => setFilterProblemsModal(false)}
+                    initialFilters={filters}
+                    onFiltersChange={setFilters}
+                />
+            }
             <ParallaxScrollView
                 headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
                 headerImage={
@@ -32,6 +54,9 @@ const ViewWallScreen: React.FC = () => {
                         <Ionicons
                             onPress={() => router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id } })}
                             name='add-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 0, padding: 5 }} />
+                        <Ionicons
+                            onPress={() => setFilterProblemsModal(true)}
+                            name='filter' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 0, padding: 5 }} />
                     </ThemedView>
                 }>
                 {

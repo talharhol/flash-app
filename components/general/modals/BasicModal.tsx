@@ -21,7 +21,7 @@ const BasicModal: React.FC<React.ComponentProps<typeof Modal> & {
             transparent
             visible
         >
-            <TouchableOpacity
+            <TouchableWithoutFeedback
                 onPress={closeModal}
                 style={{backgroundColor: "rgba(50, 50, 50, 0.4)", height: "100%"}}
             >
@@ -32,7 +32,7 @@ const BasicModal: React.FC<React.ComponentProps<typeof Modal> & {
                         </View>
                     </TouchableWithoutFeedback>
                 </View>
-            </TouchableOpacity>
+            </TouchableWithoutFeedback>
         </Modal>
 
     );
