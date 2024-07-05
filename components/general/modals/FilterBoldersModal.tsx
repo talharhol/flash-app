@@ -6,19 +6,12 @@ import BasicButton from "../Buttom";
 import { Picker } from "@react-native-picker/picker";
 import { grades, users } from "@/app/debugData";
 import MultiSelect from "react-native-multiple-select";
-import DropDown from "../DropDown";
-import { Marker } from "react-native-svg";
+import { ProblemFilter } from "@/dataTypes/problem";
 
-interface filtersType {
-    minGrade: number;
-    maxGrade: number;
-    name: string;
-    setters: string[];
-}
 
 const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
-    initialFilters: filtersType,
-    onFiltersChange: (filters: filtersType) => void;
+    initialFilters: ProblemFilter,
+    onFiltersChange: (filters: ProblemFilter) => void;
 }> = ({ initialFilters, onFiltersChange, ...props }) => {
     const [minGrade, setMinGrade] = useState(initialFilters.minGrade);
     const [maxGrade, setMaxGrade] = useState(initialFilters.maxGrade);

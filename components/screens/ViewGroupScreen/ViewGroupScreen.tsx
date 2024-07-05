@@ -11,11 +11,20 @@ import BolderProblemPreview from '../../general/BolderProblemPreview';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import DisplayBolderProblemModal from '../../general/DisplayBolderProblemModal';
+import FilterProblemssModal from '@/components/general/modals/FilterBoldersModal';
+import { FilterProblems, ProblemFilter } from '@/dataTypes/problem';
 
 const ViewGroupScreen: React.FC = () => {
     const router = useRouter();
     const group = GetGroup(useLocalSearchParams());
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(null);
+    const [filterProblemsModal, setFilterProblemsModal] = useState(false);
+    const [filters, setFilters] = useState<ProblemFilter>({
+        minGrade: 1,
+        maxGrade: 15,
+        name: "",
+        setters: []
+    });
 
     return (
         <View style={{ height: "100%" }}>
@@ -23,20 +32,30 @@ const ViewGroupScreen: React.FC = () => {
             {displayedProblem && <DisplayBolderProblemModal
                 problem={GetProblem({ id: displayedProblem })}
                 closeModal={setDisplayedProblem.bind(this, null)} />}
+            {
+                filterProblemsModal &&
+                <FilterProblemssModal
+                    closeModal={() => setFilterProblemsModal(false)}
+                    initialFilters={filters}
+                    onFiltersChange={setFilters}
+                />
+            }
 
             <ParallaxScrollView
                 headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
                 headerImage={
                     <ThemedView style={styles.headerContainer}>
-                        <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{group.name}</ThemedText>
                         <Ionicons
                             onPress={() => router.push({ pathname: "/SelectWallScreen", params: { id: group.id } })}
                             name='add-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 0, padding: 5 }} />
+                        <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{group.name}</ThemedText>
+                        <Ionicons
+                            onPress={() => setFilterProblemsModal(true)}
+                            name='filter' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 0, padding: 5 }} />
                     </ThemedView>
                 }>
                 {
-                    group.problems.map(problem_id => {
-                        let problem = GetProblem({ id: problem_id })
+                    group.problems.map(problem_id => GetProblem({ id: problem_id })).filter(FilterProblems(filters)).map(problem => {
                         return (
                             <TouchableOpacity key={problem.id} onPress={setDisplayedProblem.bind(this, problem.id)}>
                                 <BolderProblemPreview

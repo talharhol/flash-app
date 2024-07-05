@@ -12,18 +12,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import DisplayBolderProblemModal from '../../general/DisplayBolderProblemModal';
 import FilterProblemssModal from '@/components/general/modals/FilterBoldersModal';
+import { FilterProblems, ProblemFilter } from '@/dataTypes/problem';
 
 const ViewWallScreen: React.FC = () => {
     const router = useRouter();
     const wall = GetWall(useLocalSearchParams());
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(null);
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
-    const [filters, setFilters] = useState<{
-        minGrade: number;
-        maxGrade: number;
-        name: string;
-        setters: string[];
-    }>({
+    const [filters, setFilters] = useState<ProblemFilter>({
         minGrade: 1,
         maxGrade: 15,
         name: "",
@@ -50,17 +46,17 @@ const ViewWallScreen: React.FC = () => {
                 headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
                 headerImage={
                     <ThemedView style={styles.headerContainer}>
-                        <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{wall.name}@{wall.gym}</ThemedText>
                         <Ionicons
                             onPress={() => router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id } })}
                             name='add-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 0, padding: 5 }} />
+                        <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{wall.name}@{wall.gym}</ThemedText>
                         <Ionicons
                             onPress={() => setFilterProblemsModal(true)}
                             name='filter' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 0, padding: 5 }} />
                     </ThemedView>
                 }>
                 {
-                    problems.map(problem =>
+                    problems.filter(FilterProblems(filters)).map(problem =>
                         <TouchableOpacity key={problem.id} onPress={setDisplayedProblem.bind(this, problem.id)}>
                             <BolderProblemPreview
                                 wall={wall}

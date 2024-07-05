@@ -54,10 +54,10 @@ export var holds = [
 ]
 
 export var problems = [
-    new Problem({ wallId: walls[0].id, name: "David", grade: 5, holds: holds }),
-    new Problem({ wallId: walls[0].id, name: "Moshe", grade: 6, holds: holds }),
-    new Problem({ wallId: walls[0].id, name: "Moav", grade: 7, holds: holds }),
-    new Problem({ wallId: walls[0].id, name: "Rotem", grade: 8, holds: holds }),
+    new Problem({ wallId: walls[0].id, name: "David", grade: 5, holds: holds, setter: users[0].id }),
+    new Problem({ wallId: walls[0].id, name: "Moshe", grade: 6, holds: holds, setter: users[1].id }),
+    new Problem({ wallId: walls[0].id, name: "Moav", grade: 7, holds: holds, setter: users[2].id }),
+    new Problem({ wallId: walls[0].id, name: "Rotem", grade: 8, holds: holds, setter: users[0].id }),
 ]
 
 
