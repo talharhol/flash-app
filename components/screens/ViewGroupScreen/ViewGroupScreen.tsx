@@ -1,9 +1,8 @@
-import { StyleSheet, Touchable, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import ThemedView from "@/components/general/ThemedView";
-import { problems } from '@/app/debugData';
 import React, { useState } from 'react';
 import { GetGroup, GetProblem, GetWall } from '@/scripts/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';

@@ -56,7 +56,6 @@ export default function TabLayout() {
         name="ViewWall"
         options={{
           href: null,
-          unmountOnBlur: true
         }}
       />
       <Tabs.Screen
@@ -70,7 +69,6 @@ export default function TabLayout() {
         name="ViewGroupScreen"
         options={{
           href: null,
-          unmountOnBlur: true
         }}
       />
       <Tabs.Screen
