@@ -58,12 +58,14 @@ export var problems = [
     new Problem({ wallId: walls[0].id, name: "Moshe", grade: 6, holds: holds, setter: users[1].id }),
     new Problem({ wallId: walls[0].id, name: "Moav", grade: 7, holds: holds, setter: users[2].id }),
     new Problem({ wallId: walls[0].id, name: "Rotem", grade: 8, holds: holds, setter: users[0].id }),
-]
+];
 
 
 export var groups = [
     new Group({ name: "Group1", image: require("../assets/images/climber.png"), walls: [walls[0].id, walls[1].id], members: users.map(u => u.id), admins: [users[0].id], problems: [problems[0].id, problems[1].id ]}),
-    new Group({ name: "Group2", image: require("../assets/images/climber.png"), walls: [walls[0].id, walls[1].id], members: users.map(u => u.id), admins: [users[0].id], problems: [problems[0].id, problems[1].id ] }),
-    new Group({ name: "Group3", image: require("../assets/images/climber.png"), walls: [walls[0].id, walls[1].id], members: users.map(u => u.id), admins: [users[0].id], problems: [problems[0].id, problems[1].id ] }),
+    new Group({ name: "Group2", image: require("../assets/images/climber.png"), walls: [walls[0].id, walls[1].id], members: users.map(u => u.id), admins: [users[1].id], problems: [problems[0].id, problems[1].id ] }),
+    new Group({ name: "Group3", image: require("../assets/images/climber.png"), walls: [walls[0].id, walls[1].id], members: users.map(u => u.id), admins: [users[2].id], problems: [problems[0].id, problems[1].id ] }),
     new Group({ name: "Group4", image: require("../assets/images/climber.png"), walls: [walls[0].id, walls[1].id], members: users.map(u => u.id), admins: [users[0].id], problems: [problems[0].id, problems[1].id ] }),
-]
+];
+
+export const currentUser = users[0];

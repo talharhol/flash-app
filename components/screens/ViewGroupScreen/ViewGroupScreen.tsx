@@ -10,7 +10,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import BolderProblemPreview from '../../general/BolderProblemPreview';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import DisplayBolderProblemModal from '../../general/DisplayBolderProblemModal';
+import DisplayBolderProblemModal from '../../general/modals/DisplayBolderProblemModal';
 import FilterProblemssModal from '@/components/general/modals/FilterBoldersModal';
 import { FilterProblems, ProblemFilter } from '@/dataTypes/problem';
 
@@ -47,11 +47,11 @@ const ViewGroupScreen: React.FC = () => {
                     <ThemedView style={styles.headerContainer}>
                         <Ionicons
                             onPress={() => router.push({ pathname: "/SelectWallScreen", params: { id: group.id } })}
-                            name='add-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 0, padding: 5 }} />
+                            name='add-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 10, padding: 5 }} />
                         <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{group.name}</ThemedText>
                         <Ionicons
                             onPress={() => setFilterProblemsModal(true)}
-                            name='filter' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 0, padding: 5 }} />
+                            name='filter' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 10, padding: 5 }} />
                     </ThemedView>
                 }>
                 {

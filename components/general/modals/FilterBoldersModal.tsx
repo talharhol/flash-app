@@ -22,10 +22,11 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     const Submit = () => {
         onFiltersChange(
             {
-                minGrade: minGrade,
-                maxGrade: maxGrade,
-                name: name,
-                setters: setters
+                minGrade,
+                maxGrade,
+                name,
+                setters,
+                isPublic: initialFilters.isPublic
             }
         );
         props.closeModal();

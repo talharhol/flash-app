@@ -7,13 +7,15 @@ export class Problem {
     grade: number;
     holds: Hold[];
     setter: string;
-    constructor({ id, name, wallId, grade, holds, setter }: { id?: string, name: string, wallId: string, grade: number, holds: Hold[], setter: string}) {
+    isPublic: boolean;
+    constructor({ id, name, wallId, grade, holds, setter, isPublic }: { id?: string, name: string, wallId: string, grade: number, holds: Hold[], setter: string, isPublic?: boolean}) {
         this.id = id || uuid.v4() as string;
         this.name = name;
         this.wallId = wallId;
         this.grade = grade;
         this.holds = holds;
         this.setter = setter;
+        this.isPublic = isPublic ?? true;
     }
 };
 
@@ -22,6 +24,7 @@ export interface ProblemFilter {
     maxGrade: number;
     name: string;
     setters: string[];
+    isPublic?: boolean
 }
 
 export function FilterProblems(filter: ProblemFilter) {
@@ -31,6 +34,7 @@ export function FilterProblems(filter: ProblemFilter) {
             && problem.grade <= filter.maxGrade
             && problem.name.includes(filter.name)
             && filter.setters.length > 0 ? filter.setters.includes(problem.setter) : true
+            && filter.isPublic !== undefined ? problem.isPublic == filter.isPublic : true
         )
     }
 }

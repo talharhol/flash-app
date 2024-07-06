@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   },
   zoomedContainer: {
     overflow: "hidden",
-    // flex: 1,
+    backgroundColor: "black",
   },
   zoomedContent: {
     flex: 1,

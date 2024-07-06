@@ -12,20 +12,24 @@ import BolderProblem from "@/components/general/BolderProblem";
 import BasicButton from "@/components/general/Buttom";
 import { Notifier, Easing } from "react-native-notifier";
 import WithCancelNotification from "@/components/general/notifications/WithCancelNotification";
-import { useLocalSearchParams } from "expo-router";
-import { GetWall } from "@/scripts/utils";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { GetGroup, GetWall } from "@/scripts/utils";
 import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
 import PublishProblemModal from "./PublishProblemModal";
+import { Problem } from "@/dataTypes/problem";
+import { currentUser, problems } from "@/app/debugData";
 
 
 const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
+  const router = useRouter();
   const wall = GetWall(useLocalSearchParams());
+  const targetGroup = useLocalSearchParams().groupId as (string | undefined);
   const [isDrawingHold, setIsDrawingHold] = useState(false);
   const [editedHold, setEditedHold] = useState<string | null>(null);
   const [isPublishModal, setIsPublishModal] = useState<boolean>(false);
-  const [drawingHoldType, setDrawingHoldType] = useState<HoldType | null>(null);
+  const [drawingHoldType, setDrawingHoldType] = useState<HoldType>(new HoldType(HoldTypes.route));
   const [holds, setHolds] = useState<Hold[]>([]);
   const startDrawingHold = () => {
     Notifier.showNotification({
@@ -41,15 +45,12 @@ const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
     });
     setIsDrawingHold(true);
   };
-  const startCreatingHold = (holdType: HoldType) => {
-    setDrawingHoldType(drawingHoldType?.type === holdType.type ? null : holdType);
-  };
   const onDrawHoldFinish = (hold: Hold) => {
     setHolds(holds => holds.concat([hold]));
     setIsDrawingHold(false);
   };
   const onConfiguredHoldPress = (id: string) => {
-    let holdType = drawingHoldType ? drawingHoldType.type : HoldTypes.start;
+    let holdType = drawingHoldType.type;
     let hold = wall.configuredHolds.filter(v => v.id === id)[0]
     setHolds(holds => holds.concat([new Hold({ svgPath: hold.svgPath, type: new HoldType(holdType) })]));
   }
@@ -67,7 +68,22 @@ const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
   }
 
   const publishProblem =  ({ name, grade }: { name: string, grade: number }) => {
-    alert("published: " + name);
+    var problem = new Problem({
+      name,
+      grade,
+      holds,
+      wallId: wall.id,
+      setter: currentUser.id,
+      isPublic: targetGroup === undefined
+    });
+    problems.push(problem);
+    if (targetGroup) {
+      let group = GetGroup({id: targetGroup});
+      group.problems.push(problem.id);
+      router.navigate({pathname: "/ViewGroupScreen", params: { id: group.id }});
+    }
+    else 
+      router.navigate({pathname: "/ViewWall", params: { id: wall.id }});
   }
 
   return (
@@ -88,10 +104,10 @@ const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
               return (
                 <BasicButton
                   style={{ width: "25%" }}
-                  selected={drawingHoldType?.type === hold.type}
+                  selected={drawingHoldType.type === hold.type}
                   text={hold.title}
                   color={hold.color}
-                  onPress={startCreatingHold.bind(this, hold)}
+                  onPress={() => setDrawingHoldType(hold)}
                   key={hold.type}
                 />
               );

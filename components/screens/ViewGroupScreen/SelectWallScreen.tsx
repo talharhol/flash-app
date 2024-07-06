@@ -31,7 +31,7 @@ const SelectWallScreen: React.FC = () => {
         createProblem(wall);
     };
     const createProblem = (wall: Wall) => {
-        router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id } })
+        router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id, groupId: group.id } })
     }
 
     return (
