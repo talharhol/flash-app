@@ -3,6 +3,7 @@ import React from "react";
 import { View } from "react-native";
 import BasicModal from "./BasicModal";
 import BasicButton from "../Buttom";
+import { ColorPallet } from "@/constants/Colors";
 
 const ActionValidationModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     approveAction: () => void;
@@ -10,7 +11,7 @@ const ActionValidationModal: React.FC<React.ComponentProps<typeof BasicModal> & 
 }> = ({ closeModal, approveAction, text }) => {
     return (
         <BasicModal closeModal={closeModal}>
-            <ThemedText lightColor="black" darkColor="black" type="subtitle">{text}</ThemedText>
+            <ThemedText lightColor={ColorPallet.light.text} darkColor={ColorPallet.light.text} type="subtitle">{text}</ThemedText>
             <View style={{ flexDirection: "row" }}>
                 <BasicButton text="cancel" color="red" onPress={closeModal} />
                 <BasicButton text="ok" color="green" onPress={() => {approveAction(); closeModal()}} />

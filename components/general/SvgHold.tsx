@@ -1,4 +1,4 @@
-import { HoldInterface } from "@/dataTypes/hold";
+import { HoldInterface } from "@/DAL/hold";
 import React, { useContext, useState } from "react";
 import { Path } from "react-native-svg";
 import { zoomSize } from "./SizeContext";

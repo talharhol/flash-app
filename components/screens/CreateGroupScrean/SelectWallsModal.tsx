@@ -6,7 +6,7 @@ import { TextInput } from "react-native";
 import { grades, walls } from "@/app/debugData";
 import { getRandomName } from "@/scripts/randomNames";
 import BasicButton from "@/components/general/Buttom";
-import { Wall } from "@/dataTypes/wall";
+import { Wall } from "@/DAL/wall";
 import { ThemedText } from "@/components/general/ThemedText";
 import PreviewItem from "@/components/general/PreviewItem";
 import ParallaxScrollView from "@/components/general/ParallaxScrollView";

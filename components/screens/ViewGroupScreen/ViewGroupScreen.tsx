@@ -11,7 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import DisplayBolderProblemModal from '../../general/modals/DisplayBolderProblemModal';
 import FilterProblemssModal from '@/components/general/modals/FilterBoldersModal';
-import { FilterProblems, ProblemFilter } from '@/dataTypes/problem';
+import { FilterProblems, ProblemFilter } from '@/DAL/problem';
 
 const ViewGroupScreen: React.FC = () => {
     const router = useRouter();

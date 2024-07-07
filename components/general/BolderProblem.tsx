@@ -1,4 +1,4 @@
-import { Hold, HoldType, SortHolds } from "@/dataTypes/hold";
+import { Hold, HoldType, SortHolds } from "@/DAL/hold";
 import { imageSize, zoomSize } from "../general/SizeContext";
 import React, { createRef, useContext, useEffect, useRef, useState } from "react";
 import {

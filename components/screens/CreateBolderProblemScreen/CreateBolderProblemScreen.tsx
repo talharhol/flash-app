@@ -6,7 +6,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { Hold, HoldType, HoldTypes } from "../../../dataTypes/hold";
+import { Hold, HoldType, HoldTypes } from "../../../DAL/hold";
 import EditHoldModal from "./EditHoldModal";
 import BolderProblem from "@/components/general/BolderProblem";
 import BasicButton from "@/components/general/Buttom";
@@ -18,7 +18,7 @@ import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
 import PublishProblemModal from "./PublishProblemModal";
-import { Problem } from "@/dataTypes/problem";
+import { Problem } from "@/DAL/problem";
 import { currentUser, problems } from "@/app/debugData";
 
 

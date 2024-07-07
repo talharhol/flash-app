@@ -1,5 +1,5 @@
 import React from "react";
-import { HoldType, HoldTypes } from "../../../dataTypes/hold";
+import { HoldType, HoldTypes } from "../../../DAL/hold";
 import BasicModal from "@/components/general/modals/BasicModal";
 import BasicButton from "@/components/general/Buttom";
 

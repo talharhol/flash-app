@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { View, useWindowDimensions } from "react-native";
 import Svg, { Path } from 'react-native-svg';
 import { imageSize, zoomSize } from './SizeContext';
-import { HoldType } from '@/dataTypes/hold';
+import { HoldType } from '@/DAL/hold';
 import SetRadiusModal from '../screens/CreateBolderProblemScreen/SelectRadiusModal';
 import { svgZoom } from '@/constants/consts';
 

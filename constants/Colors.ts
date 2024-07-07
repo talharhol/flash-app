@@ -24,3 +24,13 @@ export const Colors = {
     tabIconSelected: tintColorDark,
   },
 };
+
+export const ColorPallet = {
+  light: {
+    text: "black",
+    background: "white",
+    icon: "black",
+    headerBackgroundColor: "white",
+    bodyBackgroundColor: "black",
+  }
+}

@@ -1,7 +1,7 @@
 import { groups, problems, walls } from "@/app/debugData";
-import { Group } from "@/dataTypes/group";
-import { Problem } from "@/dataTypes/problem";
-import { Wall } from "@/dataTypes/wall";
+import { Group } from "@/DAL/group";
+import { Problem } from "@/DAL/problem";
+import { Wall } from "@/DAL/wall";
 
 export function GetWall({ id } : { id?: string }): Wall {
     return walls.filter(w => w.id === id)[0]

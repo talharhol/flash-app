@@ -1,6 +1,6 @@
 import BolderProblem from "@/components/general/BolderProblem";
 import BasicModal from "@/components/general/modals/BasicModal";
-import { Problem } from "@/dataTypes/problem";
+import { Problem } from "@/DAL/problem";
 import { GetWall } from "@/scripts/utils";
 import { Ionicons } from "@expo/vector-icons";
 

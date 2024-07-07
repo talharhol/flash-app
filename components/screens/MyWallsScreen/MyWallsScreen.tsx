@@ -4,7 +4,7 @@ import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import { walls } from '@/app/debugData';
 import React, { useState } from 'react';
-import { Wall } from '@/dataTypes/wall';
+import { Wall } from '@/DAL/wall';
 import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
 import ThemedView from '@/components/general/ThemedView';
 import { useRouter } from 'expo-router';

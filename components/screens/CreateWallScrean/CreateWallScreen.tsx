@@ -15,7 +15,7 @@ import SelectImageModal from "@/components/general/modals/SelectImageModal";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import Toggle from "react-native-toggle-element";
 import BasicButton from "@/components/general/Buttom";
-import { Wall } from "@/dataTypes/wall";
+import { Wall } from "@/DAL/wall";
 import { walls } from "@/app/debugData";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";

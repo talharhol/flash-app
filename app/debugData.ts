@@ -1,8 +1,8 @@
-import { Group } from "@/dataTypes/group"
-import { Hold, HoldType, HoldTypes } from "../dataTypes/hold"
-import { Problem } from "../dataTypes/problem"
-import { Wall } from "../dataTypes/wall"
-import { User } from "@/dataTypes/user"
+import { Group } from "@/DAL/group"
+import { Hold, HoldType, HoldTypes } from "../DAL/hold"
+import { Problem } from "../DAL/problem"
+import { Wall } from "../DAL/wall"
+import { User } from "@/DAL/user"
 interface Grades {
     [key: number]: string;
   }

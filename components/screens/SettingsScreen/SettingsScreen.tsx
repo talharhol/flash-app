@@ -7,7 +7,7 @@ import { groups as debugGroups, users } from '@/app/debugData';
 import React, { useState } from 'react';
 import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
 import PreviewItem from '@/components/general/PreviewItem';
-import { Group } from '@/dataTypes/group';
+import { Group } from '@/DAL/group';
 import { useRouter } from 'expo-router';
 import { BaseButton } from 'react-native-gesture-handler';
 

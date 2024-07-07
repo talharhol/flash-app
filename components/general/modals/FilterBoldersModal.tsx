@@ -6,7 +6,7 @@ import BasicButton from "../Buttom";
 import { Picker } from "@react-native-picker/picker";
 import { grades, users } from "@/app/debugData";
 import MultiSelect from "react-native-multiple-select";
-import { ProblemFilter } from "@/dataTypes/problem";
+import { ProblemFilter } from "@/DAL/problem";
 
 
 const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {

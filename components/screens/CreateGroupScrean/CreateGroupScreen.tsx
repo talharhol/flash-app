@@ -16,11 +16,11 @@ import BasicButton from "@/components/general/Buttom";
 import { groups, users, walls } from "@/app/debugData";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Group } from "@/dataTypes/group";
+import { Group } from "@/DAL/group";
 import MultiSelect from "react-native-multiple-select";
 import SelectWallModal from "./SelectWallsModal";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
-import { Wall } from "@/dataTypes/wall";
+import { Wall } from "@/DAL/wall";
 import { GetWall } from "@/scripts/utils";
 const WallItem = ({ wall, onRemove }: { wall: Wall, onRemove: (id: string) => void }) => (
     <View style={{ flexDirection: "row", borderRadius: 17, backgroundColor: "gray", justifyContent: "space-between", margin: 5}}>

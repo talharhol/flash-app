@@ -6,7 +6,7 @@ import {
     StyleSheet,
     View,
 } from "react-native";
-import { Hold, HoldType, HoldTypes } from "../../../dataTypes/hold";
+import { Hold, HoldType, HoldTypes } from "../../../DAL/hold";
 import BolderProblem from "@/components/general/BolderProblem";
 import { Notifier, Easing } from "react-native-notifier";
 import WithCancelNotification from "@/components/general/notifications/WithCancelNotification";

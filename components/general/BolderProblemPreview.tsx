@@ -2,9 +2,9 @@ import { grades } from "@/app/debugData";
 import BolderProblem from "@/components/general/BolderProblem";
 import { ThemedText } from "@/components/general/ThemedText";
 import ThemedView from "@/components/general/ThemedView";
-import { HoldType, HoldTypes } from "@/dataTypes/hold";
-import { Problem } from "@/dataTypes/problem";
-import { Wall } from "@/dataTypes/wall";
+import { HoldType, HoldTypes } from "@/DAL/hold";
+import { Problem } from "@/DAL/problem";
+import { Wall } from "@/DAL/wall";
 import { useEffect, useState } from "react";
 import { Image, useWindowDimensions } from "react-native";
 
