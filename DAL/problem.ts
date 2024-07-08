@@ -1,20 +1,15 @@
 import uuid from "react-native-uuid";
-
-interface Hold {
-    id: string;
-    color: string;
-    svgPath: string;
-}
+import { HoldInterface } from "./hold";
 
 export class Problem {
     id: string;
     name: string;
     wallId: string;
     grade: number;
-    holds: Hold[];
+    holds: HoldInterface[];
     setter: string;
     isPublic: boolean;
-    constructor({ id, name, wallId, grade, holds, setter, isPublic }: { id?: string, name: string, wallId: string, grade: number, holds: Hold[], setter: string, isPublic?: boolean}) {
+    constructor({ id, name, wallId, grade, holds, setter, isPublic }: { id?: string, name: string, wallId: string, grade: number, holds: HoldInterface[], setter: string, isPublic?: boolean}) {
         this.id = id || uuid.v4() as string;
         this.name = name;
         this.wallId = wallId;

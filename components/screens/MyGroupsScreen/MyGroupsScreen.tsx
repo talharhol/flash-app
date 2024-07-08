@@ -3,20 +3,20 @@ import { StyleSheet, View } from 'react-native';
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import ThemedView from '@/components/general/ThemedView';
-import { groups as debugGroups } from '@/app/debugData';
 import React, { useState } from 'react';
 import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
 import { Group } from '@/DAL/group';
 import { useRouter } from 'expo-router';
 import SwipablePreviewItem from '@/components/general/SwipeablePreviewItem';
 import BasicButton from '@/components/general/Buttom';
+import { useDal } from '@/DAL/DALService';
 
 const MyGroupsScreen: React.FC = () => {
     const router = useRouter();
+    const dal = useDal();
     const [groupToRemove, setGroupToRemove] = useState<Group | null>(null);
-    const [groups, setGroups] = useState<Group[]>(debugGroups)
     const RemoveGroup = (group: Group) => {
-        setGroups(groups.filter(v => v.id != group.id));
+        dal.deleteGroup({id: group.id});
         setGroupToRemove(null);
     };
     return (
@@ -29,7 +29,7 @@ const MyGroupsScreen: React.FC = () => {
             }>
             {groupToRemove && <ActionValidationModal closeModal={setGroupToRemove.bind(this, null)} approveAction={RemoveGroup.bind(this, groupToRemove)} text={`Remove ${groupToRemove.name} from your walls?`} />}
             {
-                groups.map(group =>
+                dal.getGroups({}).map(group =>
                     <SwipablePreviewItem
                         key={group.id}
                         onPress={() => router.push({ pathname: "/ViewGroupScreen", params: { id: group.id } })}

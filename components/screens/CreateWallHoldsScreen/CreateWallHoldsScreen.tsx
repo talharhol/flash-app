@@ -12,15 +12,15 @@ import { Notifier, Easing } from "react-native-notifier";
 import WithCancelNotification from "@/components/general/notifications/WithCancelNotification";
 import ActionValidationModal from "@/components/general/modals/ActionValidationModal";
 import { router, useLocalSearchParams } from "expo-router";
-import { GetWall } from "@/scripts/utils";
-import { walls } from "@/app/debugData";
 import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
+import { useDal } from "@/DAL/DALService";
 
 
 const CreateWallHoldsScreen: React.FC = ({ }) => {
-    const wall = GetWall(useLocalSearchParams());
+    const dal = useDal();
+    const wall = dal.getWall(useLocalSearchParams());
     const [isDrawingHold, setIsDrawingHold] = useState(false);
     const [editedHold, setEditedHold] = useState<string | null>(null);
     const [holds, setHolds] = useState<Hold[]>(wall?.configuredHolds.map((h) => new Hold({ id: h.id, svgPath: h.svgPath, type: new HoldType(HoldTypes.route) })));

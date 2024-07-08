@@ -4,15 +4,17 @@ import { StyleSheet, Text, TextInput, View } from "react-native";
 import BasicModal from "./BasicModal";
 import BasicButton from "../Buttom";
 import { Picker } from "@react-native-picker/picker";
-import { grades, users } from "@/app/debugData";
 import MultiSelect from "react-native-multiple-select";
 import { ProblemFilter } from "@/DAL/problem";
+import { grades } from "@/constants/consts";
+import { useDal } from "@/DAL/DALService";
 
 
 const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     initialFilters: ProblemFilter,
     onFiltersChange: (filters: ProblemFilter) => void;
 }> = ({ initialFilters, onFiltersChange, ...props }) => {
+    const dal = useDal();
     const [minGrade, setMinGrade] = useState(initialFilters.minGrade);
     const [maxGrade, setMaxGrade] = useState(initialFilters.maxGrade);
     const [name, setName] = useState(initialFilters.name);
@@ -107,7 +109,7 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                             fixedHeight={true}
                             hideTags
                             ref={(component) => { usersMultiSelect.current = component || undefined }}
-                            items={users}
+                            items={dal.getUsers({})}
                             uniqueKey="id"
                             onSelectedItemsChange={(v) => {
                                 setSetters(v);

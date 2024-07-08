@@ -4,18 +4,18 @@ import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import ThemedView from "@/components/general/ThemedView";
 import React, { useState } from 'react';
-import { GetGroup, GetWall } from '@/scripts/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import PreviewItem from '@/components/general/PreviewItem';
 import SelectImageModal from '@/components/general/modals/SelectImageModal';
-import { walls } from '@/app/debugData';
 import { Wall } from '@/DAL/wall';
+import { useDal } from '@/DAL/DALService';
 
 const SelectWallScreen: React.FC = () => {
     const router = useRouter();
-    const group = GetGroup(useLocalSearchParams());
+    const dal = useDal();
+    const group = dal.getGroup(useLocalSearchParams());
     const [selectImageModal, setSelectImageModal] = useState(false);
     const CreateAnonimusWall: (uri: string) => void = (uri) => {
         let wall = new Wall({
@@ -24,10 +24,8 @@ const SelectWallScreen: React.FC = () => {
             image: { uri },
             isPublic: false
         });
-        group.walls.push(wall.id)
-        walls.push(
-            wall
-        );
+        group.walls.push(wall.id);
+        dal.addWall(wall);
         createProblem(wall);
     };
     const createProblem = (wall: Wall) => {
@@ -55,11 +53,10 @@ const SelectWallScreen: React.FC = () => {
                     />
                 }
                 {
-                    group.walls.filter(wall_id => {
-                        let wall = GetWall({ id: wall_id });
-                        return wall.isPublic;
-                    }).map(wall_id => {
-                        let wall = GetWall({ id: wall_id });
+                    group.walls.filter(id => {
+                        return dal.getWall({id}).isPublic;
+                    }).map(id => {
+                        let wall = dal.getWall({ id });
                         return (
                             <TouchableOpacity
                                 key={wall.id}
@@ -81,11 +78,10 @@ const SelectWallScreen: React.FC = () => {
                     <View style={{height: 2, borderRadius:1, width: "100%", backgroundColor: "gray"}}/>
                 </View>
                 {
-                    group.walls.filter(wall_id => {
-                        let wall = GetWall({ id: wall_id });
-                        return !wall.isPublic;
-                    }).map(wall_id => {
-                        let wall = GetWall({ id: wall_id });
+                    group.walls.filter(id => {
+                        return !dal.getWall({id}).isPublic;
+                    }).map(id => {
+                        let wall = dal.getWall({ id });
                         return (
                             <TouchableOpacity
                                 key={wall.id}

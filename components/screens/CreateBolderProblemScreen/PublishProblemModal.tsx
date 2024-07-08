@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import BasicModal from "@/components/general/modals/BasicModal";
 import { Picker } from '@react-native-picker/picker';
 import { TextInput } from "react-native";
-import { grades } from "@/app/debugData";
 import { getRandomName } from "@/scripts/randomNames";
 import BasicButton from "@/components/general/Buttom";
+import { grades } from "@/constants/consts";
 
 const PublishProblemModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     publishProblem: ({ name, grade }: { name: string, grade: number }) => void;

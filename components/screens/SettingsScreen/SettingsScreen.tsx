@@ -1,24 +1,17 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import ThemedView from '@/components/general/ThemedView';
-import { groups as debugGroups, users } from '@/app/debugData';
-import React, { useState } from 'react';
-import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
+import React from 'react';
 import PreviewItem from '@/components/general/PreviewItem';
-import { Group } from '@/DAL/group';
 import { useRouter } from 'expo-router';
 import { BaseButton } from 'react-native-gesture-handler';
+import { useDal } from '@/DAL/DALService';
 
 const SettingsScreen: React.FC = () => {
     const router = useRouter();
-    const [groupToRemove, setGroupToRemove] = useState<Group | null>(null);
-    const [groups, setGroups] = useState<Group[]>(debugGroups)
-    const RemoveGroup = (group: Group) => {
-        setGroups(groups.filter(v => v.id != group.id));
-        setGroupToRemove(null);
-    };
+    const dal = useDal();
     return (
         <ParallaxScrollView
             headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -27,10 +20,9 @@ const SettingsScreen: React.FC = () => {
                     <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Settings</ThemedText>
                 </ThemedView>
             }>
-            {groupToRemove && <ActionValidationModal closeModal={setGroupToRemove.bind(this, null)} approveAction={RemoveGroup.bind(this, groupToRemove)} text={`Remove ${groupToRemove.name} from your walls?`} />}
             <TouchableOpacity onPress={() => alert()}>
                 <PreviewItem
-                    image={users[0].image}
+                    image={dal.currentUser.image}
                     title="Edit profile"
                 />
             </TouchableOpacity>

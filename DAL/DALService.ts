@@ -5,11 +5,11 @@ import { Problem } from "./problem";
 import { Group } from "./group";
 const debugHolds = [
     { color: "red", "id": "aea90438-79f4-411d-adaa-37c5009c6c3e", "svgPath": "M 91.28268432617188, 134.17945861816406 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
-    { color: "red", "id": "71be8fa1-4155-4bf4-a98b-20c9da286b77", "svgPath": "M 109.63833618164062, 132.369140625 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
-    { color: "red", "id": "220cd227-8ec2-4d73-beac-c7dc9f8376ac", "svgPath": "M 127.99398803710938, 132.59544372558594 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
-    { color: "red", "id": "7cc4a9fb-52e9-4b78-8565-0f19f2e57224", "svgPath": "M 92.06600189208984, 151.09469604492188 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
+    { color: "blue", "id": "71be8fa1-4155-4bf4-a98b-20c9da286b77", "svgPath": "M 109.63833618164062, 132.369140625 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
+    { color: "green", "id": "220cd227-8ec2-4d73-beac-c7dc9f8376ac", "svgPath": "M 127.99398803710938, 132.59544372558594 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
+    { color: "yellow", "id": "7cc4a9fb-52e9-4b78-8565-0f19f2e57224", "svgPath": "M 92.06600189208984, 151.09469604492188 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
     { color: "red", "id": "eebc54d2-3399-4fa1-813e-a11329f52942", "svgPath": "M 110.31720733642578, 149.3409423828125 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
-    { color: "red", "id": "dd0c2aa7-2820-4fe1-a057-2899bfa3dd19", "svgPath": "M 128.5161895751953, 147.41746520996094 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
+    { color: "blue", "id": "dd0c2aa7-2820-4fe1-a057-2899bfa3dd19", "svgPath": "M 128.5161895751953, 147.41746520996094 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
 ];
 class DalService {
     private static _instance: DalService;
@@ -27,10 +27,10 @@ class DalService {
             new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
         ]
         let walls = [
-            new Wall({ name: "Moon", gym: "Tal", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true }),
-            new Wall({ name: "Moon", gym: "Tal", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true }),
-            new Wall({ name: "Moon", gym: "Tal", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true }),
-            new Wall({ name: "Moon", gym: "Tal", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true }),
+            new Wall({ name: "Moon", gym: "Tal", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true, dal: this }),
+            new Wall({ name: "Moon", gym: "Tal", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true, dal: this }),
+            new Wall({ name: "Moon", gym: "Tal", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true, dal: this }),
+            new Wall({ name: "Moon", gym: "Tal", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true, dal: this }),
         ]
         let problems = [
             new Problem({ wallId: walls[0].id, name: "David", grade: 5, holds: debugHolds, setter: users[0].id }),
@@ -55,8 +55,8 @@ class DalService {
         return Object.values(this._walls)
             .filter(
                 w => params.isPublic !== undefined ? w.isPublic === params.isPublic : true
-                    && params.name !== undefined ? w.name.includes(params.name) : true
-                        && params.gym !== undefined ? w.gym.includes(params.gym) : true
+                    && params.name !== undefined ? w.name.toLocaleLowerCase().includes(params.name.toLocaleLowerCase()) : true
+                        && params.gym !== undefined ? w.gym.toLocaleLowerCase().includes(params.gym.toLocaleLowerCase()) : true
 
             );
     }
@@ -112,6 +112,7 @@ class DalService {
     }
 
     public addWall: (obj: Wall) => Wall = (obj) => {
+        obj.setDAL(this);
         return this._walls[obj.id] = obj
     }
 
@@ -129,6 +130,10 @@ class DalService {
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
+    }
+
+    public get currentUser() {
+        return this._users[0];
     }
 }
 

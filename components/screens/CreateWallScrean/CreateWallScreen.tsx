@@ -16,13 +16,14 @@ import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import Toggle from "react-native-toggle-element";
 import BasicButton from "@/components/general/Buttom";
 import { Wall } from "@/DAL/wall";
-import { walls } from "@/app/debugData";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useDal } from "@/DAL/DALService";
 
 
 const CreateWallScreen: React.FC = ({ }) => {
     const router = useRouter();
+    const dal = useDal();
     const [selectedImage, setSelectedImage] = useState<string>('');
     const [selectImageModal, setSelectImageModal] = useState(true);
     const [isPublic, setIsPublic] = useState(false);
@@ -49,9 +50,7 @@ const CreateWallScreen: React.FC = ({ }) => {
             image: { uri: selectedImage },
             isPublic: isPublic
         });
-        walls.push(
-            wall
-        );
+        dal.addWall(wall);
         router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } });
     };
     const SaveWallImage: (uri: string) => void = (uri) => {

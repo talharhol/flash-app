@@ -13,18 +13,18 @@ import BasicButton from "@/components/general/Buttom";
 import { Notifier, Easing } from "react-native-notifier";
 import WithCancelNotification from "@/components/general/notifications/WithCancelNotification";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { GetGroup, GetWall } from "@/scripts/utils";
 import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
 import PublishProblemModal from "./PublishProblemModal";
 import { Problem } from "@/DAL/problem";
-import { currentUser, problems } from "@/app/debugData";
+import { useDal } from "@/DAL/DALService";
 
 
 const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
   const router = useRouter();
-  const wall = GetWall(useLocalSearchParams());
+  const dal = useDal();
+  const wall = dal.getWall(useLocalSearchParams());
   const targetGroup = useLocalSearchParams().groupId as (string | undefined);
   const [isDrawingHold, setIsDrawingHold] = useState(false);
   const [editedHold, setEditedHold] = useState<string | null>(null);
@@ -73,12 +73,12 @@ const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
       grade,
       holds,
       wallId: wall.id,
-      setter: currentUser.id,
+      setter: dal.currentUser.id,
       isPublic: targetGroup === undefined
     });
-    problems.push(problem);
+    dal.addProblem(problem);
     if (targetGroup) {
-      let group = GetGroup({id: targetGroup});
+      let group = dal.getGroup({id: targetGroup});
       group.problems.push(problem.id);
       router.navigate({pathname: "/ViewGroupScreen", params: { id: group.id }});
     }

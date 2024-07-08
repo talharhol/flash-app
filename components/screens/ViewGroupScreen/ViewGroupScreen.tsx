@@ -4,7 +4,6 @@ import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import ThemedView from "@/components/general/ThemedView";
 import React, { useState } from 'react';
-import { GetGroup, GetProblem, GetWall } from '@/scripts/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import BolderProblemPreview from '../../general/BolderProblemPreview';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,10 +11,12 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import DisplayBolderProblemModal from '../../general/modals/DisplayBolderProblemModal';
 import FilterProblemssModal from '@/components/general/modals/FilterBoldersModal';
 import { FilterProblems, ProblemFilter } from '@/DAL/problem';
+import { useDal } from '@/DAL/DALService';
 
 const ViewGroupScreen: React.FC = () => {
     const router = useRouter();
-    const group = GetGroup(useLocalSearchParams());
+    const dal = useDal();
+    const group = dal.getGroup(useLocalSearchParams());
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(null);
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
     const [filters, setFilters] = useState<ProblemFilter>({
@@ -29,7 +30,7 @@ const ViewGroupScreen: React.FC = () => {
         <View style={{ height: "100%" }}>
 
             {displayedProblem && <DisplayBolderProblemModal
-                problem={GetProblem({ id: displayedProblem })}
+                problem={dal.getProblem({ id: displayedProblem })}
                 closeModal={setDisplayedProblem.bind(this, null)} />}
             {
                 filterProblemsModal &&
@@ -54,11 +55,11 @@ const ViewGroupScreen: React.FC = () => {
                     </ThemedView>
                 }>
                 {
-                    group.problems.map(problem_id => GetProblem({ id: problem_id })).filter(FilterProblems(filters)).map(problem => {
+                    group.problems.map(problem_id => dal.getProblem({ id: problem_id })).filter(FilterProblems(filters)).map(problem => {
                         return (
                             <TouchableOpacity key={problem.id} onPress={setDisplayedProblem.bind(this, problem.id)}>
                                 <BolderProblemPreview
-                                    wall={GetWall({ id: problem.wallId })}
+                                    wall={dal.getWall({ id: problem.wallId })}
                                     problem={problem}
                                 />
                             </TouchableOpacity>

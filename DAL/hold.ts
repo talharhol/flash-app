@@ -52,11 +52,7 @@ export interface HoldInterface {
     svgPath: string;
 }
 
-interface SortHold {
-    svgPath: string;
-}
-
-export const SortHolds = (hold1: SortHold, hold2: SortHold) => {
+export const SortHolds = (hold1: HoldInterface, hold2: HoldInterface) => {
     let len1 = new svgPathProperties(hold1.svgPath).getTotalLength()
     let len2 = new svgPathProperties(hold2.svgPath).getTotalLength()
     if (len1 > len2)

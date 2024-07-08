@@ -13,7 +13,6 @@ import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
 import SelectImageModal from "@/components/general/modals/SelectImageModal";
 import BasicButton from "@/components/general/Buttom";
-import { groups, users, walls } from "@/app/debugData";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Group } from "@/DAL/group";
@@ -21,7 +20,7 @@ import MultiSelect from "react-native-multiple-select";
 import SelectWallModal from "./SelectWallsModal";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import { Wall } from "@/DAL/wall";
-import { GetWall } from "@/scripts/utils";
+import { useDal } from "@/DAL/DALService";
 const WallItem = ({ wall, onRemove }: { wall: Wall, onRemove: (id: string) => void }) => (
     <View style={{ flexDirection: "row", borderRadius: 17, backgroundColor: "gray", justifyContent: "space-between", margin: 5}}>
         <Image source={wall.image} style={{ height: 30, width: 30, borderRadius: 15, margin: 2 }} />
@@ -34,6 +33,7 @@ const WallItem = ({ wall, onRemove }: { wall: Wall, onRemove: (id: string) => vo
 
 const CreateGroupScreen: React.FC = ({ }) => {
     const router = useRouter();
+    const dal = useDal();
     const [selectedImage, setSelectedImage] = useState<string>('');
     const [selectImageModal, setSelectImageModal] = useState(true);
     const [selectWallModal, setSelectWallModal] = useState(false);
@@ -58,7 +58,7 @@ const CreateGroupScreen: React.FC = ({ }) => {
             members: selectedUsers,
             walls: selectedWalls.map(w => w.id)
         });
-        groups.push(group);
+        dal.addGroup(group);
         router.push({ pathname: "/MyGroupsScreen" });
     };
     const SaveWallImage: (uri: string) => void = (uri) => {
@@ -83,7 +83,9 @@ const CreateGroupScreen: React.FC = ({ }) => {
 
             }
             {selectWallModal &&
-                <SelectWallModal selectedWalls={selectedWalls} onSelect={(id: string) => setSelectedWalls(selectedWalls.concat([GetWall({ id })]))} closeModal={() => setSelectWallModal(false)} />}
+                <SelectWallModal 
+                selectedWalls={selectedWalls} 
+                onSelect={(id: string) => setSelectedWalls(selectedWalls.concat([dal.getWall({ id })]))} closeModal={() => setSelectWallModal(false)} />}
             <View style={{ alignSelf: "center", height: 200, width: 200 }}>
                 <Image style={{ height: "100%", width: "100%", borderRadius: 10000 }} source={selectedImage ? { uri: selectedImage } : require('../../../assets/images/upload.png')} />
                 <Ionicons
@@ -101,7 +103,7 @@ const CreateGroupScreen: React.FC = ({ }) => {
             <MultiSelect
                 hideTags
                 ref={(component) => { usersMultiSelect.current = component || undefined }}
-                items={users}
+                items={dal.getUsers({})}
                 uniqueKey="id"
                 onSelectedItemsChange={setSelectedUsers}
                 selectedItems={selectedUsers}

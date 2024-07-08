@@ -1,30 +1,21 @@
 import React, { useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import BasicModal from "@/components/general/modals/BasicModal";
-import { Picker } from '@react-native-picker/picker';
 import { TextInput } from "react-native";
-import { grades, walls } from "@/app/debugData";
-import { getRandomName } from "@/scripts/randomNames";
-import BasicButton from "@/components/general/Buttom";
 import { Wall } from "@/DAL/wall";
 import { ThemedText } from "@/components/general/ThemedText";
 import PreviewItem from "@/components/general/PreviewItem";
 import ParallaxScrollView from "@/components/general/ParallaxScrollView";
 import ThemedView from "@/components/general/ThemedView";
+import { useDal } from "@/DAL/DALService";
 
 const SelectWallModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     onSelect: (id: string) => void;
     selectedWalls: Wall[];
 }> = ({ onSelect, selectedWalls, ...props }) => {
+    const dal = useDal();
     const [filterWallName, setFilterWallName] = useState<string>('');
     const [filterGymName, setFilterGymName] = useState<string>(''); const [name, setName] = useState<string>('');
-    const filterWalls = (wall: Wall) => {
-        return (
-            wall.isPublic
-            && wall.name.toLocaleLowerCase().includes(filterWallName.toLocaleLowerCase())
-            && wall.gym.toLocaleLowerCase().includes(filterGymName.toLocaleLowerCase())
-        )
-    }
 
     return (
         <BasicModal {...props} style={[{height: "70%", overflow: "hidden", borderRadius: 8}, props.style]}>
@@ -38,7 +29,7 @@ const SelectWallModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                 </ThemedView>
             }>
             {
-                walls.filter(filterWalls).map(wall =>
+                dal.getWalls({isPublic: true, gym: filterGymName, name: filterWallName}).map(wall =>
                     <TouchableOpacity
                         key={wall.id}
                         onPress={() => {onSelect(wall.id); props.closeModal()}}

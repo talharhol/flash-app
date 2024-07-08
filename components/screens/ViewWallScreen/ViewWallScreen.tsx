@@ -3,9 +3,7 @@ import { StyleSheet, Touchable, View } from 'react-native';
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import ThemedView from "@/components/general/ThemedView";
-import { problems } from '@/app/debugData';
 import React, { useState } from 'react';
-import { GetProblem, GetWall } from '@/scripts/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import BolderProblemPreview from '../../general/BolderProblemPreview';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,10 +11,12 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import DisplayBolderProblemModal from '../../general/modals/DisplayBolderProblemModal';
 import FilterProblemssModal from '@/components/general/modals/FilterBoldersModal';
 import { FilterProblems, ProblemFilter } from '@/DAL/problem';
+import { useDal } from '@/DAL/DALService';
 
 const ViewWallScreen: React.FC = () => {
     const router = useRouter();
-    const wall = GetWall(useLocalSearchParams());
+    const dal = useDal();
+    const wall = dal.getWall(useLocalSearchParams());
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(null);
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
     const [filters, setFilters] = useState<ProblemFilter>({
@@ -32,7 +32,7 @@ const ViewWallScreen: React.FC = () => {
 
             {displayedProblem &&
                 <DisplayBolderProblemModal
-                    problem={GetProblem({ id: displayedProblem })}
+                    problem={dal.getProblem({ id: displayedProblem })}
                     closeModal={setDisplayedProblem.bind(this, null)} />
             }
             {
@@ -57,7 +57,7 @@ const ViewWallScreen: React.FC = () => {
                     </ThemedView>
                 }>
                 {
-                    problems.filter(FilterProblems(filters)).map(problem =>
+                    dal.getProblems({wallId: wall.id}).filter(FilterProblems(filters)).map(problem =>
                         <TouchableOpacity style={{alignSelf: "center"}} key={problem.id} onPress={setDisplayedProblem.bind(this, problem.id)}>
                             <BolderProblemPreview
                                 wall={wall}

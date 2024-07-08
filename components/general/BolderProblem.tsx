@@ -1,6 +1,6 @@
-import { Hold, HoldType, SortHolds } from "@/DAL/hold";
-import { imageSize, zoomSize } from "../general/SizeContext";
-import React, { createRef, useContext, useEffect, useRef, useState } from "react";
+import { Hold, HoldInterface, HoldType, SortHolds } from "@/DAL/hold";
+import { imageSize } from "../general/SizeContext";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Image,
   Platform,
@@ -14,13 +14,12 @@ import Svg from "react-native-svg";
 import Zoomable from "./Zoomable";
 import DrawHold from "./DrawHold";
 import SVGHold from "./SvgHold";
-import { ReactNativeZoomableView } from "@openspacelabs/react-native-zoomable-view";
 import { svgZoom } from "@/constants/consts";
 
 const BolderProblem: React.FC<React.ComponentProps<typeof View> & {
   wallImage: ImageSourcePropType;
   configuredHolds?: { id: string; svgPath: string; }[];
-  existingHolds?: Hold[];
+  existingHolds?: HoldInterface[];
   drawingHoldType?: HoldType | null;
   disableMovment?: boolean;
   scale?: number

@@ -1,7 +1,7 @@
-import { grades } from "@/app/debugData";
 import BolderProblem from "@/components/general/BolderProblem";
 import { ThemedText } from "@/components/general/ThemedText";
 import ThemedView from "@/components/general/ThemedView";
+import { grades } from "@/constants/consts";
 import { HoldType, HoldTypes } from "@/DAL/hold";
 import { Problem } from "@/DAL/problem";
 import { Wall } from "@/DAL/wall";

@@ -1,6 +1,7 @@
-import { users } from "@/app/debugData";
 import { ImageSourcePropType } from "react-native";
 import uuid from "react-native-uuid";
+import { IDAL } from "./IDAL";
+import { User } from "./user";
 export class Group {
     id: string;
     name: string;
@@ -9,7 +10,8 @@ export class Group {
     admins: string[];
     walls: string[];
     problems: string[];
-    constructor({ id, name, image, members, admins, walls, problems }: {id?: string, name: string, image: ImageSourcePropType, members?: string[], admins?: string[], walls?: string[], problems?: string[]}) {
+    dal?: IDAL;
+    constructor({ id, name, image, members, admins, walls, problems, dal }: {id?: string, name: string, image: ImageSourcePropType, members?: string[], admins?: string[], walls?: string[], problems?: string[], dal?: IDAL}) {
         this.id = id || uuid.v4() as string;
         this.name = name;
         this.image = image;
@@ -17,10 +19,19 @@ export class Group {
         this.admins = admins || [];
         this.walls = walls || [];
         this.problems = problems || [];
+        this.dal = dal
+    }
+    
+    setDAL = (dal: IDAL) => {
+        this.dal = dal;
     }
 
     public getMembers() {
-        return this.members.map(uid => users.filter(u => u.id === uid)[0]);
+        if (this.dal === undefined) {
+            return [];
+        } 
+            return this.members.map(uid => this.dal!.getUser({id: uid}));
+        
     }
 
     public getDescription(): string {

@@ -2,7 +2,6 @@ import { StyleSheet, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
-import { walls } from '@/app/debugData';
 import React, { useState } from 'react';
 import { Wall } from '@/DAL/wall';
 import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
@@ -10,12 +9,14 @@ import ThemedView from '@/components/general/ThemedView';
 import { useRouter } from 'expo-router';
 import BasicButton from '@/components/general/Buttom';
 import SwipablePreviewItem from '@/components/general/SwipeablePreviewItem';
+import { useDal } from '@/DAL/DALService';
 
 const MyWalssScreen: React.FC = () => {
+    const dal = useDal();
     const router = useRouter();
     const [wallToRemove, setWallToRemove] = useState<Wall | null>(null);
     const RemoveWall = (wall: Wall) => {
-        walls.filter(v => v.id != wall.id);
+        dal.deleteWall({id: wall.id});
         setWallToRemove(null);
     };
     return (
@@ -28,7 +29,7 @@ const MyWalssScreen: React.FC = () => {
             }>
             {wallToRemove && <ActionValidationModal closeModal={setWallToRemove.bind(this, null)} approveAction={RemoveWall.bind(this, wallToRemove)} text={`Remove ${wallToRemove.name} from your walls?`} />}
             {
-                walls.map(wall =>
+                dal.getWalls({isPublic: true}).map(wall =>
                     <SwipablePreviewItem key={wall.id} image={wall.image}
                         title={`${wall.name}@${wall.gym}`}
                         subTitle={wall.angle && `${wall.angle}°` || undefined}
