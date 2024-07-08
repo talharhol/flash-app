@@ -69,13 +69,14 @@ const BolderProblem: React.FC<React.ComponentProps<typeof View> & {
             }
             <View style={{ position: "absolute", zIndex: 1 }}>
               <Svg
-                viewBox={`0 0 ${imageWidth * svgZoom} ${imageHeight * svgZoom}`}
+                viewBox={`0 0 ${imageWidth * svgZoom / (scale || 1)} ${imageHeight * svgZoom / (scale || 1)}`}
                 style={[{ position: "relative", width: imageWidth, height: imageHeight }]}>
                 {
                   configuredHolds?.sort(SortHolds).map(hold => (
                     <SVGHold
                       key={hold.id}
                       hold={hold}
+                      transparant
                       onHoldClick={onConfiguredHoldClick}
                       zoomableViewRef={zoomableViewRef}
                     />

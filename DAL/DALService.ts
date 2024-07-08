@@ -133,7 +133,7 @@ class DalService {
     }
 
     public get currentUser() {
-        return this._users[0];
+        return Object.values(this._users)[0];
     }
 }
 

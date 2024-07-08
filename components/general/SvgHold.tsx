@@ -7,9 +7,10 @@ import { svgZoom } from "@/constants/consts";
 
 const SVGHold: React.FC<{
   hold: HoldInterface,
+  transparant?: boolean
   onHoldClick?: (id: string) => void,
   zoomableViewRef?: React.RefObject<React.ElementRef<typeof Zoomable>>,
-}> = ({ hold, onHoldClick, zoomableViewRef }) => {
+}> = ({ hold, onHoldClick, zoomableViewRef, transparant }) => {
 
   const [firstPos, setFirstPos] = useState<{ x: number, y: number } | null>(null);
   const [firstPosPage, setFirstPosPage] = useState<{ x: number, y: number } | null>(null);
@@ -18,7 +19,7 @@ const SVGHold: React.FC<{
     <Path
       key={hold.id}
       d={hold.svgPath}
-      stroke={hold.color}
+      stroke={transparant ? undefined : hold.color}
       fill='transparent'
       strokeWidth={2 * svgZoom / (Math.max(1, zoom / 2))}
       strokeLinejoin='round'
