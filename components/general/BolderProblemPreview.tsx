@@ -18,10 +18,21 @@ const BolderProblemPreview: React.FC<React.ComponentProps<typeof ThemedView> & {
 }> = ({ wall, problem, onPress, ...props }) => {
     const scale = 0.8;
     const screenDimension = useWindowDimensions();
-    const width = screenDimension.width * scale;
+    const [width, setWidth] = useState(0);
     const [height, setHeight] = useState(0);
     useEffect(() => {
-        Image.getSize(Image.resolveAssetSource(wall.image).uri, (w, h) => setHeight(width / (w || 1) * h));
+        Image.getSize(Image.resolveAssetSource(wall.image).uri, (w, h) => {
+            let tmpWidth = screenDimension.width * scale;
+            let tmpHeight = tmpWidth * 1.5;
+            if (h / w <= 1.5) {
+              tmpHeight = tmpWidth / (w || 1) * h;
+            } else {
+              tmpHeight = tmpWidth * 1.5;
+              tmpWidth = tmpHeight / (h / w);
+            }
+            setHeight(tmpHeight);
+            setWidth(tmpWidth);
+          });
     }, []);
     const problemRef = useRef<BolderProblemComponent>(null);
 
@@ -50,6 +61,7 @@ const BolderProblemPreview: React.FC<React.ComponentProps<typeof ThemedView> & {
                     wallImage={wall.image}
                     existingHolds={problem.holds}
                     disableMovment
+                    bindToImage
                 />
                 <View style={{ position: 'absolute', right: 0, height: height, justifyContent: "center" }}>
                     <Ionicons size={20} style={{ paddingLeft: 10, paddingBottom: 10, paddingTop: 10 }} name='arrow-back' onPress={() => isOpen ? swipeRow.current?.closeRow() : swipeRow.current?.manuallySwipeRow(-250)} />

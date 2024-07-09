@@ -65,7 +65,6 @@ const ViewWallScreen: React.FC = () => {
                             wall={wall}
                             problem={problem}
                         />
-
                     )
                 }
             </ParallaxScrollView>

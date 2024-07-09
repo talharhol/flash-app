@@ -9,7 +9,13 @@ const Zoomable = forwardRef<ReactNativeZoomableView, ReactNativeZoomableViewProp
     maxZoom,
     ...props
 }, ref) => {
-    const [zoomState, setZoomStat] = useState<ZoomableViewEvent | null>(null);
+    const [zoomState, setZoomStat] = useState<{zoomLevel: number,
+        offsetX: number,
+        offsetY: number,}>({
+        zoomLevel: 1,
+        offsetX: 0,
+        offsetY: 0,
+    });
     const onTransform: React.ComponentProps<typeof ReactNativeZoomableView>["onTransform"] = (zoomableViewEventObject: ZoomableViewEvent) => {
         setZoomStat(zoomableViewEventObject);
         return props.onTransform?.(zoomableViewEventObject);
@@ -20,7 +26,7 @@ const Zoomable = forwardRef<ReactNativeZoomableView, ReactNativeZoomableViewProp
          style={{
             width: dimensions?.width,
             height: dimensions?.height,
-            transform: [{ scale: zoomState === null ? 1 : zoomState.zoomLevel }, { translateX: zoomState === null ? 0 : zoomState.offsetX }, { translateY: zoomState === null ? 0 : zoomState.offsetY }]
+            transform: [{ scale: zoomState.zoomLevel }, { translateX: zoomState.offsetX }, { translateY: zoomState.offsetY }]
         }}>
             <zoomSize.Provider value={zoomState === null ? 1 : zoomState.zoomLevel}>
                 {children}
@@ -33,9 +39,9 @@ const Zoomable = forwardRef<ReactNativeZoomableView, ReactNativeZoomableViewProp
             contentWidth={dimensions?.width}
             contentHeight={dimensions?.height}
             maxZoom={maxZoom ?? 4}
-            initialOffsetX={zoomState === null ? 0 : zoomState.offsetX}
-            initialOffsetY={zoomState === null ? 0 : zoomState.offsetY}
-            initialZoom={zoomState === null ? 1 : zoomState.zoomLevel}
+            initialOffsetX={zoomState.offsetX}
+            initialOffsetY={zoomState.offsetY}
+            initialZoom={zoomState.zoomLevel}
             minZoom={1}
             zoomStep={2}
             bindToBorders

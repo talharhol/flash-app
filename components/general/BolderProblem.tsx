@@ -27,6 +27,7 @@ interface BolderProblemProps extends ViewProps {
   disableMovment?: boolean;
   scale?: number
   fullScreen?: boolean;
+  bindToImage?: boolean;
   onDrawHoldFinish?: (hold: Hold) => void;
   onDrawHoldCancel?: () => void;
   onConfiguredHoldClick?: (hold_id: string) => void;
@@ -40,7 +41,7 @@ export interface BolderProblemComponent {
 
 const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
   (
-    { wallImage, configuredHolds, existingHolds, drawingHoldType, disableMovment, scale, fullScreen, onDrawHoldFinish, onDrawHoldCancel, onConfiguredHoldClick, onHoldClick, ...props }
+    { wallImage, configuredHolds, existingHolds, drawingHoldType, disableMovment, scale, fullScreen, bindToImage, onDrawHoldFinish, onDrawHoldCancel, onConfiguredHoldClick, onHoldClick, ...props }
     , ref
   ) => {
   const screenDimension = useWindowDimensions();
@@ -63,7 +64,7 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
       setImageHeight(tmpHeight);
       setImageWidth(tmpWidth);
     });
-  }, [wallImage]);
+  }, []);
   const zoomableViewRef = useRef<React.ElementRef<typeof Zoomable>>(null);
   const captureAndSave = async () => {
     try {
@@ -87,9 +88,20 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
   }, []);
   const problemContainerRef = useRef(null);
 
+  const getHeight = () => {
+    if (fullScreen) return screenDimension.height;
+    if (bindToImage) return imageHeight;
+    return screenDimension.width * 1.5 * (scale || 1);
+  }
+  const getWidth = () => {
+    if (fullScreen) return screenDimension.width;
+    if (bindToImage) return imageWidth;
+    return screenDimension.width * (scale || 1);
+  }
+
   
   return (
-    <View {...props} style={[styles.zoomedContainer, { height: fullScreen ? screenDimension.height * (scale || 1) : screenDimension.width * 1.5 * (scale || 1), width: screenDimension.width * (scale || 1), alignContent: "center", justifyContent: "center", alignItems:"center" }, props.style]}>
+    <View {...props} style={[styles.zoomedContainer, { height: getHeight(), width: getWidth(), alignContent: "center", justifyContent: "center", alignItems:"center" }, props.style]}>
       <imageSize.Provider value={{ width: imageWidth, height: imageHeight }}>
         <Zoomable
           ref={zoomableViewRef}
