@@ -67,7 +67,7 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
   const zoomableViewRef = useRef<React.ElementRef<typeof Zoomable>>(null);
   const captureAndSave = async () => {
     try {
-      const uri = await captureRef(viewRef, {
+      const uri = await captureRef(problemContainerRef, {
         format: 'png',
         quality: 1,
       });
@@ -85,7 +85,7 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
       },
     };
   }, []);
-  const viewRef = useRef();
+  const problemContainerRef = useRef(null);
 
   
   return (
@@ -94,7 +94,7 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
         <Zoomable
           ref={zoomableViewRef}
           disableMovement={!!disableMovment || !!drawingHoldType} maxZoom={20}>
-            <View ref={viewRef} style={styles.zoomedContent} collapsable={false}>
+            <View ref={problemContainerRef} style={styles.zoomedContent} collapsable={false}>
               {
                 !!drawingHoldType &&
                 <DrawHold
