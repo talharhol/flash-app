@@ -26,6 +26,7 @@ const Zoomable = forwardRef<ReactNativeZoomableView, ReactNativeZoomableViewProp
          style={{
             width: dimensions?.width,
             height: dimensions?.height,
+            alignContent: "center", justifyContent: "center", alignItems:"center", alignSelf: "center",
             transform: [{ scale: zoomState.zoomLevel }, { translateX: zoomState.offsetX }, { translateY: zoomState.offsetY }]
         }}>
             <zoomSize.Provider value={zoomState === null ? 1 : zoomState.zoomLevel}>
@@ -48,7 +49,7 @@ const Zoomable = forwardRef<ReactNativeZoomableView, ReactNativeZoomableViewProp
             onTransform={onTransform}
             ref={ref}
         >
-            <zoomSize.Provider value={zoomState === null ? 1 : zoomState.zoomLevel}>
+            <zoomSize.Provider value={zoomState.zoomLevel}>
                 {children}
             </zoomSize.Provider>
         </ReactNativeZoomableView>

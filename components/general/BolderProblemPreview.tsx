@@ -28,7 +28,6 @@ const BolderProblemPreview: React.FC<React.ComponentProps<typeof ThemedView> & {
               tmpHeight = tmpWidth / (w || 1) * h;
             } else {
               tmpHeight = tmpWidth * 1.5;
-              tmpWidth = tmpHeight / (h / w);
             }
             setHeight(tmpHeight);
             setWidth(tmpWidth);

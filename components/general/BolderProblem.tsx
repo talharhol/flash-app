@@ -95,7 +95,6 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
   }
   const getWidth = () => {
     if (fullScreen) return screenDimension.width;
-    if (bindToImage) return imageWidth;
     return screenDimension.width * (scale || 1);
   }
 
@@ -106,7 +105,7 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
         <Zoomable
           ref={zoomableViewRef}
           disableMovement={!!disableMovment || !!drawingHoldType} maxZoom={20}>
-            <View ref={problemContainerRef} style={styles.zoomedContent} collapsable={false}>
+            <View ref={problemContainerRef} style={[styles.zoomedContent, {height: getHeight(), width: getWidth(), alignContent: "center", justifyContent: "center", alignItems:"center" }]} collapsable={false}>
               {
                 !!drawingHoldType &&
                 <DrawHold
