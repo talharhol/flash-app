@@ -65,10 +65,9 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
     });
   }, [wallImage]);
   const zoomableViewRef = useRef<React.ElementRef<typeof Zoomable>>(null);
-  const viewShotRef = useRef<React.ElementRef<typeof ViewShot>>();
   const captureAndSave = async () => {
     try {
-      const uri = await captureRef(viewShotRef, {
+      const uri = await captureRef(viewRef, {
         format: 'png',
         quality: 1,
       });
@@ -86,15 +85,16 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
       },
     };
   }, []);
+  const viewRef = useRef();
+
   
   return (
-    <View {...props} style={[styles.zoomedContainer, { height: fullScreen ? screenDimension.height * (scale || 1) : screenDimension.width * 1.5 * (scale || 1), width: screenDimension.width * (scale || 1) }, props.style]}>
+    <View {...props} style={[styles.zoomedContainer, { height: fullScreen ? screenDimension.height * (scale || 1) : screenDimension.width * 1.5 * (scale || 1), width: screenDimension.width * (scale || 1), alignContent: "center", justifyContent: "center", alignItems:"center" }, props.style]}>
       <imageSize.Provider value={{ width: imageWidth, height: imageHeight }}>
         <Zoomable
           ref={zoomableViewRef}
           disableMovement={!!disableMovment || !!drawingHoldType} maxZoom={20}>
-          <ViewShot ref={viewShotRef as any} options={{ format: 'png', quality: 1 }}>
-            <View style={styles.zoomedContent}>
+            <View ref={viewRef} style={styles.zoomedContent} collapsable={false}>
               {
                 !!drawingHoldType &&
                 <DrawHold
@@ -132,7 +132,6 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
               </View>
               <Image style={[styles.problemImage, { width: imageWidth, height: imageHeight }]} source={wallImage} />
             </View>
-          </ViewShot>
         </Zoomable>
       </imageSize.Provider>
     </View>

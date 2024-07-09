@@ -5,15 +5,17 @@ import { grades } from "@/constants/consts";
 import { Problem } from "@/DAL/problem";
 import { Wall } from "@/DAL/wall";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useRef, useState } from "react";
-import { Image, useWindowDimensions } from "react-native";
+import { createRef, useEffect, useRef, useState } from "react";
+import { Image, useWindowDimensions, View } from "react-native";
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { SwipeRow } from "react-native-swipe-list-view";
 
 
 const BolderProblemPreview: React.FC<React.ComponentProps<typeof ThemedView> & {
     wall: Wall;
     problem: Problem;
-}> = ({ wall, problem, ...props }) => {
+    onPress?: () => void;
+}> = ({ wall, problem, onPress, ...props }) => {
     const scale = 0.8;
     const screenDimension = useWindowDimensions();
     const width = screenDimension.width * scale;
@@ -23,26 +25,37 @@ const BolderProblemPreview: React.FC<React.ComponentProps<typeof ThemedView> & {
     }, []);
     const problemRef = useRef<BolderProblemComponent>(null);
 
-    return (
-        <ThemedView {...props} style={[{ overflow: "hidden", flexDirection: "column", borderRadius: 8, width: width, height: height }]}>
-            <ThemedView style={{ backgroundColor: "rgba(50, 50, 50, 0.4)", flexDirection: "row", justifyContent: 'space-between', position: "absolute", width: "100%", paddingLeft: 5, paddingRight: 5, zIndex: 1 }}>
-                <ThemedText>{problem.name}</ThemedText>
-                <ThemedText>{grades[problem.grade]}</ThemedText>
-            </ThemedView>
-            <BolderProblem
-                ref={problemRef}
-                scale={scale}
-                wallImage={wall.image}
-                existingHolds={problem.holds}
-                disableMovment
-            />
-            <TouchableWithoutFeedback
-                onPress={() => problemRef.current?.exportProblem()}>
-                <Ionicons
-                    name="code-download-outline" size={50} color={"white"} style={{ zIndex: 1, position: "absolute", bottom: 0, right: 0, marginRight: 5 }} />
-            </TouchableWithoutFeedback>
+    const swipeRow = createRef<SwipeRow<typeof ThemedView>>();
+    const [isOpen, setIsOpen] = useState(false);
+    const OnPressWrapper = () => {
+        if (isOpen) swipeRow.current?.closeRow();
+        else onPress?.();
+    };
 
-        </ThemedView>
+    return (
+        <SwipeRow style={props.style} ref={swipeRow} rightOpenValue={- 250} onRowPress={OnPressWrapper} onRowOpen={() => setIsOpen(true)} onRowClose={() => setIsOpen(false)}>
+            <ThemedView {...props} style={[{ backgroundColor: "gray", overflow: "hidden", borderRadius: 8, width: width, height: height }]}>
+                <Ionicons
+                    onPress={() => problemRef.current?.exportProblem()}
+                    name="code-download-outline" size={100} color={"white"} style={{ position: "absolute", bottom: 0, right: 0, marginRight: 5 }} />
+            </ThemedView>
+            <ThemedView {...props} style={[{ overflow: "hidden", flexDirection: "column", borderRadius: 8, width: width, height: height }]}>
+                <ThemedView style={{ backgroundColor: "rgba(50, 50, 50, 0.4)", flexDirection: "row", justifyContent: 'space-between', position: "absolute", width: "100%", paddingLeft: 5, paddingRight: 5, zIndex: 1 }}>
+                    <ThemedText>{problem.name}</ThemedText>
+                    <ThemedText>{grades[problem.grade]}</ThemedText>
+                </ThemedView>
+                <BolderProblem
+                    ref={problemRef}
+                    scale={scale}
+                    wallImage={wall.image}
+                    existingHolds={problem.holds}
+                    disableMovment
+                />
+                <View style={{ position: 'absolute', right: 0, height: height, justifyContent: "center" }}>
+                    <Ionicons size={20} style={{ paddingLeft: 10, paddingBottom: 10, paddingTop: 10 }} name='arrow-back' onPress={() => isOpen ? swipeRow.current?.closeRow() : swipeRow.current?.manuallySwipeRow(-250)} />
+                </View>
+            </ThemedView>
+        </ SwipeRow>
     )
 }
 

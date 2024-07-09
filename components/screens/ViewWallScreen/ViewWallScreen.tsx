@@ -57,13 +57,14 @@ const ViewWallScreen: React.FC = () => {
                     </ThemedView>
                 }>
                 {
-                    dal.getProblems({wallId: wall.id}).filter(FilterProblems(filters)).map(problem =>
-                        <TouchableOpacity style={{alignSelf: "center"}} key={problem.id} onPress={setDisplayedProblem.bind(this, problem.id)}>
-                            <BolderProblemPreview
-                                wall={wall}
-                                problem={problem}
-                            />
-                        </TouchableOpacity>
+                    dal.getProblems({ wallId: wall.id }).filter(FilterProblems(filters)).map(problem =>
+                        <BolderProblemPreview
+                            key={problem.id}
+                            onPress={() => setDisplayedProblem(problem.id)}
+                            style={{ alignSelf: "center" }}
+                            wall={wall}
+                            problem={problem}
+                        />
 
                     )
                 }

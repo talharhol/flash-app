@@ -18,7 +18,6 @@ const DisplayBolderProblemModal: React.FC<React.ComponentProps<typeof BasicModal
             />
             <Ionicons onPress={props.closeModal} color={"gray"} name="exit-outline" size={50} style={{position: "absolute", margin: 10, right: 0}}/>
         </BasicModal>
-
     )
 }
 
