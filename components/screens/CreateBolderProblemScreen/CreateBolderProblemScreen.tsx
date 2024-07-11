@@ -6,7 +6,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { Hold, HoldType, HoldTypes } from "../../../DAL/hold";
+import { Hold, HoldInterface, HoldType, HoldTypes } from "../../../DAL/hold";
 import EditHoldModal from "./EditHoldModal";
 import BolderProblem from "@/components/general/BolderProblem";
 import BasicButton from "@/components/general/Buttom";
@@ -30,7 +30,7 @@ const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
   const [editedHold, setEditedHold] = useState<string | null>(null);
   const [isPublishModal, setIsPublishModal] = useState<boolean>(false);
   const [drawingHoldType, setDrawingHoldType] = useState<HoldType>(new HoldType(HoldTypes.route));
-  const [holds, setHolds] = useState<Hold[]>([]);
+  const [holds, setHolds] = useState<HoldInterface[]>([]);
   const startDrawingHold = () => {
     Notifier.showNotification({
       duration: 3000,
@@ -45,7 +45,7 @@ const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
     });
     setIsDrawingHold(true);
   };
-  const onDrawHoldFinish = (hold: Hold) => {
+  const onDrawHoldFinish = (hold: HoldInterface) => {
     setHolds(holds => holds.concat([hold]));
     setIsDrawingHold(false);
   };
@@ -58,12 +58,12 @@ const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
     if (is_delete) {
       setHolds(holds.filter(h => h.id !== id));
       setEditedHold(null);
-      return
+      return;
     }
     if (holdType == null)
-      return
-    let hold = holds.filter(v => v.id === id)[0]
-    hold.type = holdType
+      return;
+    let hold = holds.filter(v => v.id === id)[0];
+    hold.color = holdType.color;
     setHolds(holds.filter(h => h.id !== id).concat([hold]));
   }
 

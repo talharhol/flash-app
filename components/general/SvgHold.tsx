@@ -11,7 +11,6 @@ const SVGHold: React.FC<{
   onHoldClick?: (id: string) => void,
   zoomableViewRef?: React.RefObject<React.ElementRef<typeof Zoomable>>,
 }> = ({ hold, onHoldClick, zoomableViewRef, transparant }) => {
-
   const [firstPos, setFirstPos] = useState<{ x: number, y: number } | null>(null);
   const [firstPosPage, setFirstPosPage] = useState<{ x: number, y: number } | null>(null);
   const zoom = useContext(zoomSize);
@@ -21,7 +20,7 @@ const SVGHold: React.FC<{
       d={hold.svgPath}
       stroke={transparant ? undefined : hold.color}
       fill='transparent'
-      strokeWidth={2 * svgZoom / (Math.max(1, zoom / 2))}
+      strokeWidth={2 * svgZoom / (Math.max(1, zoom / 4))}
       strokeLinejoin='round'
       strokeLinecap='round'
       onStartShouldSetResponder={() => true}

@@ -7,7 +7,7 @@ import { Wall } from "@/DAL/wall";
 import { Ionicons } from "@expo/vector-icons";
 import { createRef, useEffect, useRef, useState } from "react";
 import { Image, useWindowDimensions, View } from "react-native";
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import * as Sharing from 'expo-sharing';
 import { SwipeRow } from "react-native-swipe-list-view";
 
 
@@ -45,6 +45,12 @@ const BolderProblemPreview: React.FC<React.ComponentProps<typeof ThemedView> & {
     return (
         <SwipeRow style={props.style} ref={swipeRow} rightOpenValue={- 250} onRowPress={OnPressWrapper} onRowOpen={() => setIsOpen(true)} onRowClose={() => setIsOpen(false)}>
             <ThemedView {...props} style={[{ backgroundColor: "gray", overflow: "hidden", borderRadius: 8, width: width, height: height }]}>
+                <Ionicons
+                    onPress={async () => {
+                        Sharing.shareAsync(await problemRef.current?.getProblemUrl()!);
+                        
+                    }}
+                    name="share-outline" size={100} color={"white"} style={{ position: "absolute", top: 0, right: 0, marginRight: 5 }} />
                 <Ionicons
                     onPress={() => problemRef.current?.exportProblem()}
                     name="code-download-outline" size={100} color={"white"} style={{ position: "absolute", bottom: 0, right: 0, marginRight: 5 }} />

@@ -3,13 +3,14 @@ import { Wall } from "./wall";
 import { User } from "./user";
 import { Problem } from "./problem";
 import { Group } from "./group";
+import { BaseDAL } from "./BaseDAL";
+
 const debugHolds = [
     { color: "red", "id": "aea90438-79f4-411d-adaa-37c5009c6c3e", "svgPath": "M 91.28268432617188, 134.17945861816406 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
     { color: "blue", "id": "71be8fa1-4155-4bf4-a98b-20c9da286b77", "svgPath": "M 109.63833618164062, 132.369140625 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
     { color: "green", "id": "220cd227-8ec2-4d73-beac-c7dc9f8376ac", "svgPath": "M 127.99398803710938, 132.59544372558594 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
     { color: "yellow", "id": "7cc4a9fb-52e9-4b78-8565-0f19f2e57224", "svgPath": "M 92.06600189208984, 151.09469604492188 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
     { color: "red", "id": "eebc54d2-3399-4fa1-813e-a11329f52942", "svgPath": "M 110.31720733642578, 149.3409423828125 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
-    { color: "blue", "id": "dd0c2aa7-2820-4fe1-a057-2899bfa3dd19", "svgPath": "M 128.5161895751953, 147.41746520996094 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
 ];
 class DalService {
     private static _instance: DalService;
@@ -17,10 +18,23 @@ class DalService {
     private _walls: { [key: string]: Wall } = {}
     private _problems: { [key: string]: Problem } = {}
     private _groups: { [key: string]: Group } = {}
+
+    private _userDal?: BaseDAL<User>;
+    private _wallDal?: BaseDAL<Wall>;
+    private _problemDal?: BaseDAL<Problem>;
+    private _groupDal?: BaseDAL<User>;
+
+
     constructor() {
         if (!!DalService._instance) {
             return DalService._instance;
         }
+
+        this._userDal = new BaseDAL<User>(this);
+        this._wallDal = new BaseDAL<Wall>(this);
+        this._problemDal = new BaseDAL<Problem>(this);
+        this._groupDal = new BaseDAL<Group>(this);
+
         let users = [
             new User({ name: "Tal", image: require("../assets/images/climber.png") }),
             new User({ name: "Gozal", image: require("../assets/images/climber.png") }),
@@ -44,11 +58,27 @@ class DalService {
             new Group({ name: "Group3", image: require("../assets/images/climber.png"), walls: [walls[0].id, walls[1].id], members: users.map(u => u.id), admins: [users[2].id], problems: [problems[0].id, problems[1].id] }),
             new Group({ name: "Group4", image: require("../assets/images/climber.png"), walls: [walls[0].id, walls[1].id], members: users.map(u => u.id), admins: [users[0].id], problems: [problems[0].id, problems[1].id] }),
         ];
+
+
+
         users.forEach(u => this._users[u.id] = u);
         walls.forEach(u => this._walls[u.id] = u);
         problems.forEach(u => this._problems[u.id] = u);
         groups.forEach(u => this._groups[u.id] = u);
         DalService._instance = this;
+    }
+
+    public get walls() {
+        return this._wallDal!
+    }
+    public get users() {
+        return this._userDal!
+    }
+    public get groups() {
+        return this._groupDal!
+    }
+    public get problems() {
+        return this._problemDal!
     }
 
     public getWalls: (params: { isPublic?: boolean, name?: string, gym?: string }) => Wall[] = (params) => {

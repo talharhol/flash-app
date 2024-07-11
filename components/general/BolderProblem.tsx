@@ -16,7 +16,7 @@ import Zoomable from "./Zoomable";
 import DrawHold from "./DrawHold";
 import SVGHold from "./SvgHold";
 import { svgZoom } from "@/constants/consts";
-import ViewShot, {captureRef} from "react-native-view-shot";
+import { captureRef } from "react-native-view-shot";
 import * as MediaLibrary from 'expo-media-library';
 
 interface BolderProblemProps extends ViewProps {
@@ -28,7 +28,7 @@ interface BolderProblemProps extends ViewProps {
   scale?: number
   fullScreen?: boolean;
   bindToImage?: boolean;
-  onDrawHoldFinish?: (hold: Hold) => void;
+  onDrawHoldFinish?: (hold: HoldInterface) => void;
   onDrawHoldCancel?: () => void;
   onConfiguredHoldClick?: (hold_id: string) => void;
   onHoldClick?: (hold_id: string) => void;
@@ -36,6 +36,7 @@ interface BolderProblemProps extends ViewProps {
 
 export interface BolderProblemComponent {
   exportProblem: () => void;
+  getProblemUrl: () => string;
 }
 
 
@@ -44,68 +45,74 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
     { wallImage, configuredHolds, existingHolds, drawingHoldType, disableMovment, scale, fullScreen, bindToImage, onDrawHoldFinish, onDrawHoldCancel, onConfiguredHoldClick, onHoldClick, ...props }
     , ref
   ) => {
-  const screenDimension = useWindowDimensions();
-  const [imageHeight, setImageHeight] = useState(0);
-  const [imageWidth, setImageWidth] = useState(screenDimension.width * (scale || 1));
-  const onCreatedHold = (path: string) => {
-    if (drawingHoldType == null) return;
-    onDrawHoldFinish?.(new Hold({ svgPath: path, type: drawingHoldType }));
-  };
-  useEffect(() => {
-    Image.getSize(Image.resolveAssetSource(wallImage).uri, (width, height) => {
-      let tmpWidth = screenDimension.width * (scale ? scale : 1);
-      let tmpHeight = tmpWidth * 1.5;
-      if (height / width <= 1.5) {
-        tmpHeight = tmpWidth / (width || 1) * height;
-      } else {
-        tmpHeight = tmpWidth * 1.5;
-        tmpWidth = tmpHeight / (height / width);
-      }
-      setImageHeight(tmpHeight);
-      setImageWidth(tmpWidth);
-    });
-  }, []);
-  const zoomableViewRef = useRef<React.ElementRef<typeof Zoomable>>(null);
-  const captureAndSave = async () => {
-    try {
-      const uri = await captureRef(problemContainerRef, {
-        format: 'png',
-        quality: 1,
-      });
-      await MediaLibrary.saveToLibraryAsync(uri);
-      alert('Image saved to gallery!');
-    } catch (error) {
-      console.error('Error capturing and saving image:', error);
-    }
-  };
-
-  useImperativeHandle(ref, () => {
-    return {
-      exportProblem() {
-        captureAndSave();
-      },
+    const screenDimension = useWindowDimensions();
+    const [imageHeight, setImageHeight] = useState(0);
+    const [imageWidth, setImageWidth] = useState(screenDimension.width * (scale || 1));
+    const onCreatedHold = (path: string) => {
+      if (drawingHoldType == null) return;
+      onDrawHoldFinish?.(new Hold({ svgPath: path, type: drawingHoldType }));
     };
-  }, []);
-  const problemContainerRef = useRef(null);
+    useEffect(() => {
+      Image.getSize(Image.resolveAssetSource(wallImage).uri, (width, height) => {
+        let tmpWidth = screenDimension.width * (scale ? scale : 1);
+        let tmpHeight = tmpWidth * 1.5;
+        if (height / width <= 1.5) {
+          tmpHeight = tmpWidth / (width || 1) * height;
+        } else {
+          tmpHeight = tmpWidth * 1.5;
+          tmpWidth = tmpHeight / (height / width);
+        }
+        setImageHeight(tmpHeight);
+        setImageWidth(tmpWidth);
+      });
+    }, []);
+    const zoomableViewRef = useRef<React.ElementRef<typeof Zoomable>>(null);
+    const captureAndSave = async () => {
+      try {
+        const uri = await captureRef(problemContainerRef, {
+          format: 'png',
+          quality: 1,
+        });
+        await MediaLibrary.saveToLibraryAsync(uri);
+        alert('Image saved to gallery!');
+      } catch (error) {
+        console.error('Error capturing and saving image:', error);
+      }
+    };
 
-  const getHeight = () => {
-    if (fullScreen) return screenDimension.height;
-    if (bindToImage) return imageHeight;
-    return screenDimension.width * 1.5 * (scale || 1);
-  }
-  const getWidth = () => {
-    if (fullScreen) return screenDimension.width;
-    return screenDimension.width * (scale || 1);
-  }
+    useImperativeHandle(ref, () => {
+      return {
+        exportProblem() {
+          captureAndSave();
+        },
+        async getProblemUrl() {
+          return await captureRef(problemContainerRef, {
+            format: 'png',
+            quality: 1,
+          })
+        },
+      };
+    }, []);
+    const problemContainerRef = useRef(null);
 
-  
-  return (
-    <View {...props} style={[styles.zoomedContainer, { height: getHeight(), width: getWidth(), alignContent: "center", justifyContent: "center", alignItems:"center" }, props.style]}>
-      <imageSize.Provider value={{ width: imageWidth, height: imageHeight }}>
-        <Zoomable
-          ref={zoomableViewRef}
-          disableMovement={!!disableMovment || !!drawingHoldType} maxZoom={20}>
-            <View ref={problemContainerRef} style={[styles.zoomedContent, {height: getHeight(), width: getWidth(), alignContent: "center", justifyContent: "center", alignItems:"center" }]} collapsable={false}>
+    const getHeight = () => {
+      if (fullScreen) return screenDimension.height;
+      if (bindToImage) return imageHeight;
+      return screenDimension.width * 1.5 * (scale || 1);
+    }
+    const getWidth = () => {
+      if (fullScreen) return screenDimension.width;
+      return screenDimension.width * (scale || 1);
+    }
+
+
+    return (
+      <View {...props} style={[styles.zoomedContainer, { height: getHeight(), width: getWidth(), alignContent: "center", justifyContent: "center", alignItems: "center" }, props.style]}>
+        <imageSize.Provider value={{ width: imageWidth, height: imageHeight }}>
+          <Zoomable
+            ref={zoomableViewRef}
+            disableMovement={!!disableMovment || !!drawingHoldType} maxZoom={20}>
+            <View ref={problemContainerRef} style={[styles.zoomedContent, { height: getHeight(), width: getWidth(), alignContent: "center", justifyContent: "center", alignItems: "center" }]} collapsable={false}>
               {
                 !!drawingHoldType &&
                 <DrawHold
@@ -143,11 +150,11 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
               </View>
               <Image style={[styles.problemImage, { width: imageWidth, height: imageHeight }]} source={wallImage} />
             </View>
-        </Zoomable>
-      </imageSize.Provider>
-    </View>
-  );
-});
+          </Zoomable>
+        </imageSize.Provider>
+      </View>
+    );
+  });
 
 
 export default BolderProblem;

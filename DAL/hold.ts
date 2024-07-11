@@ -48,16 +48,17 @@ export class Hold {
 
 export interface HoldInterface {
     id: string;
-    color?: string;
     svgPath: string;
+    color?: string;
+    length?: number;
 }
 
 export const SortHolds = (hold1: HoldInterface, hold2: HoldInterface) => {
-    let len1 = new svgPathProperties(hold1.svgPath).getTotalLength()
-    let len2 = new svgPathProperties(hold2.svgPath).getTotalLength()
-    if (len1 > len2)
+    hold1.length = hold1.length || new svgPathProperties(hold1.svgPath).getTotalLength()
+    hold2.length = hold2.length || new svgPathProperties(hold2.svgPath).getTotalLength()
+    if (hold1.length > hold2.length)
         return -1
-    if (len1 === len2)
+    if (hold1.length === hold2.length)
         return 0
     return 1
 }

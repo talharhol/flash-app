@@ -6,7 +6,7 @@ import {
     StyleSheet,
     View,
 } from "react-native";
-import { Hold, HoldType, HoldTypes } from "../../../DAL/hold";
+import { Hold, HoldInterface, HoldType, HoldTypes } from "../../../DAL/hold";
 import BolderProblem from "@/components/general/BolderProblem";
 import { Notifier, Easing } from "react-native-notifier";
 import WithCancelNotification from "@/components/general/notifications/WithCancelNotification";
@@ -23,7 +23,7 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
     const wall = dal.getWall(useLocalSearchParams());
     const [isDrawingHold, setIsDrawingHold] = useState(false);
     const [editedHold, setEditedHold] = useState<string | null>(null);
-    const [holds, setHolds] = useState<Hold[]>(wall?.configuredHolds.map((h) => new Hold({ id: h.id, svgPath: h.svgPath, type: new HoldType(HoldTypes.route) })));
+    const [holds, setHolds] = useState<HoldInterface[]>(wall?.configuredHolds.map((h) => ({ id: h.id, svgPath: h.svgPath, color: new HoldType(HoldTypes.route).color })));
     const startDrawingHold = () => {
         Notifier.showNotification({
             duration: 3000,
@@ -38,7 +38,7 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
         });
         setIsDrawingHold(true);
     };
-    const onDrawHoldFinish = (hold: Hold) => {
+    const onDrawHoldFinish = (hold: HoldInterface) => {
         setHolds(holds => holds.concat([hold]));
         setIsDrawingHold(false);
     };
@@ -47,7 +47,8 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
         setEditedHold(null);
     };
     const SaveHolds = () => {
-        wall.configuredHolds = holds.map(h => {return {id: h.id, svgPath: h.svgPath}});
+        wall.configuredHolds = holds;
+        alert(holds[0].length)
         router.push("/");
     }
 

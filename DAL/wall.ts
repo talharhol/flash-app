@@ -1,13 +1,14 @@
 import { ImageSourcePropType } from "react-native";
 import uuid from "react-native-uuid";
 import { IDAL } from "./IDAL";
+import { HoldInterface } from "./hold";
 export class Wall {
     id: string;
     name: string;
     gym: string;
     image: ImageSourcePropType;
     angle?: number;
-    configuredHolds: {svgPath: string; id: string}[];
+    configuredHolds: HoldInterface[];
     isPublic: boolean;
     private dal?: IDAL;
     constructor({ id, name, gym, image, angle, configuredHolds, isPublic, dal }: {id?: string, name: string, gym: string, image: ImageSourcePropType, angle?: number, configuredHolds?: {svgPath: string; id: string}[], isPublic?: boolean, dal?: IDAL}) {
