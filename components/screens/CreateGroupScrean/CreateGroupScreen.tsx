@@ -18,11 +18,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { Group } from "@/DAL/group";
 import MultiSelect from "react-native-multiple-select";
 import SelectWallModal from "./SelectWallsModal";
-import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
+import { FlatList, ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { Wall } from "@/DAL/wall";
 import { useDal } from "@/DAL/DALService";
 const WallItem = ({ wall, onRemove }: { wall: Wall, onRemove: (id: string) => void }) => (
-    <View style={{ flexDirection: "row", borderRadius: 17, backgroundColor: "gray", justifyContent: "space-between", margin: 5}}>
+    <View style={{ flexDirection: "row", borderRadius: 17, backgroundColor: "gray", justifyContent: "space-between", margin: 5 }}>
         <Image source={wall.image} style={{ height: 30, width: 30, borderRadius: 15, margin: 2 }} />
         <Text style={{ alignSelf: "center", fontSize: 18, padding: 5 }}>{wall.fullName}</Text>
         <TouchableOpacity onPress={() => onRemove(wall.id)} style={{ height: 30, width: 30, borderRadius: 15, margin: 2, justifyContent: "center", backgroundColor: "white" }}>
@@ -83,9 +83,11 @@ const CreateGroupScreen: React.FC = ({ }) => {
 
             }
             {selectWallModal &&
-                <SelectWallModal 
-                selectedWalls={selectedWalls} 
-                onSelect={(id: string) => setSelectedWalls(selectedWalls.concat([dal.getWall({ id })]))} closeModal={() => setSelectWallModal(false)} />}
+                <SelectWallModal
+                    selectedWalls={selectedWalls}
+                    onSelect={(id: string) => setSelectedWalls(selectedWalls.concat([dal.getWall({ id })]))} 
+                    onRemove={(id) => setSelectedWalls(selectedWalls.filter(w => w.id !== id))}
+                    closeModal={() => setSelectWallModal(false)} />}
             <View style={{ alignSelf: "center", height: 200, width: 200 }}>
                 <Image style={{ height: "100%", width: "100%", borderRadius: 10000 }} source={selectedImage ? { uri: selectedImage } : require('../../../assets/images/upload.png')} />
                 <Ionicons
@@ -100,35 +102,40 @@ const CreateGroupScreen: React.FC = ({ }) => {
             <View>
                 {usersMultiSelect.current?.getSelectedItemsExt(selectedUsers)}
             </View>
-            <MultiSelect
-                hideTags
-                ref={(component) => { usersMultiSelect.current = component || undefined }}
-                items={dal.getUsers({})}
-                uniqueKey="id"
-                onSelectedItemsChange={setSelectedUsers}
-                selectedItems={selectedUsers}
-                selectText="Pick members"
-                searchInputPlaceholderText="Search Items..."
-                onChangeInput={(text) => console.log(text)}
-                altFontFamily="ProximaNova-Light"
-                tagRemoveIconColor="#CCC"
-                tagBorderColor="#CCC"
-                tagTextColor="#CCC"
-                selectedItemTextColor="#CCC"
-                selectedItemIconColor="#CCC"
-                itemTextColor="#000"
-                displayKey="name"
-                searchInputStyle={{ color: '#CCC' }}
-                submitButtonColor="#CCC"
-                submitButtonText="Submit"
-            />
-            <FlatList
-                data={selectedWalls}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => <WallItem wall={item} onRemove={(id) => setSelectedWalls(selectedWalls.filter(w => w.id !== id))} />}
-                numColumns={1} // Set the number of columns
-                contentContainerStyle={{}}
-            />
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }} horizontal={true} style={{ width: "100%" }}>
+                <View style={{ flexDirection: "column", width: "100%" }} >
+                    <MultiSelect
+                        fixedHeight={true}
+                        hideTags
+                        ref={(component) => { usersMultiSelect.current = component || undefined }}
+                        items={dal.getUsers({})}
+                        uniqueKey="id"
+                        onSelectedItemsChange={setSelectedUsers}
+                        selectedItems={selectedUsers}
+                        selectText="Pick members"
+                        searchInputPlaceholderText="Search Items..."
+                        onChangeInput={(text) => console.log(text)}
+                        altFontFamily="ProximaNova-Light"
+                        tagRemoveIconColor="#CCC"
+                        tagBorderColor="#CCC"
+                        tagTextColor="#CCC"
+                        selectedItemTextColor="#CCC"
+                        selectedItemIconColor="#CCC"
+                        itemTextColor="#000"
+                        displayKey="name"
+                        searchInputStyle={{ color: '#CCC' }}
+                        submitButtonColor="#CCC"
+                        submitButtonText="Submit"
+                    />
+                    <FlatList
+                        data={selectedWalls}
+                        keyExtractor={(item) => item.id}
+                        renderItem={({ item }) => <WallItem wall={item} onRemove={(id) => setSelectedWalls(selectedWalls.filter(w => w.id !== id))} />}
+                        numColumns={1} // Set the number of columns
+                        contentContainerStyle={{}}
+                    />
+                </View>
+            </ScrollView>
             <BasicButton onPress={() => setSelectWallModal(true)} style={{ alignSelf: "center" }} text="Add wall" color="blue" />
             <BasicButton onPress={createGroup} style={{ alignSelf: "center", margin: 20 }} text="Create" color="green" />
         </ParallaxScrollView>

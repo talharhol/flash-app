@@ -106,7 +106,7 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                     </View>
                     <View style={{ width: "100%" }}>
                         <MultiSelect
-                            fixedHeight={true}
+                            fixedHeight
                             hideTags
                             ref={(component) => { usersMultiSelect.current = component || undefined }}
                             items={dal.getUsers({})}
