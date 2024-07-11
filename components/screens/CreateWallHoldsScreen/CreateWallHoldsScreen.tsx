@@ -48,7 +48,6 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
     };
     const SaveHolds = () => {
         wall.configuredHolds = holds;
-        alert(holds[0].length)
         router.push("/");
     }
 

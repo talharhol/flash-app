@@ -3,7 +3,8 @@ import { Wall } from "./wall";
 import { User } from "./user";
 import { Problem } from "./problem";
 import { Group } from "./group";
-import { BaseDAL } from "./BaseDAL";
+import { BaseDAL, GroupDAL, ProblemDAL, WallDAL } from "./BaseDAL";
+import { IBaseDAL } from "./IDAL";
 
 const debugHolds = [
     { color: "red", "id": "aea90438-79f4-411d-adaa-37c5009c6c3e", "svgPath": "M 91.28268432617188, 134.17945861816406 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
@@ -19,10 +20,10 @@ class DalService {
     private _problems: { [key: string]: Problem } = {}
     private _groups: { [key: string]: Group } = {}
 
-    private _userDal?: BaseDAL<User>;
-    private _wallDal?: BaseDAL<Wall>;
-    private _problemDal?: BaseDAL<Problem>;
-    private _groupDal?: BaseDAL<User>;
+    private _userDal?: IBaseDAL<User>;
+    private _wallDal?: IBaseDAL<Wall, { isPublic?: boolean, name?: string, gym?: string }>;
+    private _problemDal?: IBaseDAL<Problem, { wallId?: string }>;
+    private _groupDal?: IBaseDAL<Group, { userId?: string }>;
 
 
     constructor() {
@@ -31,9 +32,9 @@ class DalService {
         }
 
         this._userDal = new BaseDAL<User>(this);
-        this._wallDal = new BaseDAL<Wall>(this);
-        this._problemDal = new BaseDAL<Problem>(this);
-        this._groupDal = new BaseDAL<Group>(this);
+        this._wallDal = new WallDAL(this);
+        this._problemDal = new ProblemDAL(this);
+        this._groupDal = new GroupDAL(this);
 
         let users = [
             new User({ name: "Tal", image: require("../assets/images/climber.png") }),
