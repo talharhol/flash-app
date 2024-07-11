@@ -109,7 +109,7 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                             fixedHeight
                             hideTags
                             ref={(component) => { usersMultiSelect.current = component || undefined }}
-                            items={dal.getUsers({})}
+                            items={dal.users.List({})}
                             uniqueKey="id"
                             onSelectedItemsChange={(v) => {
                                 setSetters(v);

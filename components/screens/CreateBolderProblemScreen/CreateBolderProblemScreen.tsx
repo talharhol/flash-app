@@ -24,7 +24,7 @@ import { useDal } from "@/DAL/DALService";
 const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
   const router = useRouter();
   const dal = useDal();
-  const wall = dal.getWall(useLocalSearchParams());
+  const wall = dal.walls.Get(useLocalSearchParams());
   const targetGroup = useLocalSearchParams().groupId as (string | undefined);
   const [isDrawingHold, setIsDrawingHold] = useState(false);
   const [editedHold, setEditedHold] = useState<string | null>(null);
@@ -67,7 +67,7 @@ const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
     setHolds(holds.filter(h => h.id !== id).concat([hold]));
   }
 
-  const publishProblem =  ({ name, grade }: { name: string, grade: number }) => {
+  const publishProblem = ({ name, grade }: { name: string, grade: number }) => {
     var problem = new Problem({
       name,
       grade,
@@ -76,27 +76,27 @@ const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
       setter: dal.currentUser.id,
       isPublic: targetGroup === undefined
     });
-    dal.addProblem(problem);
+    dal.problems.Add(problem);
     if (targetGroup) {
-      let group = dal.getGroup({id: targetGroup});
+      let group = dal.groups.Get({ id: targetGroup });
       group.problems.push(problem.id);
-      router.navigate({pathname: "/ViewGroupScreen", params: { id: group.id }});
+      router.navigate({ pathname: "/ViewGroupScreen", params: { id: group.id } });
     }
-    else 
-      router.navigate({pathname: "/ViewWall", params: { id: wall.id }});
+    else
+      router.navigate({ pathname: "/ViewWall", params: { id: wall.id } });
   }
 
   return (
     <View>
-        <ThemedView style={styles.headerContainer}>
-          <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Create problem</ThemedText>
-          <Ionicons
-            onPress={() => setIsPublishModal(true)}
-            name='checkmark-circle-outline' size={35} color={'#A1CEDC'} style={{ right: 0, padding: 10 }} />
-        </ThemedView>
+      <ThemedView style={styles.headerContainer}>
+        <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Create problem</ThemedText>
+        <Ionicons
+          onPress={() => setIsPublishModal(true)}
+          name='checkmark-circle-outline' size={35} color={'#A1CEDC'} style={{ right: 0, padding: 10 }} />
+      </ThemedView>
       <View>
         {
-         isPublishModal && <PublishProblemModal publishProblem={publishProblem} closeModal={() => setIsPublishModal(false)} />
+          isPublishModal && <PublishProblemModal publishProblem={publishProblem} closeModal={() => setIsPublishModal(false)} />
         }
         <View style={{ flexDirection: "row" }}>
           {

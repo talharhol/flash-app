@@ -32,19 +32,19 @@ const SearchScreen: React.FC = () => {
                 approveAction={AddWall.bind(this, wallToAdd)}
                 text={`Add ${wallToAdd.name} to your walls?`} />}
             {
-                dal.getWalls({isPublic: true, gym: filterGymName, name: filterWallName}).map(wall =>
-                    <TouchableOpacity
-                        key={wall.id}
-                        onPress={setWallToAdd.bind(this, wall)}
-                    >
-                        <PreviewItem
-                            image={wall.image}
-                            title={`${wall.name}@${wall.gym}`}
-                            subTitle={wall.angle && `${wall.angle}°` || undefined}
-                        />
-                    </TouchableOpacity>
-
-                )
+                dal.walls.List({ isPublic: true, gym: filterGymName, name: filterWallName })
+                    .map(wall =>
+                        <TouchableOpacity
+                            key={wall.id}
+                            onPress={setWallToAdd.bind(this, wall)}
+                        >
+                            <PreviewItem
+                                image={wall.image}
+                                title={`${wall.name}@${wall.gym}`}
+                                subTitle={wall.angle && `${wall.angle}°` || undefined}
+                            />
+                        </TouchableOpacity>
+                    )
             }
         </ParallaxScrollView>
     );

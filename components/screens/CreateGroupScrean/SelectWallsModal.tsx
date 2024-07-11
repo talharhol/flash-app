@@ -31,38 +31,39 @@ const SelectWallModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                     </ThemedView>
                 }>
                 {
-                    dal.getWalls({ isPublic: true, gym: filterGymName, name: filterWallName }).map(wall =>
-                        <TouchableOpacity
-                            key={wall.id}
-                            onPress={() => { onSelect(wall.id) }}
-                        >
-                            <PreviewItem
-                                image={wall.image}
-                                title={`${wall.name}@${wall.gym}`}
-                                subTitle={wall.angle && `${wall.angle}°` || undefined}
-                                style={{ height: 70 }}
-                            />
-                            {
-                                selectedWalls.includes(wall) &&
-                                <TouchableOpacity 
-                                onPress={() => onRemove?.(wall.id)}
-                                style={{ position: "absolute", height: 70, width: "100%", backgroundColor: "black", opacity: 0.5, borderRadius: 8 }} />
+                    dal.walls.List({ isPublic: true, gym: filterGymName, name: filterWallName })
+                        .map(wall =>
+                            <TouchableOpacity
+                                key={wall.id}
+                                onPress={() => { onSelect(wall.id) }}
+                            >
+                                <PreviewItem
+                                    image={wall.image}
+                                    title={`${wall.name}@${wall.gym}`}
+                                    subTitle={wall.angle && `${wall.angle}°` || undefined}
+                                    style={{ height: 70 }}
+                                />
+                                {
+                                    selectedWalls.includes(wall) &&
+                                    <TouchableOpacity
+                                        onPress={() => onRemove?.(wall.id)}
+                                        style={{ position: "absolute", height: 70, width: "100%", backgroundColor: "black", opacity: 0.5, borderRadius: 8 }} />
 
-                            }
-                        </TouchableOpacity>
+                                }
+                            </TouchableOpacity>
 
-                    )
+                        )
                 }
-                <View style={{height: 60}}/>
-                
+                <View style={{ height: 60 }} />
+
             </ParallaxScrollView>
-            <View style={{width: "100%", opacity: 0.6, backgroundColor: "black", position: "absolute", bottom: 0}}>
-            <BasicButton text="Submit" 
-                color="green"
-                onPress={props.closeModal}
-                style={{ alignSelf: "center", margin: 10}} />
+            <View style={{ width: "100%", opacity: 0.6, backgroundColor: "black", position: "absolute", bottom: 0 }}>
+                <BasicButton text="Submit"
+                    color="green"
+                    onPress={props.closeModal}
+                    style={{ alignSelf: "center", margin: 10 }} />
             </View>
-            
+
         </BasicModal>
     );
 };

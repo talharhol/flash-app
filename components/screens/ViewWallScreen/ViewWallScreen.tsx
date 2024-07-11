@@ -16,7 +16,7 @@ import { useDal } from '@/DAL/DALService';
 const ViewWallScreen: React.FC = () => {
     const router = useRouter();
     const dal = useDal();
-    const wall = dal.getWall(useLocalSearchParams());
+    const wall = dal.walls.Get(useLocalSearchParams());
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(null);
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
     const [filters, setFilters] = useState<ProblemFilter>({
@@ -32,7 +32,7 @@ const ViewWallScreen: React.FC = () => {
 
             {displayedProblem &&
                 <DisplayBolderProblemModal
-                    problem={dal.getProblem({ id: displayedProblem })}
+                    problem={dal.problems.Get({ id: displayedProblem })}
                     closeModal={setDisplayedProblem.bind(this, null)} />
             }
             {
@@ -57,15 +57,17 @@ const ViewWallScreen: React.FC = () => {
                     </ThemedView>
                 }>
                 {
-                    dal.getProblems({ wallId: wall.id }).filter(FilterProblems(filters)).map(problem =>
-                        <BolderProblemPreview
-                            key={problem.id}
-                            onPress={() => setDisplayedProblem(problem.id)}
-                            style={{ alignSelf: "center" }}
-                            wall={wall}
-                            problem={problem}
-                        />
-                    )
+                    dal.problems.List({ wallId: wall.id })
+                        .filter(FilterProblems(filters))
+                        .map(problem =>
+                            <BolderProblemPreview
+                                key={problem.id}
+                                onPress={() => setDisplayedProblem(problem.id)}
+                                style={{ alignSelf: "center" }}
+                                wall={wall}
+                                problem={problem}
+                            />
+                        )
                 }
             </ParallaxScrollView>
         </View>

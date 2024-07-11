@@ -16,7 +16,7 @@ const MyWalssScreen: React.FC = () => {
     const router = useRouter();
     const [wallToRemove, setWallToRemove] = useState<Wall | null>(null);
     const RemoveWall = (wall: Wall) => {
-        dal.deleteWall({id: wall.id});
+        dal.walls.Remove(dal.walls.Get({ id: wall.id }));
         setWallToRemove(null);
     };
     return (
@@ -29,31 +29,32 @@ const MyWalssScreen: React.FC = () => {
             }>
             {wallToRemove && <ActionValidationModal closeModal={setWallToRemove.bind(this, null)} approveAction={RemoveWall.bind(this, wallToRemove)} text={`Remove ${wallToRemove.name} from your walls?`} />}
             {
-                dal.getWalls({isPublic: true}).map(wall =>
-                    <SwipablePreviewItem key={wall.id} image={wall.image}
-                        title={`${wall.name}@${wall.gym}`}
-                        subTitle={wall.angle && `${wall.angle}°` || undefined}
-                        onPress={() => router.push({ pathname: "/ViewWall", params: { id: wall.id } })}
-                        hiddenComponent={() => {
-                            return (
-                                <View style={{ height: "100%", flexDirection: "column", alignItems: 'center', justifyContent: "space-evenly" }}>
-                                    <BasicButton
-                                        text='Remove'
-                                        onPress={setWallToRemove.bind(this, wall)}
-                                        color="red"
-                                        style={{ width: 100 }}
-                                    />
-                                    <BasicButton
-                                        onPress={() => router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } })}
-                                        text='Edit'
-                                        color="red"
-                                        style={{ width: 100 }}
-                                    />
-                                </View>
-                            )
-                        }}
-                    />
-                )
+                dal.walls.List({ isPublic: true })
+                    .map(wall =>
+                        <SwipablePreviewItem key={wall.id} image={wall.image}
+                            title={`${wall.name}@${wall.gym}`}
+                            subTitle={wall.angle && `${wall.angle}°` || undefined}
+                            onPress={() => router.push({ pathname: "/ViewWall", params: { id: wall.id } })}
+                            hiddenComponent={() => {
+                                return (
+                                    <View style={{ height: "100%", flexDirection: "column", alignItems: 'center', justifyContent: "space-evenly" }}>
+                                        <BasicButton
+                                            text='Remove'
+                                            onPress={setWallToRemove.bind(this, wall)}
+                                            color="red"
+                                            style={{ width: 100 }}
+                                        />
+                                        <BasicButton
+                                            onPress={() => router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } })}
+                                            text='Edit'
+                                            color="red"
+                                            style={{ width: 100 }}
+                                        />
+                                    </View>
+                                )
+                            }}
+                        />
+                    )
             }
         </ParallaxScrollView>
     );

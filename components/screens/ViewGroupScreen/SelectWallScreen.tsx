@@ -15,7 +15,7 @@ import { useDal } from '@/DAL/DALService';
 const SelectWallScreen: React.FC = () => {
     const router = useRouter();
     const dal = useDal();
-    const group = dal.getGroup(useLocalSearchParams());
+    const group = dal.groups.Get(useLocalSearchParams());
     const [selectImageModal, setSelectImageModal] = useState(false);
     const CreateAnonimusWall: (uri: string) => void = (uri) => {
         let wall = new Wall({
@@ -25,7 +25,7 @@ const SelectWallScreen: React.FC = () => {
             isPublic: false
         });
         group.walls.push(wall.id);
-        dal.addWall(wall);
+        dal.walls.Add(wall);
         createProblem(wall);
     };
     const createProblem = (wall: Wall) => {
@@ -53,11 +53,10 @@ const SelectWallScreen: React.FC = () => {
                     />
                 }
                 {
-                    group.walls.filter(id => {
-                        return dal.getWall({id}).isPublic;
-                    }).map(id => {
-                        let wall = dal.getWall({ id });
-                        return (
+                    group.walls
+                        .map(id => dal.walls.Get({ id }))
+                        .filter(w => w.isPublic)
+                        .map(wall => (
                             <TouchableOpacity
                                 key={wall.id}
                                 onPress={() => createProblem(wall)}
@@ -70,19 +69,16 @@ const SelectWallScreen: React.FC = () => {
                                 />
                             </TouchableOpacity>
                         )
-                    }
-                    )
+                        )
                 }
-                <View style={{alignItems: "center"}}>
+                <View style={{ alignItems: "center" }}>
                     <ThemedText type='subtitle'>In group walls</ThemedText>
-                    <View style={{height: 2, borderRadius:1, width: "100%", backgroundColor: "gray"}}/>
+                    <View style={{ height: 2, borderRadius: 1, width: "100%", backgroundColor: "gray" }} />
                 </View>
                 {
-                    group.walls.filter(id => {
-                        return !dal.getWall({id}).isPublic;
-                    }).map(id => {
-                        let wall = dal.getWall({ id });
-                        return (
+                    group.walls.map(id => dal.walls.Get({ id }))
+                        .filter(w => !w.isPublic)
+                        .map(wall => (
                             <TouchableOpacity
                                 key={wall.id}
                                 onPress={() => createProblem(wall)}
@@ -94,8 +90,7 @@ const SelectWallScreen: React.FC = () => {
                                 />
                             </TouchableOpacity>
                         )
-                    }
-                    )
+                        )
                 }
             </ParallaxScrollView>
         </View>

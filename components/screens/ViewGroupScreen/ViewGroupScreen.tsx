@@ -16,7 +16,7 @@ import { useDal } from '@/DAL/DALService';
 const ViewGroupScreen: React.FC = () => {
     const router = useRouter();
     const dal = useDal();
-    const group = dal.getGroup(useLocalSearchParams());
+    const group = dal.groups.Get(useLocalSearchParams());
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(null);
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
     const [filters, setFilters] = useState<ProblemFilter>({
@@ -30,7 +30,7 @@ const ViewGroupScreen: React.FC = () => {
         <View style={{ height: "100%" }}>
 
             {displayedProblem && <DisplayBolderProblemModal
-                problem={dal.getProblem({ id: displayedProblem })}
+                problem={dal.problems.Get({ id: displayedProblem })}
                 closeModal={setDisplayedProblem.bind(this, null)} />}
             {
                 filterProblemsModal &&
@@ -55,11 +55,11 @@ const ViewGroupScreen: React.FC = () => {
                     </ThemedView>
                 }>
                 {
-                    group.problems.map(problem_id => dal.getProblem({ id: problem_id })).filter(FilterProblems(filters)).map(problem => {
+                    group.problems.map(problem_id => dal.problems.Get({ id: problem_id })).filter(FilterProblems(filters)).map(problem => {
                         return (
                             <TouchableOpacity key={problem.id} onPress={setDisplayedProblem.bind(this, problem.id)}>
                                 <BolderProblemPreview
-                                    wall={dal.getWall({ id: problem.wallId })}
+                                    wall={dal.walls.Get({ id: problem.wallId })}
                                     problem={problem}
                                 />
                             </TouchableOpacity>

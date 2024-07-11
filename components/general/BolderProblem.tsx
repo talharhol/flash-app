@@ -36,7 +36,7 @@ interface BolderProblemProps extends ViewProps {
 
 export interface BolderProblemComponent {
   exportProblem: () => void;
-  getProblemUrl: () => string;
+  getProblemUrl: () => Promise<string>;
 }
 
 

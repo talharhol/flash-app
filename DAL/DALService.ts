@@ -15,10 +15,6 @@ const debugHolds = [
 ];
 class DalService {
     private static _instance: DalService;
-    private _users: { [key: string]: User } = {}
-    private _walls: { [key: string]: Wall } = {}
-    private _problems: { [key: string]: Problem } = {}
-    private _groups: { [key: string]: Group } = {}
 
     private _userDal?: IBaseDAL<User>;
     private _wallDal?: IBaseDAL<Wall, { isPublic?: boolean, name?: string, gym?: string }>;
@@ -84,12 +80,10 @@ class DalService {
             new Group({ name: "Group4", image: require("../assets/images/climber.png"), walls: [walls[0].id, walls[1].id], members: users.map(u => u.id), admins: [users[0].id], problems: [problems[0].id, problems[1].id] }),
         ];
 
-
-
-        users.forEach(u => this._users[u.id] = u);
-        walls.forEach(u => this._walls[u.id] = u);
-        problems.forEach(u => this._problems[u.id] = u);
-        groups.forEach(u => this._groups[u.id] = u);
+        users.forEach(u => this.users.Add(u));
+        walls.forEach(w => this.walls.Add(w));
+        problems.forEach(p => this.problems.Add(p));
+        groups.forEach(g => this.groups.Add(g));
         DalService._instance = this;
     }
 
@@ -106,89 +100,12 @@ class DalService {
         return this._problemDal!
     }
 
-    public getWalls: (params: { isPublic?: boolean, name?: string, gym?: string }) => Wall[] = (params) => {
-        return Object.values(this._walls)
-            .filter(
-                w => params.isPublic !== undefined ? w.isPublic === params.isPublic : true
-                    && params.name !== undefined ? w.name.toLocaleLowerCase().includes(params.name.toLocaleLowerCase()) : true
-                        && params.gym !== undefined ? w.gym.toLocaleLowerCase().includes(params.gym.toLocaleLowerCase()) : true
-
-            );
-    }
-
-    public getGroups: (params: { userId?: string }) => Group[] = (params) => {
-        return Object.values(this._groups)
-            .filter(
-                g => params.userId !== undefined ? g.members.includes(params.userId) : true
-            );
-    }
-
-    public getUsers: (params: {}) => User[] = (params) => {
-        return Object.values(this._users);
-    }
-
-    public getProblems: (params: { wallId?: string }) => Problem[] = (params) => {
-        return Object.values(this._problems)
-            .filter(
-                p => params.wallId !== undefined ? p.wallId === params.wallId : true
-            );
-    }
-
-    public getWall: (params: { id?: string }) => Wall = (params) => {
-        return this._walls[params.id!]
-    }
-
-    public getGroup: (params: { id?: string }) => Group = (params) => {
-        return this._groups[params.id!]
-    }
-
-    public getUser: (params: { id?: string }) => User = (params) => {
-        return this._users[params.id!]
-    }
-
-    public getProblem: (params: { id?: string }) => Problem = (params) => {
-        return this._problems[params.id!]
-    }
-
-    public deleteWall: (params: { id?: string }) => boolean = (params) => {
-        return delete this._walls[params.id!]
-    }
-
-    public deleteGroup: (params: { id?: string }) => boolean = (params) => {
-        return delete this._groups[params.id!]
-    }
-
-    public deleteUser: (params: { id?: string }) => boolean = (params) => {
-        return delete this._users[params.id!]
-    }
-
-    public deleteProblem: (params: { id?: string }) => boolean = (params) => {
-        return delete this._problems[params.id!]
-    }
-
-    public addWall: (obj: Wall) => Wall = (obj) => {
-        obj.setDAL(this);
-        return this._walls[obj.id] = obj
-    }
-
-    public addGroup: (obj: Group) => Group = (obj) => {
-        return this._groups[obj.id] = obj
-    }
-
-    public addUser: (obj: User) => User = (obj) => {
-        return this._users[obj.id] = obj
-    }
-
-    public addProblem: (obj: Problem) => Problem = (obj) => {
-        return this._problems[obj.id] = obj
-    }
-
     public static get Instance() {
         return this._instance || (this._instance = new this());
     }
 
     public get currentUser() {
-        return Object.values(this._users)[0];
+        return Object.values(this.users.List({}))[0];
     }
 }
 

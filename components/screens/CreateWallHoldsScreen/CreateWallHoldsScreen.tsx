@@ -20,7 +20,7 @@ import { useDal } from "@/DAL/DALService";
 
 const CreateWallHoldsScreen: React.FC = ({ }) => {
     const dal = useDal();
-    const wall = dal.getWall(useLocalSearchParams());
+    const wall = dal.walls.Get(useLocalSearchParams());
     const [isDrawingHold, setIsDrawingHold] = useState(false);
     const [editedHold, setEditedHold] = useState<string | null>(null);
     const [holds, setHolds] = useState<HoldInterface[]>(wall?.configuredHolds.map((h) => ({ id: h.id, svgPath: h.svgPath, color: new HoldType(HoldTypes.route).color })));
@@ -54,7 +54,7 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
     return (
         <View style={[styles.container]}>
             <ThemedView style={styles.headerContainer}>
-            <Ionicons
+                <Ionicons
                     onPress={() => router.push("/")}
                     name='close-circle-outline' size={35} color={'#A1CEDC'} style={{ right: 0, padding: 10 }} />
                 <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Config Holds</ThemedText>

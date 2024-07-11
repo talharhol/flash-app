@@ -34,7 +34,7 @@ const CreateWallScreen: React.FC = ({ }) => {
             alert("missing image");
             return
         }
-        
+
         if (!wallName) {
             alert("missing wall name");
             return
@@ -50,7 +50,7 @@ const CreateWallScreen: React.FC = ({ }) => {
             image: { uri: selectedImage },
             isPublic: isPublic
         });
-        dal.addWall(wall);
+        dal.walls.Add(wall);
         router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } });
     };
     const SaveWallImage: (uri: string) => void = (uri) => {
@@ -74,14 +74,14 @@ const CreateWallScreen: React.FC = ({ }) => {
                 text='Choose source' />
 
             }
-            <View style={{ alignSelf: "center", height: 200, width: 200}}>
+            <View style={{ alignSelf: "center", height: 200, width: 200 }}>
                 <Image style={{ height: "100%", width: "100%", borderRadius: 10000 }} source={selectedImage ? { uri: selectedImage } : require('../../../assets/images/upload.png')} />
-                <Ionicons 
-                style={{position: "absolute", bottom: 0, right: 0}}
-                onPress={() => setSelectImageModal(true)}
-                size={30}
-                color="gray"
-                name="pencil-outline"
+                <Ionicons
+                    style={{ position: "absolute", bottom: 0, right: 0 }}
+                    onPress={() => setSelectImageModal(true)}
+                    size={30}
+                    color="gray"
+                    name="pencil-outline"
                 />
             </View>
             <TextInput value={wallName} onChangeText={setWallName} placeholder="Wall's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: "grey", padding: 10 }} />

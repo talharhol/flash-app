@@ -58,7 +58,7 @@ const CreateGroupScreen: React.FC = ({ }) => {
             members: selectedUsers,
             walls: selectedWalls.map(w => w.id)
         });
-        dal.addGroup(group);
+        dal.groups.Add(group);
         router.push({ pathname: "/MyGroupsScreen" });
     };
     const SaveWallImage: (uri: string) => void = (uri) => {
@@ -85,7 +85,7 @@ const CreateGroupScreen: React.FC = ({ }) => {
             {selectWallModal &&
                 <SelectWallModal
                     selectedWalls={selectedWalls}
-                    onSelect={(id: string) => setSelectedWalls(selectedWalls.concat([dal.getWall({ id })]))} 
+                    onSelect={(id: string) => setSelectedWalls(selectedWalls.concat([dal.walls.Get({ id })]))}
                     onRemove={(id) => setSelectedWalls(selectedWalls.filter(w => w.id !== id))}
                     closeModal={() => setSelectWallModal(false)} />}
             <View style={{ alignSelf: "center", height: 200, width: 200 }}>
@@ -108,7 +108,7 @@ const CreateGroupScreen: React.FC = ({ }) => {
                         fixedHeight={true}
                         hideTags
                         ref={(component) => { usersMultiSelect.current = component || undefined }}
-                        items={dal.getUsers({})}
+                        items={dal.users.List({})}
                         uniqueKey="id"
                         onSelectedItemsChange={setSelectedUsers}
                         selectedItems={selectedUsers}
