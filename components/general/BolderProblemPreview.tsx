@@ -48,7 +48,6 @@ const BolderProblemPreview: React.FC<React.ComponentProps<typeof ThemedView> & {
                 <Ionicons
                     onPress={async () => {
                         Sharing.shareAsync(await problemRef.current?.getProblemUrl()!);
-                        
                     }}
                     name="share-outline" size={100} color={"white"} style={{ position: "absolute", top: 0, right: 0, marginRight: 5 }} />
                 <Ionicons

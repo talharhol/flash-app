@@ -30,7 +30,7 @@ export class Group {
         if (this.dal === undefined) {
             return [];
         } 
-            return this.members.map(uid => this.dal!.getUser({id: uid}));
+            return this.members.map(uid => this.dal!.users.Get({id: uid}));
         
     }
 

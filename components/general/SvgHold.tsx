@@ -31,7 +31,7 @@ const SVGHold: React.FC<{
           setFirstPosPage({ x: e.nativeEvent.pageX, y: e.nativeEvent.pageY });
           return;
         }
-        zoomableViewRef?.current!.moveBy(firstPos.x - e.nativeEvent.locationX, firstPos.y - e.nativeEvent.locationY);
+        zoomableViewRef?.current?.moveBy(firstPos.x - e.nativeEvent.locationX, firstPos.y - e.nativeEvent.locationY);
       }}
       onResponderRelease={(e) => {
         if (firstPosPage === null) return;
