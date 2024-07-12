@@ -40,13 +40,14 @@ export class BaseDAL<
 
 export class WallDAL extends BaseDAL<Wall> {
     public List(params: { isPublic?: boolean, name?: string, gym?: string }): Wall[] {
-        return Object.values(this._objects)
+        let v = Object.values(this._objects)
             .filter(
-                w => params.isPublic !== undefined ? w.isPublic === params.isPublic : true
-                    && params.name !== undefined ? w.name.toLocaleLowerCase().includes(params.name.toLocaleLowerCase()) : true
-                        && params.gym !== undefined ? w.gym.toLocaleLowerCase().includes(params.gym.toLocaleLowerCase()) : true
+                w => (params.isPublic !== undefined ? w.isPublic === params.isPublic : true)
+                    && (params.name !== undefined ? w.name.toLocaleLowerCase().includes(params.name.toLocaleLowerCase()) : true)
+                    && (params.gym !== undefined ? w.gym.toLocaleLowerCase().includes(params.gym.toLocaleLowerCase()) : true)
 
             );
+        return v;
     }
 }
 
