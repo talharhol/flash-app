@@ -1,9 +1,11 @@
 import { createContext, useContext } from "react";
+import * as SQLite from 'expo-sqlite';
+
 import { Wall } from "./wall";
 import { User } from "./user";
 import { Problem } from "./problem";
 import { Group } from "./group";
-import { BaseDAL, GroupDAL, ProblemDAL, WallDAL } from "./BaseDAL";
+import { BaseDAL, GroupDAL, ProblemDAL, UserDAL, WallDAL } from "./BaseDAL";
 import { IBaseDAL } from "./IDAL";
 
 const debugHolds = [
@@ -16,22 +18,15 @@ const debugHolds = [
 class DalService {
     private static _instance: DalService;
 
+    private _db: SQLite.SQLiteDatabase | null = null;
+    public connected: boolean = false;
+
     private _userDal?: IBaseDAL<User>;
     private _wallDal?: IBaseDAL<Wall, { isPublic?: boolean, name?: string, gym?: string }>;
     private _problemDal?: IBaseDAL<Problem, { wallId?: string }>;
     private _groupDal?: IBaseDAL<Group, { userId?: string }>;
 
-
-    constructor() {
-        if (!!DalService._instance) {
-            return DalService._instance;
-        }
-
-        this._userDal = new BaseDAL<User>(this);
-        this._wallDal = new WallDAL(this);
-        this._problemDal = new ProblemDAL(this);
-        this._groupDal = new GroupDAL(this);
-
+    public connect() {
         let users = [
             new User({ name: "Tal", image: require("../assets/images/climber.png") }),
             new User({ name: "Gozal", image: require("../assets/images/climber.png") }),
@@ -79,11 +74,31 @@ class DalService {
             new Group({ name: "Group3", image: require("../assets/images/climber.png"), walls: [walls[0].id, walls[1].id], members: users.map(u => u.id), admins: [users[2].id], problems: [problems[0].id, problems[1].id] }),
             new Group({ name: "Group4", image: require("../assets/images/climber.png"), walls: [walls[0].id, walls[1].id], members: users.map(u => u.id), admins: [users[0].id], problems: [problems[0].id, problems[1].id] }),
         ];
+        return SQLite.openDatabaseAsync('flashLocalDB.db').then(
+            db => {
+                this._db = db;
+                users.forEach(u => this.users.Add(u));
+                walls.forEach(w => this.walls.Add(w));
+                problems.forEach(p => this.problems.Add(p));
+                groups.forEach(g => this.groups.Add(g));
+            }
+        ).then(() => this.connected = true).catch(alert);
+    }
 
-        users.forEach(u => this.users.Add(u));
-        walls.forEach(w => this.walls.Add(w));
-        problems.forEach(p => this.problems.Add(p));
-        groups.forEach(g => this.groups.Add(g));
+    constructor() {
+        if (!!DalService._instance) {
+            return DalService._instance;
+        }
+
+
+        this._userDal = new UserDAL(this);
+        this._wallDal = new WallDAL(this);
+        this._problemDal = new ProblemDAL(this);
+        this._groupDal = new GroupDAL(this);
+
+        
+        
+
         DalService._instance = this;
     }
 
@@ -106,6 +121,10 @@ class DalService {
 
     public get currentUser() {
         return Object.values(this.users.List({}))[0];
+    }
+
+    public get db() {
+        return this._db;
     }
 }
 

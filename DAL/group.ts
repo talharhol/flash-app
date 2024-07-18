@@ -1,7 +1,7 @@
 import { ImageSourcePropType } from "react-native";
 import uuid from "react-native-uuid";
 import { IDAL } from "./IDAL";
-import { User } from "./user";
+
 export class Group {
     id: string;
     name: string;

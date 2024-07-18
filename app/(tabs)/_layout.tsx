@@ -20,6 +20,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'My Walls',
+          unmountOnBlur: true,
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color}  />
           ),

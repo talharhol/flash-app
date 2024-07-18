@@ -1,3 +1,4 @@
+import { SQLiteDatabase } from "expo-sqlite";
 import { Group } from "./group";
 import { Problem } from "./problem";
 import { User } from "./user";
@@ -19,4 +20,5 @@ export interface IDAL {
     groups: IBaseDAL<Group>;
 
     currentUser: User;
+    db: SQLiteDatabase | null;
 }

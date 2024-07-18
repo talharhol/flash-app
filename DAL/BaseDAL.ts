@@ -1,6 +1,11 @@
+import { Image, ImageSourcePropType } from "react-native";
+import * as FileSystem from 'expo-file-system';
+import uuid from "react-native-uuid";
+
 import { IDAL } from "./IDAL";
 import { Group } from "./group";
 import { Problem } from "./problem";
+import { User } from "./user";
 import { Wall } from "./wall";
 
 export class BaseDAL<
@@ -36,17 +41,34 @@ export class BaseDAL<
     public List(params: {}): ObjType[] {
         return Object.values(this._objects);
     }
+
+    protected convertToLocalImage(image: ImageSourcePropType): string {
+        let localFileName = `${uuid.v4() as string}.png`;
+        const imageSrc = Image.resolveAssetSource(image);
+        FileSystem.downloadAsync(imageSrc.uri, FileSystem.documentDirectory + localFileName).catch(alert);
+        return localFileName;
+    }
 }
 
+export class UserDAL extends BaseDAL<User> {
+    public Add(obj: User): User {
+        obj = super.Add(obj);
+        this._dal.db?.
+        runAsync("INSERT INTO users (id, name, image) values (?, ?, ?)", 
+        obj.id, obj.name, this.convertToLocalImage(obj.image)).catch(alert);
+        return obj;
+    }
+}
 export class WallDAL extends BaseDAL<Wall> {
     public List(params: { isPublic?: boolean, name?: string, gym?: string }): Wall[] {
-        return Object.values(this._objects)
+        let v = Object.values(this._objects)
             .filter(
-                w => params.isPublic !== undefined ? w.isPublic === params.isPublic : true
-                    && params.name !== undefined ? w.name.toLocaleLowerCase().includes(params.name.toLocaleLowerCase()) : true
-                        && params.gym !== undefined ? w.gym.toLocaleLowerCase().includes(params.gym.toLocaleLowerCase()) : true
+                w => (params.isPublic !== undefined ? w.isPublic === params.isPublic : true)
+                    && (params.name !== undefined ? w.name.toLocaleLowerCase().includes(params.name.toLocaleLowerCase()) : true)
+                    && (params.gym !== undefined ? w.gym.toLocaleLowerCase().includes(params.gym.toLocaleLowerCase()) : true)
 
             );
+        return v;
     }
 }
 
