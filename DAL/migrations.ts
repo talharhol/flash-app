@@ -1,5 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 import dalService from './DALService';
+import { Group, GroupMember, GroupProblem, GroupWall, Problem, User, Wall } from './tables/tables';
 
 
 
@@ -25,8 +26,12 @@ async function getCurrentVersion(db: SQLite.SQLiteDatabase): Promise<number> {
 
 const migrations = [
     async (db: SQLite.SQLiteDatabase) => {
-        db.execAsync(`
-        CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, image TEXT NOT NULL);
-        `).catch(alert);
+        await User.create(db);
+        await Wall.create(db);
+        await Problem.create(db);
+        await Group.create(db);
+        await GroupMember.create(db);
+        await GroupWall.create(db);
+        await GroupProblem.create(db);
     },    
 ];
