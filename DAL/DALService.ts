@@ -1,12 +1,16 @@
 import { createContext, useContext } from "react";
 import * as SQLite from 'expo-sqlite';
 
-import { Wall } from "./wall";
-import { User } from "./user";
-import { Problem } from "./problem";
-import { Group } from "./group";
+import { Wall } from "./entities/wall";
+import { User } from "./entities/user";
+import { Problem } from "./entities/problem";
+import { Group } from "./entities/group";
 import { BaseDAL, GroupDAL, ProblemDAL, UserDAL, WallDAL } from "./BaseDAL";
 import { IBaseDAL } from "./IDAL";
+import { GroupTable, ProblemTable, UserTable, WallTable } from "./tables/tables";
+import { Image, ImageSourcePropType } from "react-native";
+import * as FileSystem from 'expo-file-system';
+import uuid from "react-native-uuid";
 
 const debugHolds = [
     { color: "red", "id": "aea90438-79f4-411d-adaa-37c5009c6c3e", "svgPath": "M 91.28268432617188, 134.17945861816406 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" },
@@ -91,10 +95,10 @@ class DalService {
         }
 
 
-        this._userDal = new UserDAL(this);
-        this._wallDal = new WallDAL(this);
-        this._problemDal = new ProblemDAL(this);
-        this._groupDal = new GroupDAL(this);
+        this._userDal = new UserDAL(this, UserTable);
+        this._wallDal = new WallDAL(this, WallTable);
+        this._problemDal = new ProblemDAL(this, ProblemTable);
+        this._groupDal = new GroupDAL(this, GroupTable);
 
         
         
@@ -121,6 +125,13 @@ class DalService {
 
     public get currentUser() {
         return Object.values(this.users.List({}))[0];
+    }
+
+    public convertToLocalImage(image: ImageSourcePropType): string {
+        let localFileName = `${uuid.v4() as string}.png`;
+        const imageSrc = Image.resolveAssetSource(image);
+        FileSystem.downloadAsync(imageSrc.uri, FileSystem.documentDirectory + localFileName).catch(alert);
+        return localFileName;
     }
 
     public get db() {

@@ -3,7 +3,7 @@ import { ThemedText } from "@/components/general/ThemedText";
 import ThemedView from "@/components/general/ThemedView";
 import { grades } from "@/constants/consts";
 import { Problem } from "@/DAL/problem";
-import { Wall } from "@/DAL/wall";
+import { Wall } from "@/DAL/entities/wall";
 import { Ionicons } from "@expo/vector-icons";
 import { createRef, useEffect, useRef, useState } from "react";
 import { Image, useWindowDimensions, View } from "react-native";

@@ -19,7 +19,7 @@ import { Group } from "@/DAL/group";
 import MultiSelect from "react-native-multiple-select";
 import SelectWallModal from "./SelectWallsModal";
 import { FlatList, ScrollView, TouchableOpacity } from "react-native-gesture-handler";
-import { Wall } from "@/DAL/wall";
+import { Wall } from "@/DAL/entities/wall";
 import { useDal } from "@/DAL/DALService";
 const WallItem = ({ wall, onRemove }: { wall: Wall, onRemove: (id: string) => void }) => (
     <View style={{ flexDirection: "row", borderRadius: 17, backgroundColor: "gray", justifyContent: "space-between", margin: 5 }}>

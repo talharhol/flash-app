@@ -1,29 +1,23 @@
 import { ImageSourcePropType } from "react-native";
 import uuid from "react-native-uuid";
-import { IDAL } from "./IDAL";
+import { IDAL } from "../IDAL";
+import { Entity, EntityProps } from "./BaseEntity";
 
-export class Group {
-    id: string;
+export class Group extends Entity {
     name: string;
     image: ImageSourcePropType;
     members: string[];
     admins: string[];
     walls: string[];
     problems: string[];
-    dal?: IDAL;
-    constructor({ id, name, image, members, admins, walls, problems, dal }: {id?: string, name: string, image: ImageSourcePropType, members?: string[], admins?: string[], walls?: string[], problems?: string[], dal?: IDAL}) {
-        this.id = id || uuid.v4() as string;
+    constructor({ name, image, members, admins, walls, problems, ...props }: {name: string, image: ImageSourcePropType, members?: string[], admins?: string[], walls?: string[], problems?: string[]} & EntityProps) {
+        super(props)
         this.name = name;
         this.image = image;
         this.members = members || [];
         this.admins = admins || [];
         this.walls = walls || [];
         this.problems = problems || [];
-        this.dal = dal
-    }
-    
-    setDAL = (dal: IDAL) => {
-        this.dal = dal;
     }
 
     public getMembers() {

@@ -1,16 +1,15 @@
-import uuid from "react-native-uuid";
-import { HoldInterface } from "./hold";
+import { HoldInterface } from "../hold";
+import { Entity } from "./BaseEntity";
 
-export class Problem {
-    id: string;
+export class Problem extends Entity {
     name: string;
     wallId: string;
     grade: number;
     holds: HoldInterface[];
     setter: string;
     isPublic: boolean;
-    constructor({ id, name, wallId, grade, holds, setter, isPublic }: { id?: string, name: string, wallId: string, grade: number, holds: HoldInterface[], setter: string, isPublic?: boolean}) {
-        this.id = id || uuid.v4() as string;
+    constructor({ name, wallId, grade, holds, setter, isPublic, ...props }: { name: string, wallId: string, grade: number, holds: HoldInterface[], setter: string, isPublic?: boolean}) {
+        super(props);
         this.name = name;
         this.wallId = wallId;
         this.grade = grade;

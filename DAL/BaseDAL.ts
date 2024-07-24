@@ -3,10 +3,11 @@ import * as FileSystem from 'expo-file-system';
 import uuid from "react-native-uuid";
 
 import { IDAL } from "./IDAL";
-import { Group } from "./group";
-import { Problem } from "./problem";
-import { User } from "./user";
-import { Wall } from "./wall";
+import { Group } from "./entities/group";
+import { Problem } from "./entities/problem";
+import { User } from "./entities/user";
+import { Wall } from "./entities/wall";
+import { BaseTable } from "./tables/BaseTable";
 
 export class BaseDAL<
     ObjType extends {
@@ -16,8 +17,10 @@ export class BaseDAL<
 > {
     protected _objects: { [key: string]: ObjType } = {};
     protected _dal: IDAL;
+    public table: typeof BaseTable;
 
-    constructor(dal: IDAL) {
+    constructor(dal: IDAL, table: typeof BaseTable) {
+        this.table= table
         this._dal = dal;
     }
 
@@ -42,22 +45,11 @@ export class BaseDAL<
         return Object.values(this._objects);
     }
 
-    protected convertToLocalImage(image: ImageSourcePropType): string {
-        let localFileName = `${uuid.v4() as string}.png`;
-        const imageSrc = Image.resolveAssetSource(image);
-        FileSystem.downloadAsync(imageSrc.uri, FileSystem.documentDirectory + localFileName).catch(alert);
-        return localFileName;
-    }
+    
 }
 
 export class UserDAL extends BaseDAL<User> {
-    public Add(obj: User): User {
-        obj = super.Add(obj);
-        this._dal.db?.
-        runAsync("INSERT INTO users (id, name, image) values (?, ?, ?)", 
-        obj.id, obj.name, this.convertToLocalImage(obj.image)).catch(alert);
-        return obj;
-    }
+    
 }
 export class WallDAL extends BaseDAL<Wall> {
     public List(params: { isPublic?: boolean, name?: string, gym?: string }): Wall[] {

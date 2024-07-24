@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import BasicModal from "@/components/general/modals/BasicModal";
 import { TextInput } from "react-native";
-import { Wall } from "@/DAL/wall";
+import { Wall } from "@/DAL/entities/wall";
 import { ThemedText } from "@/components/general/ThemedText";
 import PreviewItem from "@/components/general/PreviewItem";
 import ParallaxScrollView from "@/components/general/ParallaxScrollView";

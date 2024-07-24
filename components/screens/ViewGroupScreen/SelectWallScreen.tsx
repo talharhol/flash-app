@@ -9,7 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import PreviewItem from '@/components/general/PreviewItem';
 import SelectImageModal from '@/components/general/modals/SelectImageModal';
-import { Wall } from '@/DAL/wall';
+import { Wall } from '@/DAL/entities/wall';
 import { useDal } from '@/DAL/DALService';
 
 const SelectWallScreen: React.FC = () => {

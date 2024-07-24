@@ -1,8 +1,9 @@
 import { SQLiteDatabase } from "expo-sqlite";
-import { Group } from "./group";
-import { Problem } from "./problem";
-import { User } from "./user";
-import { Wall } from "./wall";
+import { Group } from "./entities/group";
+import { Problem } from "./entities/problem";
+import { User } from "./entities/user";
+import { Wall } from "./entities/wall";
+import { ImageSourcePropType } from "react-native";
 export interface IBaseDAL<ObjType extends { id: string }, ListParams = {}, GetParams extends { id?: string } = { id?: string }> {
     Get(params: GetParams): ObjType;
     Add(obj: ObjType): ObjType;
@@ -20,5 +21,6 @@ export interface IDAL {
     groups: IBaseDAL<Group>;
 
     currentUser: User;
+    convertToLocalImage(image: ImageSourcePropType): string;
     db: SQLiteDatabase | null;
 }

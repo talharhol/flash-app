@@ -2,7 +2,7 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import React, { useState } from 'react';
-import { Wall } from '@/DAL/wall';
+import { Wall } from '@/DAL/entities/wall';
 import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
 import PreviewItem from '@/components/general/PreviewItem';
 import ThemedView from '@/components/general/ThemedView';

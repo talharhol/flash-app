@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import React, { useState } from 'react';
-import { Wall } from '@/DAL/wall';
+import { Wall } from '@/DAL/entities/wall';
 import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
 import ThemedView from '@/components/general/ThemedView';
 import { useRouter } from 'expo-router';
