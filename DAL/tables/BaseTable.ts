@@ -28,9 +28,17 @@ export class Field {
         return this._name
     }
 
+    public get isFK(): boolean {
+        return !!this._fk
+    }
+
     public getDefinition(): string {
-        let fk = this._fk ? `, FOREIGN KEY (${this._name}) REFERENCES ${this._fk!._table!.tableName}(${this._fk!._name}),` : '';
-        return `${this._name}${this._pk ? ' PRIMARY KEY' : ''}${this._notNull ? ' NOT NULL' : ''}${fk}`;
+        let fk = this._fk ? `, FOREIGN KEY (${this._name}) REFERENCES ${this._fk!._table!.tableName}(${this._fk!._name})` : '';
+        return `${this._name}${this._pk ? ' PRIMARY KEY' : ''}${this._notNull ? ' NOT NULL' : ''}`;
+    }
+
+    public getFKDefinition(): string {
+        return `FOREIGN KEY (${this._name}) REFERENCES ${this._fk!._table!.tableName}(${this._fk!._name})`;
     }
 
     public getDefault() {
@@ -64,7 +72,7 @@ export class BaseTable {
             return [field.name, data[field.name] || field.getDefault()]
         })
         return db.runAsync(
-            `INSERT INTO ${this.tableName} (${values.map(v => v[0]).join(', ')}) VALUES (${'?, '.repeat(values.length)})`,
+            `INSERT INTO ${this.tableName} (${values.map(v => v[0]).join(', ')}) VALUES (${new Array(values.length).fill('?').join(", ")});`,
             values.map(v => v[1])
         )
     }
@@ -86,9 +94,13 @@ export class BaseTable {
     }
 
     public static createTable(db: SQLite.SQLiteDatabase): Promise<void> {
-        let fields = this.fields.map(f => f.getDefinition()).join(", ")
+        let fields = this.fields.map(f => f.getDefinition()).join(", ");
+        let fk = this.fields.filter(f => f.isFK).map(f => f.getFKDefinition()).join(", ");
+        if (fk) {
+            fk = ", " + fk;
+        }
         return db.execAsync(`
-        CREATE TABLE IF NOT EXISTS ${this.tableName} (${fields});
+        CREATE TABLE IF NOT EXISTS ${this.tableName} (${fields}${fk});
         `);
     }
 

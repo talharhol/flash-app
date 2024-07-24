@@ -24,8 +24,8 @@ export class BaseDAL<
     }
 
     public Add(obj: ObjType): ObjType {
-        obj.setDAL?.(this._dal);
-        this.table.insertFromEntity(obj);
+        obj.setDAL(this._dal);
+        this.table.insertFromEntity(obj).catch(console.log);
         return obj;
     }
 

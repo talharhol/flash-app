@@ -1,7 +1,7 @@
 import BolderProblem from "@/components/general/BolderProblem";
 import BasicModal from "@/components/general/modals/BasicModal";
 import { useDal } from "@/DAL/DALService";
-import { Problem } from "@/DAL/problem";
+import { Problem } from "@/DAL/entities/problem";
 import { Ionicons } from "@expo/vector-icons";
 
 const DisplayBolderProblemModal: React.FC<React.ComponentProps<typeof BasicModal> & {

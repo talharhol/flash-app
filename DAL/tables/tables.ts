@@ -15,7 +15,7 @@ export class UserTable extends BaseTable {
         new Field({ name: "image", type: "TEXT", notNull: true }),
     ];
 
-    public static insertFromObj(obj: User): Promise<SQLiteRunResult> {
+    public static insertFromEntity(obj: User): Promise<SQLiteRunResult> {
         return this.insert({
             id: obj.id,
             name: obj.name,
@@ -46,7 +46,8 @@ export class WallTable extends BaseTable {
         new Field({ name: "is_public", type: "BOOLEAN" }),
         new Field({ name: "holds", type: "TEXT" }),
     ];
-    public static insertFromObj(obj: Wall): Promise<SQLiteRunResult> {
+    
+    public static insertFromEntity(obj: Wall): Promise<SQLiteRunResult> {
         return this.insert({
             id: obj.id,
             name: obj.name,
@@ -87,7 +88,7 @@ export class ProblemTable extends BaseTable {
         new Field({ name: "grade", type: "INTEGER", notNull: true }),
     ];
 
-    public static insertFromObj(obj: Problem): Promise<SQLiteRunResult> {
+    public static insertFromEntity(obj: Problem): Promise<SQLiteRunResult> {
         return this.insert({
             id: obj.id,
             name: obj.name,
@@ -113,14 +114,14 @@ export class ProblemTable extends BaseTable {
 }
 
 export class GroupTable extends BaseTable {
-    public static tableName: string = "group";
+    public static tableName: string = "group_table";
     public static fields: Field[] = [
         new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
         new Field({ name: "name", type: "TEXT", notNull: true }),
         new Field({ name: "image", type: "TEXT", notNull: true }),
     ];
 
-    public static insertFromObj(obj: Group): Promise<any> {
+    public static insertFromEntity(obj: Group): Promise<any> {
         return this.insert({
             id: obj.id,
             name: obj.name,

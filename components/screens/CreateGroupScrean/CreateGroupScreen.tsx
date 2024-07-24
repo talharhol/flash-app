@@ -15,7 +15,7 @@ import SelectImageModal from "@/components/general/modals/SelectImageModal";
 import BasicButton from "@/components/general/Buttom";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Group } from "@/DAL/group";
+import { Group } from "@/DAL/entities/group";
 import MultiSelect from "react-native-multiple-select";
 import SelectWallModal from "./SelectWallsModal";
 import { FlatList, ScrollView, TouchableOpacity } from "react-native-gesture-handler";

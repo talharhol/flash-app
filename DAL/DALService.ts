@@ -82,9 +82,12 @@ class DalService {
             db => {
                 this._db = db;
                 users.forEach(u => this.users.Add(u));
-                walls.forEach(w => this.walls.Add(w));
-                problems.forEach(p => this.problems.Add(p));
-                groups.forEach(g => this.groups.Add(g));
+                setTimeout(() => {
+                    walls.forEach(w => this.walls.Add(w));
+                    problems.forEach(p => this.problems.Add(p));
+                    groups.forEach(g => this.groups.Add(g));
+                }, 1000)
+                
             }
         ).then(() => this.connected = true).catch(alert);
     }
@@ -124,14 +127,14 @@ class DalService {
     }
 
     public get currentUser() {
-        return Object.values(this.users.List({}))[0];
+        return this.users.List({})[0];
     }
 
     public convertToLocalImage(image: ImageSourcePropType): string {
         let localFileName = `${uuid.v4() as string}.png`;
         const imageSrc = Image.resolveAssetSource(image);
         FileSystem.downloadAsync(imageSrc.uri, FileSystem.documentDirectory + localFileName).catch(alert);
-        return localFileName;
+        return FileSystem.documentDirectory + localFileName;
     }
 
     public get db() {

@@ -64,7 +64,7 @@ const migrations = [
         }
         
         class Group extends BaseTable {
-            public static tableName: string = "group";
+            public static tableName: string = "group_table";
             public static fields: Field[] = [
                 new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
                 new Field({ name: "name", type: "TEXT", notNull: true }),

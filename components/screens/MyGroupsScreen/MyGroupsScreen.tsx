@@ -5,7 +5,7 @@ import { ThemedText } from '@/components/general/ThemedText';
 import ThemedView from '@/components/general/ThemedView';
 import React, { useState } from 'react';
 import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
-import { Group } from '@/DAL/group';
+import { Group } from '@/DAL/entities/group';
 import { useRouter } from 'expo-router';
 import SwipablePreviewItem from '@/components/general/SwipeablePreviewItem';
 import BasicButton from '@/components/general/Buttom';

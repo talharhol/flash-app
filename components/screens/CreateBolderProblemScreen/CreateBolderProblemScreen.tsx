@@ -17,7 +17,7 @@ import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
 import PublishProblemModal from "./PublishProblemModal";
-import { Problem } from "@/DAL/problem";
+import { Problem } from "@/DAL/entities/problem";
 import { useDal } from "@/DAL/DALService";
 
 

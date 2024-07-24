@@ -10,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import DisplayBolderProblemModal from '../../general/modals/DisplayBolderProblemModal';
 import FilterProblemssModal from '@/components/general/modals/FilterBoldersModal';
-import { FilterProblems, ProblemFilter } from '@/DAL/problem';
+import { FilterProblems, ProblemFilter } from '@/DAL/entities/problem';
 import { useDal } from '@/DAL/DALService';
 
 const ViewWallScreen: React.FC = () => {

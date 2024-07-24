@@ -5,7 +5,7 @@ import BasicModal from "./BasicModal";
 import BasicButton from "../Buttom";
 import { Picker } from "@react-native-picker/picker";
 import MultiSelect from "react-native-multiple-select";
-import { ProblemFilter } from "@/DAL/problem";
+import { ProblemFilter } from "@/DAL/entities/problem";
 import { grades } from "@/constants/consts";
 import { useDal } from "@/DAL/DALService";
 
