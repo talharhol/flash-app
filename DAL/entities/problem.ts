@@ -1,5 +1,5 @@
 import { HoldInterface } from "../hold";
-import { Entity } from "./BaseEntity";
+import { Entity, EntityProps } from "./BaseEntity";
 
 export class Problem extends Entity {
     name: string;
@@ -8,7 +8,7 @@ export class Problem extends Entity {
     holds: HoldInterface[];
     setter: string;
     isPublic: boolean;
-    constructor({ name, wallId, grade, holds, setter, isPublic, ...props }: { name: string, wallId: string, grade: number, holds: HoldInterface[], setter: string, isPublic?: boolean}) {
+    constructor({ name, wallId, grade, holds, setter, isPublic, ...props }: { name: string, wallId: string, grade: number, holds: HoldInterface[], setter: string, isPublic?: boolean} & EntityProps) {
         super(props);
         this.name = name;
         this.wallId = wallId;

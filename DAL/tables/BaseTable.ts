@@ -10,7 +10,7 @@ export class Field {
     protected _fk?: Field;
     protected _default?: () => any;
 
-    constructor({name, type, notNull, table, pk, fk, default_, }: {name: string, type: string, notNull?: boolean, table?: typeof BaseTable, pk?: boolean, fk?:Field, default_?: () => any}) {
+    constructor({ name, type, notNull, table, pk, fk, default_, }: { name: string, type: string, notNull?: boolean, table?: typeof BaseTable, pk?: boolean, fk?: Field, default_?: () => any }) {
         this._name = name;
         this._type = type;
         this._notNull = notNull;
@@ -30,7 +30,7 @@ export class Field {
 
     public getDefinition(): string {
         let fk = this._fk ? `, FOREIGN KEY (${this._name}) REFERENCES ${this._fk!._table!.tableName}(${this._fk!._name}),` : '';
-        return `${this._name}${this._pk ? ' PRIMARY KEY': ''}${this._notNull ? ' NOT NULL': ''}${fk}`;
+        return `${this._name}${this._pk ? ' PRIMARY KEY' : ''}${this._notNull ? ' NOT NULL' : ''}${fk}`;
     }
 
     public getDefault() {
@@ -38,11 +38,11 @@ export class Field {
     }
 
     public eq<T>(value: T): [string, T] {
-        return [`${this._table!.tableName} = ?`, value]
+        return [`${this._table!.tableName}.${this._name} = ?`, value]
     }
 
     public neq<T>(value: T): [string, T] {
-        return [`${this._table!.tableName} != ?`, value]
+        return [`${this._table!.tableName}.${this._name} != ?`, value]
     }
 
 }
@@ -59,18 +59,30 @@ export class BaseTable {
         }
     }
 
-    public static insert(data: { [key: string]: any}, db: SQLite.SQLiteDatabase): Promise<SQLite.SQLiteRunResult> {
+    public static insert(data: { [key: string]: any }, db: SQLite.SQLiteDatabase): Promise<SQLite.SQLiteRunResult> {
         let values: [string, any][] = this.fields.map(field => {
             return [field.name, data[field.name] || field.getDefault()]
         })
         return db.runAsync(
             `INSERT INTO ${this.tableName} (${values.map(v => v[0]).join(', ')}) VALUES (${'?, '.repeat(values.length)})`,
-            values.map(v=>v[1])
+            values.map(v => v[1])
         )
     }
 
-    public static insertFromObj(obj: Entity): Promise<SQLite.SQLiteRunResult> {
+    public static insertFromEntity(obj: Entity): Promise<SQLite.SQLiteRunResult> {
         return this.insert(obj, obj.getDAL().db!);
+    }
+
+    public static toEntity(data: { [key: string]: any } ): Entity {
+        return new Entity({id: data["id"]});
+    }
+
+    public static filter(filters: [string, any][], select?: Field[]): [string, any[]] {
+        filters.push(["1", 1]); // in the case the filters are empty
+        return [
+            `SELECT ${select ? select.map(f => f.name).join(", ") : "*"} FROM ${this.tableName} WHERE ${filters.map(f => f[0]).join(' AND ')}`,
+            filters.map(f => f[1])
+        ]
     }
 
     public static createTable(db: SQLite.SQLiteDatabase): Promise<void> {

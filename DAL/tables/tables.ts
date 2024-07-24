@@ -5,6 +5,7 @@ import { User } from "../entities/user";
 import { Wall } from "../entities/wall";
 import { Problem } from "../entities/problem";
 import { Group } from "../entities/group";
+import { Entity } from "../entities/BaseEntity";
 
 export class UserTable extends BaseTable {
     public static tableName: string = "user";
@@ -20,6 +21,16 @@ export class UserTable extends BaseTable {
             name: obj.name,
             image: obj.getDAL().convertToLocalImage(obj.image)
         }, obj.getDAL().db!)
+    }
+
+    public static toEntity(data: { [key: string]: any; }): User {
+        return new User({
+            id: data["id"],
+            name: data["name"],
+            image: {
+                uri: data["image"]
+            }
+        });
     }
 }
 
@@ -48,6 +59,20 @@ export class WallTable extends BaseTable {
         }, obj.getDAL().db!);
     }
 
+    public static toEntity(data: { [key: string]: any; }): Wall {
+        return new Wall({
+            id: data["id"],
+            name: data["name"],
+            gym: data["gym"],
+            image: {
+                uri: data["image"]
+            },
+            angle: data["angle"],
+            configuredHolds: JSON.parse(data["holds"]),
+            isPublic: data["is_public"]
+        });
+    }
+
 }
 
 export class ProblemTable extends BaseTable {
@@ -72,6 +97,18 @@ export class ProblemTable extends BaseTable {
             holds: JSON.stringify(obj.holds),
             grade: obj.grade
         }, obj.getDAL().db!);
+    }
+
+    public static toEntity(data: { [key: string]: any; }): Problem {
+        return new Problem({
+            id: data["id"],
+            wallId: data["wall_id"],
+            setter: data["owner_id"],
+            name: data["name"],
+            grade: data["grade"],
+            holds: JSON.parse(data["holds"]),
+            isPublic: data["is_public"]
+        });
     }
 }
 
@@ -109,8 +146,16 @@ export class GroupTable extends BaseTable {
                 }, obj.getDAL().db!)
             });
         });
+    }
 
-        
+    public static toEntity(data: { [key: string]: any; }): Group {
+        return new Group({
+            id: data["id"],
+            name: data["name"],
+            image: {
+                uri: data["image"]
+            }
+        });
     }
 }
 
