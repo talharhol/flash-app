@@ -16,7 +16,9 @@ export interface IBaseDAL<ObjType extends { id: string }, ListParams = {}, GetPa
 }
 export interface IDAL {
     walls: IBaseDAL<Wall>;
-    users: IBaseDAL<User>;
+    users: IBaseDAL<User> & {
+        GetWalls(params: {user_id: string}): Wall[]
+    };
     problems: IBaseDAL<Problem>;
     groups: IBaseDAL<Group>;
 

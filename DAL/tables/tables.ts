@@ -10,7 +10,7 @@ import { Entity } from "../entities/BaseEntity";
 export class UserTable extends BaseTable {
     public static tableName: string = "user";
     public static fields: Field[] = [
-        new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
+        ...BaseTable.getDefaultFields(),
         new Field({ name: "name", type: "TEXT", notNull: true }),
         new Field({ name: "image", type: "TEXT", notNull: true }),
     ];
@@ -37,7 +37,7 @@ export class UserTable extends BaseTable {
 export class WallTable extends BaseTable {
     public static tableName: string = "wall";
     public static fields: Field[] = [
-        new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
+        ...BaseTable.getDefaultFields(),
         new Field({ name: "name", type: "TEXT", notNull: true }),
         new Field({ name: "gym", type: "TEXT", notNull: true }),
         new Field({ name: "owner_id", type: "TEXT", notNull: true, fk: UserTable.getField('id')}),
@@ -46,7 +46,7 @@ export class WallTable extends BaseTable {
         new Field({ name: "is_public", type: "BOOLEAN" }),
         new Field({ name: "holds", type: "TEXT" }),
     ];
-    
+
     public static insertFromEntity(obj: Wall): Promise<SQLiteRunResult> {
         return this.insert({
             id: obj.id,
@@ -79,7 +79,7 @@ export class WallTable extends BaseTable {
 export class ProblemTable extends BaseTable {
     public static tableName: string = "problem";
     public static fields: Field[] = [
-        new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
+        ...BaseTable.getDefaultFields(),
         new Field({ name: "name", type: "TEXT", notNull: true }),
         new Field({ name: "owner_id", type: "TEXT", notNull: true, fk: UserTable.getField('id') }),
         new Field({ name: "wall_id", type: "TEXT", notNull: true, fk: WallTable.getField('id') }),
@@ -116,7 +116,7 @@ export class ProblemTable extends BaseTable {
 export class GroupTable extends BaseTable {
     public static tableName: string = "group_table";
     public static fields: Field[] = [
-        new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
+        ...BaseTable.getDefaultFields(),
         new Field({ name: "name", type: "TEXT", notNull: true }),
         new Field({ name: "image", type: "TEXT", notNull: true }),
     ];
@@ -163,7 +163,7 @@ export class GroupTable extends BaseTable {
 export class GroupMemberTable extends BaseTable {
     public static tableName: string = "group_member";
     public static fields: Field[] = [
-        new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
+        ...BaseTable.getDefaultFields(),
         new Field({ name: "role", type: "TEXT", default_: () => "member", notNull: true }),
         new Field({ name: "user_id", type: "TEXT", notNull: true, fk: UserTable.getField('id') }),
         new Field({ name: "group_id", type: "TEXT", notNull: true, fk: GroupTable.getField('id') }),
@@ -173,7 +173,7 @@ export class GroupMemberTable extends BaseTable {
 export class GroupWallTable extends BaseTable {
     public static tableName: string = "group_wall";
     public static fields: Field[] = [
-        new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
+        ...BaseTable.getDefaultFields(),
         new Field({ name: "wall_id", type: "TEXT", notNull: true, fk: WallTable.getField('id') }),
         new Field({ name: "group_id", type: "TEXT", notNull: true, fk: GroupTable.getField('id') }),
     ];
@@ -182,9 +182,18 @@ export class GroupWallTable extends BaseTable {
 export class GroupProblemTable extends BaseTable {
     public static tableName: string = "group_problem";
     public static fields: Field[] = [
-        new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
+        ...BaseTable.getDefaultFields(),
         new Field({ name: "problem_id", type: "TEXT", notNull: true, fk: ProblemTable.getField('id') }),
         new Field({ name: "group_id", type: "TEXT", notNull: true, fk: GroupTable.getField('id') }),
     ];
 }
 
+export class UserWallTable extends BaseTable {
+    public static tableName: string = "user_wall";
+    public static fields: Field[] = [
+        ...BaseTable.getDefaultFields(),
+        new Field({ name: "role", type: "TEXT", default_: () => "climber", notNull: true }),
+        new Field({ name: "user_id", type: "TEXT", notNull: true, fk: UserTable.getField('id') }),
+        new Field({ name: "wall_id", type: "TEXT", notNull: true, fk: WallTable.getField('id') }),
+    ];
+}

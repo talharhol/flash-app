@@ -1,6 +1,5 @@
 import * as SQLite from 'expo-sqlite';
 import dalService from './DALService';
-import uuid from "react-native-uuid";
 import { BaseTable, Field } from './tables/BaseTable';
 
 
@@ -30,16 +29,16 @@ const migrations = [
         class User extends BaseTable {
             public static tableName: string = "user";
             public static fields: Field[] = [
-                new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
+                ...BaseTable.getDefaultFields(),
                 new Field({ name: "name", type: "TEXT", notNull: true }),
                 new Field({ name: "image", type: "TEXT", notNull: true }),
             ];
         }
-        
+
         class Wall extends BaseTable {
             public static tableName: string = "wall";
             public static fields: Field[] = [
-                new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
+                ...BaseTable.getDefaultFields(),
                 new Field({ name: "name", type: "TEXT", notNull: true }),
                 new Field({ name: "gym", type: "TEXT", notNull: true }),
                 new Field({ name: "owner_id", type: "TEXT", notNull: true, fk: User.getField('id') }),
@@ -49,11 +48,11 @@ const migrations = [
                 new Field({ name: "holds", type: "TEXT" }),
             ];
         }
-        
+
         class Problem extends BaseTable {
             public static tableName: string = "problem";
             public static fields: Field[] = [
-                new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
+                ...BaseTable.getDefaultFields(),
                 new Field({ name: "name", type: "TEXT", notNull: true }),
                 new Field({ name: "owner_id", type: "TEXT", notNull: true, fk: User.getField('id') }),
                 new Field({ name: "wall_id", type: "TEXT", notNull: true, fk: Wall.getField('id') }),
@@ -62,44 +61,50 @@ const migrations = [
                 new Field({ name: "grade", type: "INTEGER", notNull: true }),
             ];
         }
-        
+
         class Group extends BaseTable {
             public static tableName: string = "group_table";
             public static fields: Field[] = [
-                new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
+                ...BaseTable.getDefaultFields(),
                 new Field({ name: "name", type: "TEXT", notNull: true }),
                 new Field({ name: "image", type: "TEXT", notNull: true }),
             ];
         }
-        
+
         class GroupMember extends BaseTable {
             public static tableName: string = "group_member";
             public static fields: Field[] = [
-                new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
+                ...BaseTable.getDefaultFields(),
                 new Field({ name: "role", type: "TEXT", default_: () => "member", notNull: true }),
                 new Field({ name: "user_id", type: "TEXT", notNull: true, fk: User.getField('id') }),
                 new Field({ name: "group_id", type: "TEXT", notNull: true, fk: Group.getField('id') }),
             ];
         }
-        
+
         class GroupWall extends BaseTable {
             public static tableName: string = "group_wall";
             public static fields: Field[] = [
-                new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
+                ...BaseTable.getDefaultFields(),
                 new Field({ name: "wall_id", type: "TEXT", notNull: true, fk: Wall.getField('id') }),
                 new Field({ name: "group_id", type: "TEXT", notNull: true, fk: Group.getField('id') }),
             ];
         }
-        
+
         class GroupProblem extends BaseTable {
             public static tableName: string = "group_problem";
             public static fields: Field[] = [
-                new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
+                ...BaseTable.getDefaultFields(),
                 new Field({ name: "problem_id", type: "TEXT", notNull: true, fk: Problem.getField('id') }),
                 new Field({ name: "group_id", type: "TEXT", notNull: true, fk: Group.getField('id') }),
             ];
         }
-
+        await db.execAsync(`DROP TABLE ${User.tableName};`)
+        await db.execAsync(`DROP TABLE ${Wall.tableName};`)
+        await db.execAsync(`DROP TABLE ${Problem.tableName};`)
+        await db.execAsync(`DROP TABLE ${Group.tableName};`)
+        await db.execAsync(`DROP TABLE ${GroupMember.tableName};`)
+        await db.execAsync(`DROP TABLE ${GroupProblem.tableName};`)
+        await db.execAsync(`DROP TABLE ${GroupWall.tableName};`)
         await User.createTable(db);
         await Wall.createTable(db);
         await Problem.createTable(db);
@@ -107,5 +112,29 @@ const migrations = [
         await GroupMember.createTable(db);
         await GroupWall.createTable(db);
         await GroupProblem.createTable(db);
-    },    
+    },
+    async (db: SQLite.SQLiteDatabase) => {
+        class User extends BaseTable {
+            public static tableName: string = "user";
+            public static fields: Field[] = [
+                ...BaseTable.getDefaultFields()
+            ];
+        }
+        class Wall extends BaseTable {
+            public static tableName: string = "wall";
+            public static fields: Field[] = [
+                ...BaseTable.getDefaultFields()
+            ];
+        }
+        class UserWall extends BaseTable {
+            public static tableName: string = "user_wall";
+            public static fields: Field[] = [
+                ...BaseTable.getDefaultFields(),
+                new Field({ name: "role", type: "TEXT", default_: () => "climber", notNull: true }),
+                new Field({ name: "user_id", type: "TEXT", notNull: true, fk: User.getField('id') }),
+                new Field({ name: "wall_id", type: "TEXT", notNull: true, fk: Wall.getField('id') }),
+            ];
+        }
+        await UserWall.createTable(db);
+    }
 ];

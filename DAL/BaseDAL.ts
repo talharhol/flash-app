@@ -1,7 +1,3 @@
-import { Image, ImageSourcePropType } from "react-native";
-import * as FileSystem from 'expo-file-system';
-import uuid from "react-native-uuid";
-
 import { IDAL } from "./IDAL";
 import { Group } from "./entities/group";
 import { Problem } from "./entities/problem";
@@ -9,7 +5,7 @@ import { User } from "./entities/user";
 import { Wall } from "./entities/wall";
 import { BaseTable } from "./tables/BaseTable";
 import { Entity } from "./entities/BaseEntity";
-import { GroupMemberTable, GroupProblemTable, GroupTable, GroupWallTable, ProblemTable, WallTable } from "./tables/tables";
+import { GroupMemberTable, GroupProblemTable, GroupTable, GroupWallTable, ProblemTable, UserWallTable, WallTable } from "./tables/tables";
 
 export class BaseDAL<
     ObjType extends Entity
@@ -43,7 +39,7 @@ export class BaseDAL<
         )
         let entity = this.table.toEntity(result!);
         entity.setDAL(this._dal);
-        return entity;
+        return entity as ObjType;
     }
 
     public List(params: {}): ObjType[] {
@@ -54,14 +50,24 @@ export class BaseDAL<
             let entity = this.table.toEntity(r);
             entity.setDAL(this._dal);
             return entity
-        });
+        }) as ObjType[];
     }
 
 
 }
 
 export class UserDAL extends BaseDAL<User> {
-
+    public GetWalls(params: {user_id: string}): Wall[] {
+        let results = this._dal.db!.getAllSync<{ wall_id: string }>(
+            ...UserWallTable.filter(
+                [UserWallTable.getField("user_id")!.eq(params.user_id)],
+                [UserWallTable.getField("wall_id")!]
+            )
+        )
+        return results.map((w => {
+            return this._dal.walls.Get({ id: w.wall_id });
+        }))
+    }
 }
 
 export class WallDAL extends BaseDAL<Wall> {
@@ -74,12 +80,12 @@ export class WallDAL extends BaseDAL<Wall> {
         }
         if (params.name) {
             filters.push(
-                WallTable.getField("name")!.eq(params.name)
+                WallTable.getField("name")!.like(params.name)
             );
         }
         if (params.gym) {
             filters.push(
-                WallTable.getField("is_public")!.eq(params.gym)
+                WallTable.getField("gym")!.like(params.gym)
             );
         }
         let results = this._dal.db!.getAllSync<{[ket: string]: any}>(
@@ -90,6 +96,16 @@ export class WallDAL extends BaseDAL<Wall> {
             entity.setDAL(this._dal);
             return entity
         });
+    }
+
+    public Add(obj: Wall): Wall {
+        let wall = super.Add(obj);
+        UserWallTable.insert({
+            wall_id: wall.id,
+            user_id: this._dal.currentUser.id, // todo: use wall object
+            role: "owner"
+        }, this._dal.db!).then(() => wall);
+        return wall;
     }
 }
 

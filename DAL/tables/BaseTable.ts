@@ -1,3 +1,4 @@
+import uuid from "react-native-uuid";
 import * as SQLite from 'expo-sqlite';
 import { Entity } from '../entities/BaseEntity';
 
@@ -53,11 +54,15 @@ export class Field {
         return [`${this._table!.tableName}.${this._name} != ?`, value]
     }
 
+    public like(value: string): [string, string] {
+        return [`${this._table!.tableName}.${this._name} LIKE ?`, `%${value}%`]
+    }
 }
 
 export class BaseTable {
     public static tableName: string;
     public static fields: Field[];
+
 
     public static getField(name: string): Field | undefined {
         let field = this.fields.filter(f => f.name === name);
@@ -104,5 +109,13 @@ export class BaseTable {
         `);
     }
 
+    public static getDefaultFields(): Field[] {
+        return [
+            new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
+            new Field({ name: "created_at", type: "INTEGER",  default_: Date.now, notNull: true }),
+            new Field({ name: "updated_at", type: "INTEGER",  default_: Date.now, notNull: true }),
+            new Field({ name: "deleted_at", type: "INTEGER", default_: () => undefined }),
+        ]
+    }
 
 }

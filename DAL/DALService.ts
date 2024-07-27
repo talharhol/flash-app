@@ -5,7 +5,7 @@ import { Wall } from "./entities/wall";
 import { User } from "./entities/user";
 import { Problem } from "./entities/problem";
 import { Group } from "./entities/group";
-import { BaseDAL, GroupDAL, ProblemDAL, UserDAL, WallDAL } from "./BaseDAL";
+import { GroupDAL, ProblemDAL, UserDAL, WallDAL } from "./BaseDAL";
 import { IBaseDAL } from "./IDAL";
 import { GroupTable, ProblemTable, UserTable, WallTable } from "./tables/tables";
 import { Image, ImageSourcePropType } from "react-native";
@@ -25,69 +25,18 @@ class DalService {
     private _db: SQLite.SQLiteDatabase | null = null;
     public connected: boolean = false;
 
-    private _userDal?: IBaseDAL<User>;
+    private _userDal?: IBaseDAL<User> & {
+        GetWalls(params: {user_id: string}): Wall[]
+    };
     private _wallDal?: IBaseDAL<Wall, { isPublic?: boolean, name?: string, gym?: string }>;
     private _problemDal?: IBaseDAL<Problem, { wallId?: string }>;
     private _groupDal?: IBaseDAL<Group, { userId?: string }>;
 
     public connect() {
-        let users = [
-            new User({ name: "Tal", image: require("../assets/images/climber.png") }),
-            new User({ name: "Gozal", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-            new User({ name: "Maayan", image: require("../assets/images/climber.png") }),
-        ]
-        let walls = [
-            new Wall({ name: "Moon1", gym: "Tal", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true, dal: this }),
-            new Wall({ name: "Moon2", gym: "Tal", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true, dal: this }),
-            new Wall({ name: "Moon3", gym: "Rotem", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true, dal: this }),
-            new Wall({ name: "Moon4", gym: "Rotem", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true, dal: this }),
-            new Wall({ name: "Moon4", gym: "Rotem", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true, dal: this }),
-            new Wall({ name: "Moon4", gym: "Rotem", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true, dal: this }),
-            new Wall({ name: "Moon4", gym: "Rotem", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true, dal: this }),
-            new Wall({ name: "Moon4", gym: "Rotem", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true, dal: this }),
-            new Wall({ name: "Moon4", gym: "Rotem", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true, dal: this }),
-            new Wall({ name: "Moon4", gym: "Rotem", image: require("../assets/images/Wall.png"), angle: 40, configuredHolds: debugHolds, isPublic: true, dal: this }),
-        ]
-        let problems = [
-            new Problem({ wallId: walls[0].id, name: "David", grade: 5, holds: debugHolds, setter: users[0].id }),
-            new Problem({ wallId: walls[0].id, name: "Moshe", grade: 6, holds: debugHolds, setter: users[1].id }),
-            new Problem({ wallId: walls[0].id, name: "Moav", grade: 7, holds: debugHolds, setter: users[2].id }),
-            new Problem({ wallId: walls[0].id, name: "Rotem", grade: 8, holds: debugHolds, setter: users[0].id }),
-        ];
-        let groups = [
-            new Group({ name: "Group1", image: require("../assets/images/climber.png"), walls: [walls[0].id, walls[1].id], members: users.map(u => u.id), admins: [users[0].id], problems: [problems[0].id, problems[1].id] }),
-            new Group({ name: "Group2", image: require("../assets/images/climber.png"), walls: [walls[0].id, walls[1].id], members: users.map(u => u.id), admins: [users[1].id], problems: [problems[0].id, problems[1].id] }),
-            new Group({ name: "Group3", image: require("../assets/images/climber.png"), walls: [walls[0].id, walls[1].id], members: users.map(u => u.id), admins: [users[2].id], problems: [problems[0].id, problems[1].id] }),
-            new Group({ name: "Group4", image: require("../assets/images/climber.png"), walls: [walls[0].id, walls[1].id], members: users.map(u => u.id), admins: [users[0].id], problems: [problems[0].id, problems[1].id] }),
-        ];
+        
         return SQLite.openDatabaseAsync('flashLocalDB.db').then(
             db => {
-                this._db = db;
-                users.forEach(u => this.users.Add(u));
-                setTimeout(() => {
-                    walls.forEach(w => this.walls.Add(w));
-                    problems.forEach(p => this.problems.Add(p));
-                    groups.forEach(g => this.groups.Add(g));
-                }, 1000)
-                
+                this._db = db;                
             }
         ).then(() => this.connected = true).catch(alert);
     }
@@ -96,15 +45,10 @@ class DalService {
         if (!!DalService._instance) {
             return DalService._instance;
         }
-
-
         this._userDal = new UserDAL(this, UserTable);
         this._wallDal = new WallDAL(this, WallTable);
         this._problemDal = new ProblemDAL(this, ProblemTable);
         this._groupDal = new GroupDAL(this, GroupTable);
-
-        
-        
 
         DalService._instance = this;
     }
@@ -127,14 +71,25 @@ class DalService {
     }
 
     public get currentUser() {
-        return this.users.List({})[0];
+        let user = this.users.List({})[0];
+        if (user === undefined) {
+            user = new User({
+                name: "tal",
+                image: require("../assets/images/climber.png")
+            });
+            this.users.Add(user);
+        }
+        return user;
     }
 
     public convertToLocalImage(image: ImageSourcePropType): string {
-        let localFileName = `${uuid.v4() as string}.png`;
+        let localFileName = FileSystem.documentDirectory + `${uuid.v4() as string}.png`;
         const imageSrc = Image.resolveAssetSource(image);
-        FileSystem.downloadAsync(imageSrc.uri, FileSystem.documentDirectory + localFileName).catch(alert);
-        return FileSystem.documentDirectory + localFileName;
+        FileSystem.copyAsync({
+            from: imageSrc.uri,
+            to: localFileName
+        }).catch(alert);
+        return localFileName;
     }
 
     public get db() {
