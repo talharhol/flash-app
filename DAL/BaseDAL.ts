@@ -22,18 +22,24 @@ export class BaseDAL<
     public Add(obj: ObjType): ObjType {
         obj.setDAL(this._dal);
         this.table.insertFromEntity(obj).catch(console.log);
+        this._objects[obj.id] = obj;
         return obj;
     }
 
     public Remove(obj: ObjType): boolean {
+        // todo delete from DB
         return delete this._objects[obj.id];
     }
 
     public Update(obj: ObjType): ObjType {
+        // todo update in DB
         return this._objects[obj.id] = obj;
     }
 
     public Get(params: { id: string }): ObjType {
+        if (this._objects[params.id]) {
+            return this._objects[params.id];
+        }
         let result = this._dal.db!.getFirstSync<{[ket: string]: any}>(
             ...this.table.filter([this.table.getField("id")!.eq(params.id)])
         )
@@ -52,8 +58,6 @@ export class BaseDAL<
             return entity
         }) as ObjType[];
     }
-
-
 }
 
 export class UserDAL extends BaseDAL<User> {
