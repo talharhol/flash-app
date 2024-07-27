@@ -1,4 +1,4 @@
-import { Hold, HoldInterface, HoldType, SortHolds } from "@/DAL/hold";
+import { Hold, HoldInterface, HoldType, SortHolds, holdTypeToHoldColor } from "@/DAL/hold";
 import { imageSize } from "../general/SizeContext";
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import {
@@ -50,7 +50,7 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
     const [imageWidth, setImageWidth] = useState(screenDimension.width * (scale || 1));
     const onCreatedHold = (path: string) => {
       if (drawingHoldType == null) return;
-      onDrawHoldFinish?.(new Hold({ svgPath: path, type: drawingHoldType }));
+      onDrawHoldFinish?.(new Hold({ svgPath: path, color: drawingHoldType.color }));
     };
     useEffect(() => {
       Image.getSize(Image.resolveAssetSource(wallImage).uri, (width, height) => {

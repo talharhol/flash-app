@@ -6,7 +6,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { Hold, HoldInterface, HoldType, HoldTypes } from "../../../DAL/hold";
+import { Hold, HoldInterface, HoldType, HoldTypes, holdTypeToHoldColor } from "../../../DAL/hold";
 import EditHoldModal from "./EditHoldModal";
 import BolderProblem from "@/components/general/BolderProblem";
 import BasicButton from "@/components/general/Buttom";
@@ -52,7 +52,7 @@ const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
   const onConfiguredHoldPress = (id: string) => {
     let holdType = drawingHoldType.type;
     let hold = wall.configuredHolds.filter(v => v.id === id)[0]
-    setHolds(holds => holds.concat([new Hold({ svgPath: hold.svgPath, type: new HoldType(holdType) })]));
+    setHolds(holds => holds.concat([new Hold({ svgPath: hold.svgPath, color: holdTypeToHoldColor[holdType] })]));
   }
   const editHold = (id: string, holdType: HoldType | null, is_delete: boolean) => {
     if (is_delete) {

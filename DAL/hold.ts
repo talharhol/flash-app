@@ -6,13 +6,13 @@ export enum HoldTypes {
     feet,
     top,
 };
-const holdTypeToHoldColor: Record<HoldTypes, string> = {
+export const holdTypeToHoldColor: Record<HoldTypes, string> = {
     [HoldTypes.feet]: "#FFC90C",
     [HoldTypes.route]: "blue",
     [HoldTypes.start]: "#19F02F",
     [HoldTypes.top]: "#FF0C0C",
 };
-const holdTypeToTitle: Record<HoldTypes, string> = {
+export const holdTypeToTitle: Record<HoldTypes, string> = {
     [HoldTypes.feet]: "Feet",
     [HoldTypes.route]: "Route",
     [HoldTypes.start]: "Start",
@@ -33,16 +33,14 @@ export class HoldType {
 
 export class Hold {
     id: string;
-    type: HoldType;
+    color: string;
     svgPath: string;
-    constructor({ id, type, svgPath }: { type: HoldType, svgPath: string, id?: string; }) {
+    length: number;
+    constructor({ id, svgPath, color, length }: { svgPath: string, id?: string; color?: string, length?: number}) {
         this.id = id || uuid.v4() as string;
-        this.type = type;
+        this.color = color || holdTypeToHoldColor[HoldTypes.route];
         this.svgPath = svgPath;
-    }
-
-    get color() {
-        return this.type.color
+        this.length = length || new svgPathProperties(svgPath).getTotalLength();
     }
 };
 
