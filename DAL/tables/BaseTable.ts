@@ -66,7 +66,7 @@ export class BaseTable {
 
     public static getField(name: string): Field | undefined {
         let field = this.fields.filter(f => f.name === name);
-        if (field) {
+        if (field.length > 0) {
             field[0].setTable(this);
             return field[0];
         }
@@ -74,7 +74,10 @@ export class BaseTable {
 
     public static insert(data: { [key: string]: any }, db: SQLite.SQLiteDatabase): Promise<SQLite.SQLiteRunResult> {
         let values: [string, any][] = this.fields.map(field => {
-            return [field.name, data[field.name] || field.getDefault()]
+            if (data[field.name] === undefined) {
+                return [field.name, field.getDefault()]
+            }
+            return [field.name, data[field.name]]
         })
         return db.runAsync(
             `INSERT INTO ${this.tableName} (${values.map(v => v[0]).join(', ')}) VALUES (${new Array(values.length).fill('?').join(", ")});`,
@@ -91,7 +94,7 @@ export class BaseTable {
     }
 
     public static filter(filters: [string, any][], select?: Field[]): [string, any[]] {
-        filters.push(["1", 1]); // in the case the filters are empty
+        filters.push(["1 = ?", 1]); // in the case the filters are empty
         return [
             `SELECT ${select ? select.map(f => f.name).join(", ") : "*"} FROM ${this.tableName} WHERE ${filters.map(f => f[0]).join(' AND ')}`,
             filters.map(f => f[1])

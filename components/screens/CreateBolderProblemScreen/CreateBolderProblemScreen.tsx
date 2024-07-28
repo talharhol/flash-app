@@ -24,7 +24,7 @@ import { useDal } from "@/DAL/DALService";
 const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
   const router = useRouter();
   const dal = useDal();
-  const wall = dal.walls.Get(useLocalSearchParams());
+  const wall = dal.walls.Get({ id: useLocalSearchParams().id as string });
   const targetGroup = useLocalSearchParams().groupId as (string | undefined);
   const [isDrawingHold, setIsDrawingHold] = useState(false);
   const [editedHold, setEditedHold] = useState<string | null>(null);
@@ -79,8 +79,10 @@ const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
     dal.problems.Add(problem);
     if (targetGroup) {
       let group = dal.groups.Get({ id: targetGroup });
-      group.problems.push(problem.id);
-      router.navigate({ pathname: "/ViewGroupScreen", params: { id: group.id } });
+      group.AddProblem({problem_id: problem.id}).finally(
+        () => router.navigate({ pathname: "/ViewGroupScreen", params: { id: group.id } })
+      );
+      ;
     }
     else
       router.navigate({ pathname: "/ViewWall", params: { id: wall.id } });

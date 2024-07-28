@@ -25,12 +25,12 @@ class DalService {
     private _db: SQLite.SQLiteDatabase | null = null;
     public connected: boolean = false;
 
-    private _userDal?: IBaseDAL<User> & {
-        GetWalls(params: {user_id: string}): Wall[]
-    };
-    private _wallDal?: IBaseDAL<Wall, { isPublic?: boolean, name?: string, gym?: string }>;
-    private _problemDal?: IBaseDAL<Problem, { wallId?: string }>;
-    private _groupDal?: IBaseDAL<Group, { userId?: string }>;
+    private _userDal?: UserDAL;
+    private _wallDal?: WallDAL;
+    private _problemDal?: ProblemDAL;
+    private _groupDal?: GroupDAL;
+
+    private _currentUser?: User;
 
     public connect() {
         
@@ -71,6 +71,8 @@ class DalService {
     }
 
     public get currentUser() {
+        if (this._currentUser) return this._currentUser;
+        
         let user = this.users.List({})[0];
         if (user === undefined) {
             user = new User({
@@ -79,6 +81,8 @@ class DalService {
             });
             this.users.Add(user);
         }
+        user.setDAL(this);
+        this._currentUser = user;
         return user;
     }
 

@@ -16,7 +16,7 @@ import { useDal } from '@/DAL/DALService';
 const ViewWallScreen: React.FC = () => {
     const router = useRouter();
     const dal = useDal();
-    const wall = dal.walls.Get(useLocalSearchParams());
+    const wall = dal.walls.Get({ id: useLocalSearchParams().id as string });
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(null);
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
     const [filters, setFilters] = useState<ProblemFilter>({
@@ -57,7 +57,7 @@ const ViewWallScreen: React.FC = () => {
                     </ThemedView>
                 }>
                 {
-                    dal.problems.List({ wallId: wall.id })
+                    dal.problems.List({ wallId: wall.id, isPublic: true })
                         .filter(FilterProblems(filters))
                         .map(problem =>
                             <BolderProblemPreview

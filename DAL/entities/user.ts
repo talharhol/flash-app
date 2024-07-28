@@ -9,4 +9,8 @@ export class User extends Entity {
         this.name = name;
         this.image = image;
     }
+
+    public get groups() {
+        return this.dal!.groups.List({userId: this.id})
+    }
 };

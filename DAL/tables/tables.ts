@@ -132,19 +132,19 @@ export class GroupTable extends BaseTable {
                     user_id: userId,
                     group_id: obj.id,
                     role: userId in obj.admins ? "admin" : "member"
-                }, obj.getDAL().db!)
+                }, obj.getDAL().db!).catch(console.log)
             });
             obj.walls.map(wallId => {
                 GroupWallTable.insert({
                     wall_id: wallId,
                     group_id: obj.id,
-                }, obj.getDAL().db!)
+                }, obj.getDAL().db!).catch(console.log)
             });
             obj.problems.map(problemId => {
                 GroupProblemTable.insert({
                     problem_id: problemId,
                     group_id: obj.id,
-                }, obj.getDAL().db!)
+                }, obj.getDAL().db!).catch(console.log)
             });
         });
     }

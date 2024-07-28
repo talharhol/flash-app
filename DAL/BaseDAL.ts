@@ -130,7 +130,7 @@ export class GroupDAL extends BaseDAL<Group> {
             ...GroupWallTable.filter([GroupWallTable.getField("group_id")!.eq(params.id)], [GroupWallTable.getField("wall_id")!])
         );
         let problems = this._dal.db!.getAllSync<{problem_id: string}>(
-            ...GroupProblemTable.filter([GroupProblemTable.getField("group_id")!.eq(params.id)], [GroupWallTable.getField("problem_id")!])
+            ...GroupProblemTable.filter([GroupProblemTable.getField("group_id")!.eq(params.id)], [GroupProblemTable.getField("problem_id")!])
         );
         let members = this._dal.db!.getAllSync<{user_id: string}>(
             ...GroupMemberTable.filter([GroupMemberTable.getField("group_id")!.eq(params.id)], [GroupMemberTable.getField("user_id")!])
@@ -159,9 +159,15 @@ export class GroupDAL extends BaseDAL<Group> {
     }
 }
 export class ProblemDAL extends BaseDAL<Problem> {
-    public List(params: { wallId: string }): Problem[] {
+    public List(params: { wallId: string, isPublic?: boolean }): Problem[] {
+        let filters: [string, any][] = [
+            ProblemTable.getField("wall_id")!.eq(params.wallId)
+        ]
+        if (params.isPublic !== undefined) {
+            filters.push(ProblemTable.getField("is_public")!.eq(params.isPublic))
+        }
         let results = this._dal.db!.getAllSync<{[ket: string]: any}>(
-            ...ProblemTable.filter([ProblemTable.getField("wall_id")!.eq(params.wallId)])
+            ...ProblemTable.filter(filters)
         );
         return results.map(r => {
             let entity = ProblemTable.toEntity(r);

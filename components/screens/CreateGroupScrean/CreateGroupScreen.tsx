@@ -55,7 +55,8 @@ const CreateGroupScreen: React.FC = ({ }) => {
         let group = new Group({
             name: groupName,
             image: { uri: selectedImage },
-            members: selectedUsers,
+            members: [ dal.currentUser.id, ...selectedUsers],
+            admins: [dal.currentUser.id],
             walls: selectedWalls.map(w => w.id)
         });
         dal.groups.Add(group);
@@ -108,7 +109,7 @@ const CreateGroupScreen: React.FC = ({ }) => {
                         fixedHeight={true}
                         hideTags
                         ref={(component) => { usersMultiSelect.current = component || undefined }}
-                        items={dal.users.List({})}
+                        items={dal.users.List({}).filter(u => u.id !== dal.currentUser.id)}
                         uniqueKey="id"
                         onSelectedItemsChange={setSelectedUsers}
                         selectedItems={selectedUsers}

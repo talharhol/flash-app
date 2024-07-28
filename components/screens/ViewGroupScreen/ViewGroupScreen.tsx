@@ -16,7 +16,7 @@ import { useDal } from '@/DAL/DALService';
 const ViewGroupScreen: React.FC = () => {
     const router = useRouter();
     const dal = useDal();
-    const group = dal.groups.Get(useLocalSearchParams());
+    const group = dal.groups.Get({ id: useLocalSearchParams().id as string });
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(null);
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
     const [filters, setFilters] = useState<ProblemFilter>({

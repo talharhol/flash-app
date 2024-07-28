@@ -2,6 +2,7 @@ import { ImageSourcePropType } from "react-native";
 import uuid from "react-native-uuid";
 import { IDAL } from "../IDAL";
 import { Entity, EntityProps } from "./BaseEntity";
+import { GroupProblemTable } from "../tables/tables";
 
 export class Group extends Entity {
     name: string;
@@ -34,5 +35,12 @@ export class Group extends Entity {
             return `${members[0].name}, ${members[1].name}, ${members[2].name}... `;
         }
         return members.map(u => u.name).join(', ');
+    }
+
+    public AddProblem(params: {problem_id: string}) {
+        return GroupProblemTable.insert({
+            problem_id: params.problem_id,
+            group_id: this.id
+        }, this.dal!.db!).catch(console.log);
     }
 };

@@ -29,7 +29,7 @@ const MyGroupsScreen: React.FC = () => {
             }>
             {groupToRemove && <ActionValidationModal closeModal={setGroupToRemove.bind(this, null)} approveAction={RemoveGroup.bind(this, groupToRemove)} text={`Remove ${groupToRemove.name} from your walls?`} />}
             {
-                dal.groups.List({}).map(group =>
+                dal.currentUser.groups.map(group =>
                     <SwipablePreviewItem
                         key={group.id}
                         onPress={() => router.push({ pathname: "/ViewGroupScreen", params: { id: group.id } })}
