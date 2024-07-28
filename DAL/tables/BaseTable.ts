@@ -57,6 +57,10 @@ export class Field {
     public like(value: string): [string, string] {
         return [`${this._table!.tableName}.${this._name} LIKE ?`, `%${value}%`]
     }
+
+    public in<T>(value: T[]): [string, T[]] {
+        return [`${this._table!.tableName}.${this._name} IN (${new Array(value.length).fill('?').join(', ')})`, value]
+    }
 }
 
 export class BaseTable {
@@ -97,7 +101,7 @@ export class BaseTable {
         filters.push(["1 = ?", 1]); // in the case the filters are empty
         return [
             `SELECT ${select ? select.map(f => f.name).join(", ") : "*"} FROM ${this.tableName} WHERE ${filters.map(f => f[0]).join(' AND ')}`,
-            filters.map(f => f[1])
+            filters.map(f => f[1]).flat(Infinity)
         ]
     }
 

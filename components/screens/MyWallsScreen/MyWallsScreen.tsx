@@ -29,7 +29,7 @@ const MyWalssScreen: React.FC = () => {
             }>
             {wallToRemove && <ActionValidationModal closeModal={setWallToRemove.bind(this, null)} approveAction={RemoveWall.bind(this, wallToRemove)} text={`Remove ${wallToRemove.name} from your walls?`} />}
             {
-                dal.walls.List({ isPublic: true })
+                dal.currentUser.walls
                     .map(wall =>
                         <SwipablePreviewItem key={wall.id} image={wall.image}
                             title={`${wall.name}@${wall.gym}`}

@@ -13,4 +13,8 @@ export class User extends Entity {
     public get groups() {
         return this.dal!.groups.List({userId: this.id})
     }
+    
+    public get walls() {
+        return this.dal!.walls.List({userId: this.id})
+    }
 };
