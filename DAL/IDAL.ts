@@ -1,4 +1,4 @@
-import { SQLiteDatabase } from "expo-sqlite";
+import { SQLiteDatabase, SQLiteRunResult } from "expo-sqlite";
 import { Group } from "./entities/group";
 import { Problem } from "./entities/problem";
 import { User } from "./entities/user";
@@ -6,6 +6,7 @@ import { Wall } from "./entities/wall";
 import { ImageSourcePropType } from "react-native";
 export interface IBaseDAL<ObjType extends { id: string }, ListParams = {}, GetParams extends { id?: string } = { id?: string }> {
     Get(params: GetParams): ObjType;
+
     Add(obj: ObjType): ObjType;
 
     Remove(obj: ObjType): boolean;
@@ -20,7 +21,12 @@ export interface IDAL {
         GetWalls(params: {user_id: string}): Wall[]
     };
     problems: IBaseDAL<Problem>;
-    groups: IBaseDAL<Group>;
+    groups: IBaseDAL<Group> & {
+        AddProblem(params: {
+            problem_id: string;
+            group_id: string;
+        }): Promise<void | SQLiteRunResult>
+    };
 
     currentUser: User;
     convertToLocalImage(image: ImageSourcePropType): string;

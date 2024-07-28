@@ -114,6 +114,13 @@ export class WallDAL extends BaseDAL<Wall> {
 }
 
 export class GroupDAL extends BaseDAL<Group> {
+    public AddProblem(params: {problem_id: string, group_id: string}) {
+        return GroupProblemTable.insert({
+            problem_id: params.problem_id,
+            group_id: params.group_id
+        }, this._dal.db!).catch(console.log);
+    }
+
     public List(params: { userId: string }): Group[] {
         let groups = this._dal.db!.getAllSync<{group_id: string}>(
             ...GroupMemberTable.filter([GroupMemberTable.getField("user_id")!.eq(params.userId)])

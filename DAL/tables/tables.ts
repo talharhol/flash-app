@@ -1,11 +1,9 @@
-import uuid from "react-native-uuid";
 import { BaseTable, Field } from "./BaseTable";
 import { SQLiteRunResult } from "expo-sqlite";
 import { User } from "../entities/user";
 import { Wall } from "../entities/wall";
 import { Problem } from "../entities/problem";
 import { Group } from "../entities/group";
-import { Entity } from "../entities/BaseEntity";
 
 export class UserTable extends BaseTable {
     public static tableName: string = "user";

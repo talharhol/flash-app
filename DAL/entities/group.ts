@@ -1,8 +1,5 @@
 import { ImageSourcePropType } from "react-native";
-import uuid from "react-native-uuid";
-import { IDAL } from "../IDAL";
 import { Entity, EntityProps } from "./BaseEntity";
-import { GroupProblemTable } from "../tables/tables";
 
 export class Group extends Entity {
     name: string;
@@ -38,9 +35,9 @@ export class Group extends Entity {
     }
 
     public AddProblem(params: {problem_id: string}) {
-        return GroupProblemTable.insert({
+        return this.dal?.groups.AddProblem({
             problem_id: params.problem_id,
             group_id: this.id
-        }, this.dal!.db!).catch(console.log);
+        })
     }
 };
