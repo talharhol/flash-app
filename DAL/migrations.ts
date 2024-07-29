@@ -46,6 +46,7 @@ const migrations = [
                 new Field({ name: "angel", type: "INTEGER" }),
                 new Field({ name: "is_public", type: "BOOLEAN" }),
                 new Field({ name: "holds", type: "TEXT" }),
+                new Field({ name: "owner", type: "TEXT" }),
             ];
         }
 
@@ -98,34 +99,7 @@ const migrations = [
                 new Field({ name: "group_id", type: "TEXT", notNull: true, fk: Group.getField('id') }),
             ];
         }
-        await db.execAsync(`DROP TABLE ${User.tableName};`)
-        await db.execAsync(`DROP TABLE ${Wall.tableName};`)
-        await db.execAsync(`DROP TABLE ${Problem.tableName};`)
-        await db.execAsync(`DROP TABLE ${Group.tableName};`)
-        await db.execAsync(`DROP TABLE ${GroupMember.tableName};`)
-        await db.execAsync(`DROP TABLE ${GroupProblem.tableName};`)
-        await db.execAsync(`DROP TABLE ${GroupWall.tableName};`)
-        await User.createTable(db);
-        await Wall.createTable(db);
-        await Problem.createTable(db);
-        await Group.createTable(db);
-        await GroupMember.createTable(db);
-        await GroupWall.createTable(db);
-        await GroupProblem.createTable(db);
-    },
-    async (db: SQLite.SQLiteDatabase) => {
-        class User extends BaseTable {
-            public static tableName: string = "user";
-            public static fields: Field[] = [
-                ...BaseTable.getDefaultFields()
-            ];
-        }
-        class Wall extends BaseTable {
-            public static tableName: string = "wall";
-            public static fields: Field[] = [
-                ...BaseTable.getDefaultFields()
-            ];
-        }
+
         class UserWall extends BaseTable {
             public static tableName: string = "user_wall";
             public static fields: Field[] = [
@@ -135,6 +109,24 @@ const migrations = [
                 new Field({ name: "wall_id", type: "TEXT", notNull: true, fk: Wall.getField('id') }),
             ];
         }
+        
+        await db.execAsync(`DROP TABLE ${User.tableName};`)
+        await db.execAsync(`DROP TABLE ${Wall.tableName};`)
+        await db.execAsync(`DROP TABLE ${Problem.tableName};`)
+        await db.execAsync(`DROP TABLE ${Group.tableName};`)
+        await db.execAsync(`DROP TABLE ${GroupMember.tableName};`)
+        await db.execAsync(`DROP TABLE ${GroupProblem.tableName};`)
+        await db.execAsync(`DROP TABLE ${GroupWall.tableName};`)
+        await db.execAsync(`DROP TABLE ${UserWall.tableName};`)
+        
+        await User.createTable(db);
+        await Wall.createTable(db);
+        await Problem.createTable(db);
+        await Group.createTable(db);
+        await GroupMember.createTable(db);
+        await GroupWall.createTable(db);
+        await GroupProblem.createTable(db);
         await UserWall.createTable(db);
-    }
+    },
+    
 ];

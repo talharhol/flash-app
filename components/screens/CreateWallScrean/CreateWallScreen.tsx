@@ -48,7 +48,8 @@ const CreateWallScreen: React.FC = ({ }) => {
             name: wallName,
             gym: gymName,
             image: { uri: selectedImage },
-            isPublic: isPublic
+            isPublic: isPublic,
+            owner: dal.currentUser.id
         });
         dal.walls.Add(wall);
         router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } });

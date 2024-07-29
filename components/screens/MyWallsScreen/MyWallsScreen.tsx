@@ -19,6 +19,9 @@ const MyWalssScreen: React.FC = () => {
         dal.walls.Remove(dal.walls.Get({ id: wall.id }));
         setWallToRemove(null);
     };
+    const allWalls = dal.currentUser.walls;
+    const viewWalls = allWalls.filter(w => w.owner !== dal.currentUser.id);
+    const ownedWalls = allWalls.filter(w => w.owner === dal.currentUser.id);
     return (
         <ParallaxScrollView
             headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -29,33 +32,65 @@ const MyWalssScreen: React.FC = () => {
             }>
             {wallToRemove && <ActionValidationModal closeModal={setWallToRemove.bind(this, null)} approveAction={RemoveWall.bind(this, wallToRemove)} text={`Remove ${wallToRemove.name} from your walls?`} />}
             {
-                dal.currentUser.walls
-                    .map(wall =>
-                        <SwipablePreviewItem key={wall.id} image={wall.image}
-                            title={`${wall.name}@${wall.gym}`}
-                            subTitle={wall.angle && `${wall.angle}°` || undefined}
-                            onPress={() => router.push({ pathname: "/ViewWall", params: { id: wall.id } })}
-                            hiddenComponent={() => {
-                                return (
-                                    <View style={{ height: "100%", flexDirection: "column", alignItems: 'center', justifyContent: "space-evenly" }}>
-                                        <BasicButton
-                                            text='Remove'
-                                            onPress={setWallToRemove.bind(this, wall)}
-                                            color="red"
-                                            style={{ width: 100 }}
-                                        />
-                                        <BasicButton
-                                            onPress={() => router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } })}
-                                            text='Edit'
-                                            color="red"
-                                            style={{ width: 100 }}
-                                        />
-                                    </View>
-                                )
-                            }}
-                        />
-                    )
+                viewWalls.map(wall =>
+                    <SwipablePreviewItem key={wall.id} image={wall.image}
+                        title={`${wall.name}@${wall.gym}`}
+                        subTitle={wall.angle && `${wall.angle}°` || undefined}
+                        onPress={() => router.push({ pathname: "/ViewWall", params: { id: wall.id } })}
+                        hiddenComponent={() => {
+                            return (
+                                <View style={{ height: "100%", flexDirection: "column", alignItems: 'center', justifyContent: "space-evenly" }}>
+                                    <BasicButton
+                                        text='Remove'
+                                        onPress={setWallToRemove.bind(this, wall)}
+                                        color="red"
+                                        style={{ width: 100 }}
+                                    />
+                                    <BasicButton
+                                        onPress={() => router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } })}
+                                        text='Edit'
+                                        color="red"
+                                        style={{ width: 100 }}
+                                    />
+                                </View>
+                            )
+                        }}
+                    />
+                )
             }
+            {ownedWalls.length > 0 &&
+                <View style={{ alignItems: "center" }}>
+                    <ThemedText type='subtitle'>Owned walls</ThemedText>
+                    <View style={{ height: 2, borderRadius: 1, width: "100%", backgroundColor: "gray" }} />
+                </View>}
+            {
+                ownedWalls.map(wall =>
+                    <SwipablePreviewItem key={wall.id} image={wall.image}
+                        title={`${wall.name}@${wall.gym}`}
+                        subTitle={wall.angle && `${wall.angle}°` || undefined}
+                        onPress={() => router.push({ pathname: "/ViewWall", params: { id: wall.id } })}
+                        hiddenComponent={() => {
+                            return (
+                                <View style={{ height: "100%", flexDirection: "column", alignItems: 'center', justifyContent: "space-evenly" }}>
+                                    <BasicButton
+                                        text='Remove'
+                                        onPress={setWallToRemove.bind(this, wall)}
+                                        color="red"
+                                        style={{ width: 100 }}
+                                    />
+                                    <BasicButton
+                                        onPress={() => router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } })}
+                                        text='Edit'
+                                        color="red"
+                                        style={{ width: 100 }}
+                                    />
+                                </View>
+                            )
+                        }}
+                    />
+                )
+            }
+
         </ParallaxScrollView>
     );
 }

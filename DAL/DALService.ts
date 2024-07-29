@@ -89,10 +89,18 @@ class DalService {
     public convertToLocalImage(image: ImageSourcePropType): string {
         let localFileName = FileSystem.documentDirectory + `${uuid.v4() as string}.png`;
         const imageSrc = Image.resolveAssetSource(image);
-        FileSystem.copyAsync({
-            from: imageSrc.uri,
-            to: localFileName
-        }).catch(alert);
+        if (imageSrc.uri.startsWith("http")) {
+            FileSystem.downloadAsync(
+                imageSrc.uri,
+                localFileName
+            ).catch(alert);
+        } else {
+            FileSystem.copyAsync({
+                from: imageSrc.uri,
+                to: localFileName
+            }).catch(alert);
+        }
+        
         return localFileName;
     }
 

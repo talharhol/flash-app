@@ -43,6 +43,7 @@ export class WallTable extends BaseTable {
         new Field({ name: "angel", type: "INTEGER" }),
         new Field({ name: "is_public", type: "BOOLEAN" }),
         new Field({ name: "holds", type: "TEXT" }),
+        new Field({ name: "owner", type: "TEXT" }),
     ];
 
     public static insertFromEntity(obj: Wall): Promise<SQLiteRunResult> {
@@ -54,7 +55,8 @@ export class WallTable extends BaseTable {
             image: obj.getDAL().convertToLocalImage(obj.image),
             angel: obj.angle,
             is_public: obj.isPublic,
-            holds: JSON.stringify(obj.configuredHolds)
+            holds: JSON.stringify(obj.configuredHolds),
+            owner: obj.owner,
         }, obj.getDAL().db!);
     }
 
@@ -68,7 +70,8 @@ export class WallTable extends BaseTable {
             },
             angle: data["angle"],
             configuredHolds: JSON.parse(data["holds"]),
-            isPublic: data["is_public"]
+            isPublic: data["is_public"],
+            owner: data["owner"],
         });
     }
 

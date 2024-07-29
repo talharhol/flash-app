@@ -15,14 +15,15 @@ import { useDal } from '@/DAL/DALService';
 const SelectWallScreen: React.FC = () => {
     const router = useRouter();
     const dal = useDal();
-    const group = dal.groups.Get(useLocalSearchParams());
+    const group = dal.groups.Get({ id: useLocalSearchParams().id as string });
     const [selectImageModal, setSelectImageModal] = useState(false);
     const CreateAnonimusWall: (uri: string) => void = (uri) => {
         let wall = new Wall({
             name: "Anonimus",
             gym: group.id,
             image: { uri },
-            isPublic: false
+            isPublic: false,
+            owner: group.id
         });
         group.walls.push(wall.id);
         dal.walls.Add(wall);
