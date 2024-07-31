@@ -46,20 +46,36 @@ export class Field {
         return this._default?.();
     }
 
+    public toSQL() {
+        return `${this._table!.tableName}.${this._name}`
+    }
+
     public eq<T>(value: T): [string, T] {
-        return [`${this._table!.tableName}.${this._name} = ?`, value]
+        return [`${this.toSQL()} = ?`, value]
     }
 
     public neq<T>(value: T): [string, T] {
-        return [`${this._table!.tableName}.${this._name} != ?`, value]
+        return [`${this.toSQL()} != ?`, value]
     }
 
     public like(value: string): [string, string] {
-        return [`${this._table!.tableName}.${this._name} LIKE ?`, `%${value}%`]
+        return [`${this.toSQL()} LIKE ?`, `%${value}%`]
     }
 
     public in<T>(value: T[]): [string, T[]] {
-        return [`${this._table!.tableName}.${this._name} IN (${new Array(value.length).fill('?').join(', ')})`, value]
+        return [`${this.toSQL()} IN (${new Array(value.length).fill('?').join(', ')})`, value]
+    }
+
+    public ge(value: number): [string, number] {
+        return [`${this.toSQL()} >= ?`, value]
+    }
+
+    public notNull(): [string, []] {
+        return [`${this.toSQL()} IS NOT NULL`, []]
+    }
+
+    public isNull(): [string, []] {
+        return [`${this.toSQL()} IS NULL`, []]
     }
 }
 
@@ -93,12 +109,12 @@ export class BaseTable {
         return this.insert(obj, obj.getDAL().db!);
     }
 
-    public static toEntity(data: { [key: string]: any } ): Entity {
-        return new Entity({id: data["id"]});
+    public static toEntity(data: { [key: string]: any }): Entity {
+        return new Entity({ id: data["id"] });
     }
 
     public static filter(filters: [string, any][], select?: Field[]): [string, any[]] {
-        filters.push(["1 = ?", 1]); // in the case the filters are empty
+        filters.push(this.getField("deleted_at")!.isNull()); // make sure it isnt deleted 
         return [
             `SELECT ${select ? select.map(f => f.name).join(", ") : "*"} FROM ${this.tableName} WHERE ${filters.map(f => f[0]).join(' AND ')}`,
             filters.map(f => f[1]).flat(Infinity)
@@ -119,10 +135,18 @@ export class BaseTable {
     public static getDefaultFields(): Field[] {
         return [
             new Field({ name: "id", type: "TEXT", pk: true, default_: uuid.v4, notNull: true }),
-            new Field({ name: "created_at", type: "INTEGER",  default_: Date.now, notNull: true }),
-            new Field({ name: "updated_at", type: "INTEGER",  default_: Date.now, notNull: true }),
+            new Field({ name: "created_at", type: "INTEGER", default_: Date.now, notNull: true }),
+            new Field({ name: "updated_at", type: "INTEGER", default_: Date.now, notNull: true }),
             new Field({ name: "deleted_at", type: "INTEGER", default_: () => undefined }),
         ]
+    }
+
+    public static delete(filters: [string, any][], db: SQLite.SQLiteDatabase) {
+        let deletedAt = this.getField("deleted_at")!.name
+        return db.runAsync(
+            `UPDATE ${this.tableName} SET ${deletedAt} = ? WHERE ${filters.map(f => f[0]).join(' AND ')}`,
+            [Date.now(), ...filters.map(f => f[1]).flat(Infinity)]
+        ).catch(console.log)
     }
 
 }

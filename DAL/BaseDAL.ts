@@ -58,6 +58,10 @@ export class BaseDAL<
             return entity
         }) as ObjType[];
     }
+
+    public Delete(params: { id: string }) {
+        return this.table.delete([this.table.getField("id")!.eq(params.id)], this._dal.db!);
+    }
 }
 
 export class UserDAL extends BaseDAL<User> {
@@ -67,7 +71,7 @@ export class UserDAL extends BaseDAL<User> {
                 [UserWallTable.getField("user_id")!.eq(params.user_id)],
                 [UserWallTable.getField("wall_id")!]
             )
-        )
+        );
         return results.map((w => {
             return this._dal.walls.Get({ id: w.wall_id });
         }))
