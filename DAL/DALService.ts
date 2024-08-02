@@ -33,7 +33,6 @@ class DalService {
     private _currentUser?: User;
 
     public connect() {
-        
         return SQLite.openDatabaseAsync('flashLocalDB.db').then(
             db => {
                 db.execAsync("PRAGMA foreign_keys = ON").catch(console.log);

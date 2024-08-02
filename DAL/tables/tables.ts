@@ -1,5 +1,5 @@
 import { BaseTable, Field } from "./BaseTable";
-import { SQLiteRunResult } from "expo-sqlite";
+import { SQLiteDatabase, SQLiteRunResult } from "expo-sqlite";
 import { User } from "../entities/user";
 import { Wall } from "../entities/wall";
 import { Problem } from "../entities/problem";
@@ -178,6 +178,10 @@ export class GroupWallTable extends BaseTable {
         new Field({ name: "wall_id", type: "TEXT", notNull: true, fk: WallTable.getField('id') }),
         new Field({ name: "group_id", type: "TEXT", notNull: true, fk: GroupTable.getField('id') }),
     ];
+    public static insert(data: { [key: string]: any; }, db: SQLiteDatabase): Promise<any> {
+        console.log("inserting...", data);
+        return super.insert(data, db);
+    }
 }
 
 export class GroupProblemTable extends BaseTable {

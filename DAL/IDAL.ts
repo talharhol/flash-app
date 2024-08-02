@@ -7,33 +7,33 @@ import { ImageSourcePropType } from "react-native";
 export interface IBaseDAL<ObjType extends { id: string }, ListParams = {}, GetParams extends { id?: string } = { id?: string }> {
     Get(params: GetParams): ObjType;
 
-    Add(obj: ObjType): ObjType;
+    Add(obj: ObjType): Promise<ObjType>;
 
-    Remove(obj: ObjType): boolean;
+    Remove(obj: ObjType): Promise<void>;
 
-    Update(obj: ObjType): ObjType;
+    Update(obj: ObjType): Promise<ObjType>;
 
     List(params: ListParams): ObjType[];
 
-    Delete(params: { id: string }): Promise<any>;
+    Delete(params: { id: string }): Promise<void>;
 }
 export interface IDAL {
     walls: IBaseDAL<Wall>;
     users: IBaseDAL<User> & {
         GetWalls(params: {user_id: string, role?: string}): Wall[];
-        AddWall(params: {wall_id: string, user_id: string}): Promise<any>;
-        RemoveWall(params: {wall_id: string, user_id: string}): Promise<any>;
+        AddWall(params: {wall_id: string, user_id: string}): Promise<void>;
+        RemoveWall(params: {wall_id: string, user_id: string}): Promise<void>;
     };
     problems: IBaseDAL<Problem>;
     groups: IBaseDAL<Group> & {
         AddProblem(params: {
             problem_id: string;
             group_id: string;
-        }): Promise<void | SQLiteRunResult>
+        }): Promise<void>
         AddWall(params: {
             wall_id: string;
             group_id: string;
-        }): Promise<void | SQLiteRunResult>
+        }): Promise<void>
     };
 
     currentUser: User;

@@ -19,19 +19,19 @@ export class BaseDAL<
         this._dal = dal;
     }
 
-    public Add(obj: ObjType): ObjType {
+    public async Add(obj: ObjType): Promise<ObjType> {
         obj.setDAL(this._dal);
-        this.table.insertFromEntity(obj).catch(console.log);
         this._objects[obj.id] = obj;
+        await this.table.insertFromEntity(obj).catch(console.log);
         return obj;
     }
 
-    public Remove(obj: ObjType): boolean {
-        // todo delete from DB
-        return delete this._objects[obj.id];
+    public async Remove(obj: ObjType): Promise<void> {
+        await this.table.delete([this.table.getField("id")!.eq(obj.id)], this._dal.db!)
+        delete this._objects[obj.id];
     }
 
-    public Update(obj: ObjType): ObjType {
+    public async Update(obj: ObjType): Promise<ObjType> {
         // todo update in DB
         return this._objects[obj.id] = obj;
     }
@@ -63,13 +63,13 @@ export class BaseDAL<
         }) as ObjType[];
     }
 
-    public Delete(params: { id: string }): Promise<any> {
-        return this.table.delete([this.table.getField("id")!.eq(params.id)], this._dal.db!);
+    public async Delete(params: { id: string }): Promise<void> {
+        await this.table.delete([this.table.getField("id")!.eq(params.id)], this._dal.db!);
     }
 }
 
 export class UserDAL extends BaseDAL<User> {
-    public GetWalls(params: { user_id: string, role?: string}): Wall[] {
+    public GetWalls(params: { user_id: string, role?: string }): Wall[] {
         let filters = [UserWallTable.getField("user_id")!.eq(params.user_id)];
         if (params.role !== undefined) filters.push(UserWallTable.getField("role")!.eq(params.role));
         let results = this._dal.db!.getAllSync<{ wall_id: string }>(
@@ -84,31 +84,37 @@ export class UserDAL extends BaseDAL<User> {
         })).filter(w => !!w)
     }
 
-    public AddWall(params: {wall_id: string, user_id: string}): Promise<any> {
-        return UserWallTable.insert({
+    public async AddWall(params: { wall_id: string, user_id: string }): Promise<void> {
+        await UserWallTable.insert({
             wall_id: params.wall_id,
             user_id: params.user_id,
             role: "viewer"
         }, this._dal.db!);
     }
 
+    public async RemoveWall(params: { wall_id: string, user_id: string }): Promise<void> {
+        await UserWallTable.delete(
+            [
+                UserWallTable.getField("user_id")!.eq(params.user_id),
+                UserWallTable.getField("wall_id")!.eq(params.wall_id),
+                UserWallTable.getField("role")!.eq("viewer"),
+            ], this._dal.db!);
+    }
 
-    public RemoveWall(params: {wall_id: string, user_id: string}): Promise<any> {
-        return this._dal.db!.getAllAsync<{ wall_id: string }>(
+
+    public async asyncRemoveWall(params: { wall_id: string, user_id: string }): Promise<void> {
+        let results = await this._dal.db!.getAllAsync<{ wall_id: string }>(
             ...UserWallTable.filter(
                 [UserWallTable.getField("user_id")!.eq(params.user_id)],
                 [UserWallTable.getField("wall_id")!]
             )
-        ).then(
-            results => {
-                return UserWallTable.delete(
-                    [
-                        UserWallTable.getField("wall_id")!.in(results.map(r => r.wall_id)),
-                        UserWallTable.getField("role")!.neq("owner")
-                    ],
-                    this._dal.db!
-                )
-            }
+        )
+        await UserWallTable.delete(
+            [
+                UserWallTable.getField("wall_id")!.in(results.map(r => r.wall_id)),
+                UserWallTable.getField("role")!.neq("owner")
+            ],
+            this._dal.db!
         )
     }
 }
@@ -153,9 +159,9 @@ export class WallDAL extends BaseDAL<Wall> {
         });
     }
 
-    public Add(obj: Wall): Wall {
-        let wall = super.Add(obj);
-        UserWallTable.insert({
+    public async Add(obj: Wall): Promise<Wall> {
+        let wall = await super.Add(obj);
+        await UserWallTable.insert({
             wall_id: wall.id,
             user_id: this._dal.currentUser.id, // todo: use wall object
             role: "owner"
@@ -165,33 +171,15 @@ export class WallDAL extends BaseDAL<Wall> {
 }
 
 export class GroupDAL extends BaseDAL<Group> {
-    public Add(obj: Group): Group {
-        let group = super.Add(obj);
-        group.members.map(u => {
-            GroupMemberTable.insert({
-                user_id: u,
-                group_id: group.id,
-                role: group.admins.includes(u) ? "admin" : "member"
-            }, this._dal.db!)
-        });
-        group.walls.map(w => {
-            GroupWallTable.insert({
-                wall_id: w,
-                group_id: group.id
-            }, this._dal.db!)
-        })
-        return group;
-    }
-
-    public AddProblem(params: { problem_id: string, group_id: string }) {
-        return GroupProblemTable.insert({
+    public async AddProblem(params: { problem_id: string, group_id: string }): Promise<void> {
+        await GroupProblemTable.insert({
             problem_id: params.problem_id,
             group_id: params.group_id
         }, this._dal.db!).catch(console.log);
     }
 
-    public AddWall(params: { wall_id: string, group_id: string }) {
-        return GroupWallTable.insert({
+    public async AddWall(params: { wall_id: string, group_id: string }): Promise<void> {
+        await GroupWallTable.insert({
             wall_id: params.wall_id,
             group_id: params.group_id
         }, this._dal.db!).catch(console.log);
@@ -199,7 +187,12 @@ export class GroupDAL extends BaseDAL<Group> {
 
     public List(params: { userId: string }): Group[] {
         let groups = this._dal.db!.getAllSync<{ group_id: string }>(
-            ...GroupMemberTable.filter([GroupMemberTable.getField("user_id")!.eq(params.userId)])
+            ...GroupMemberTable.filter(
+                [
+                    GroupMemberTable.getField("user_id")!.eq(params.userId),
+                    GroupMemberTable.getField("role")!.eq("member"),
+                ]
+            )
         );
 
         return groups.map(g => this.Get({ id: g.group_id }));
