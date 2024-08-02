@@ -42,7 +42,11 @@ export class BaseDAL<
         }
         let result = this._dal.db!.getFirstSync<{ [ket: string]: any }>(
             ...this.table.filter([this.table.getField("id")!.eq(params.id)])
-        )
+        );
+        if (!result) {
+            console.log("PROBLEMMMMMMMMMMMMMMMMMMMMMM");
+            return null
+        }
         let entity = this.table.toEntity(result!);
         entity.setDAL(this._dal);
         return entity as ObjType;
@@ -59,22 +63,53 @@ export class BaseDAL<
         }) as ObjType[];
     }
 
-    public Delete(params: { id: string }) {
+    public Delete(params: { id: string }): Promise<any> {
         return this.table.delete([this.table.getField("id")!.eq(params.id)], this._dal.db!);
     }
 }
 
 export class UserDAL extends BaseDAL<User> {
-    public GetWalls(params: { user_id: string }): Wall[] {
+    public GetWalls(params: { user_id: string, role?: string}): Wall[] {
+        let filters = [UserWallTable.getField("user_id")!.eq(params.user_id)];
+        if (params.role !== undefined) filters.push(UserWallTable.getField("role")!.eq(params.role));
         let results = this._dal.db!.getAllSync<{ wall_id: string }>(
+            ...UserWallTable.filter(
+                filters,
+                [UserWallTable.getField("wall_id")!]
+            )
+        );
+
+        return results.map((w => {
+            return this._dal.walls.Get({ id: w.wall_id });
+        })).filter(w => !!w)
+    }
+
+    public AddWall(params: {wall_id: string, user_id: string}): Promise<any> {
+        return UserWallTable.insert({
+            wall_id: params.wall_id,
+            user_id: params.user_id,
+            role: "viewer"
+        }, this._dal.db!);
+    }
+
+
+    public RemoveWall(params: {wall_id: string, user_id: string}): Promise<any> {
+        return this._dal.db!.getAllAsync<{ wall_id: string }>(
             ...UserWallTable.filter(
                 [UserWallTable.getField("user_id")!.eq(params.user_id)],
                 [UserWallTable.getField("wall_id")!]
             )
-        );
-        return results.map((w => {
-            return this._dal.walls.Get({ id: w.wall_id });
-        }))
+        ).then(
+            results => {
+                return UserWallTable.delete(
+                    [
+                        UserWallTable.getField("wall_id")!.in(results.map(r => r.wall_id)),
+                        UserWallTable.getField("role")!.neq("owner")
+                    ],
+                    this._dal.db!
+                )
+            }
+        )
     }
 }
 
@@ -124,7 +159,7 @@ export class WallDAL extends BaseDAL<Wall> {
             wall_id: wall.id,
             user_id: this._dal.currentUser.id, // todo: use wall object
             role: "owner"
-        }, this._dal.db!).then(() => wall);
+        }, this._dal.db!);
         return wall;
     }
 }

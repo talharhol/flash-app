@@ -17,4 +17,20 @@ export class User extends Entity {
     public get walls() {
         return this.dal!.walls.List({userId: this.id})
     }
+
+    public get ownedWalls() {
+        return this.dal!.users.GetWalls({user_id: this.id, role: "owner"})
+    }
+
+    public get viewerWalls() {
+        return this.dal!.users.GetWalls({user_id: this.id, role: "viewer"})
+    }
+
+    public addWall(id: string) {
+        return this.dal!.users.AddWall({wall_id: id, user_id: this.id})
+    }
+
+    public removeWall(id: string) {
+        return this.dal!.users.RemoveWall({wall_id: id, user_id: this.id})
+    }
 };

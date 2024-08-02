@@ -8,14 +8,18 @@ import PreviewItem from '@/components/general/PreviewItem';
 import ThemedView from '@/components/general/ThemedView';
 import { TextInput } from 'react-native-gesture-handler';
 import { useDal } from '@/DAL/DALService';
+import { useRouter } from 'expo-router';
 
 const SearchScreen: React.FC = () => {
     const dal = useDal();
+    const router = useRouter();
     const [wallToAdd, setWallToAdd] = useState<Wall | null>(null);
     const [filterWallName, setFilterWallName] = useState<string>('');
     const [filterGymName, setFilterGymName] = useState<string>('');
     const AddWall = (wall: Wall) => {
-        alert("added: " + wall.name);
+        dal.currentUser.addWall(wall.id).then(
+            () => router.navigate("/")
+        )
     };
     return (
         <ParallaxScrollView

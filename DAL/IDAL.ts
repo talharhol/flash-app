@@ -14,11 +14,15 @@ export interface IBaseDAL<ObjType extends { id: string }, ListParams = {}, GetPa
     Update(obj: ObjType): ObjType;
 
     List(params: ListParams): ObjType[];
+
+    Delete(params: { id: string }): Promise<any>;
 }
 export interface IDAL {
     walls: IBaseDAL<Wall>;
     users: IBaseDAL<User> & {
-        GetWalls(params: {user_id: string}): Wall[]
+        GetWalls(params: {user_id: string, role?: string}): Wall[];
+        AddWall(params: {wall_id: string, user_id: string}): Promise<any>;
+        RemoveWall(params: {wall_id: string, user_id: string}): Promise<any>;
     };
     problems: IBaseDAL<Problem>;
     groups: IBaseDAL<Group> & {

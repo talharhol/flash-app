@@ -30,6 +30,7 @@ export default function TabLayout() {
         name="MyGroupsScreen"
         options={{
           title: 'My Groups',
+          unmountOnBlur: true,
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'people' : 'people-outline'} color={color} />
           ),
@@ -39,6 +40,7 @@ export default function TabLayout() {
         name="SearchScreen"
         options={{
           title: 'Search',
+          unmountOnBlur: true,
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'search' : 'search-outline'} color={color} />
           ),

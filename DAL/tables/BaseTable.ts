@@ -34,12 +34,11 @@ export class Field {
     }
 
     public getDefinition(): string {
-        let fk = this._fk ? `, FOREIGN KEY (${this._name}) REFERENCES ${this._fk!._table!.tableName}(${this._fk!._name})` : '';
         return `${this._name}${this._pk ? ' PRIMARY KEY' : ''}${this._notNull ? ' NOT NULL' : ''}`;
     }
 
     public getFKDefinition(): string {
-        return `FOREIGN KEY (${this._name}) REFERENCES ${this._fk!._table!.tableName}(${this._fk!._name})`;
+        return `FOREIGN KEY (${this._name}) REFERENCES ${this._fk!._table!.tableName}(${this._fk!._name}) ON DELETE CASCADE`;
     }
 
     public getDefault() {
@@ -92,17 +91,17 @@ export class BaseTable {
         }
     }
 
-    public static insert(data: { [key: string]: any }, db: SQLite.SQLiteDatabase): Promise<SQLite.SQLiteRunResult> {
+    public static insert(data: { [key: string]: any }, db: SQLite.SQLiteDatabase): Promise<any> {
         let values: [string, any][] = this.fields.map(field => {
             if (data[field.name] === undefined) {
                 return [field.name, field.getDefault()]
             }
             return [field.name, data[field.name]]
-        })
+        });
         return db.runAsync(
             `INSERT INTO ${this.tableName} (${values.map(v => v[0]).join(', ')}) VALUES (${new Array(values.length).fill('?').join(", ")});`,
             values.map(v => v[1])
-        )
+        ).catch(console.log);
     }
 
     public static insertFromEntity(obj: Entity): Promise<SQLite.SQLiteRunResult> {
@@ -142,11 +141,11 @@ export class BaseTable {
     }
 
     public static delete(filters: [string, any][], db: SQLite.SQLiteDatabase) {
-        let deletedAt = this.getField("deleted_at")!.name
+        filters.push(["1 = ?", 1]);
         return db.runAsync(
-            `UPDATE ${this.tableName} SET ${deletedAt} = ? WHERE ${filters.map(f => f[0]).join(' AND ')}`,
-            [Date.now(), ...filters.map(f => f[1]).flat(Infinity)]
-        ).catch(console.log)
+                `DELETE FROM ${this.tableName} WHERE ${filters.map(f => f[0]).join(' AND ')}`,
+                filters.map(f => f[1]).flat(Infinity)
+            ).catch(console.log)
     }
 
 }

@@ -17,23 +17,23 @@ const MyWalssScreen: React.FC = () => {
     const [wallToRemove, setWallToRemove] = useState<Wall | null>(null);
     const [wallToDelete, setWallToDelete] = useState<Wall | null>(null);
     const RemoveWall = (wall: Wall) => {
-        dal.walls.Remove(dal.walls.Get({ id: wall.id }));
-        let newWalls = dal.currentUser.walls;
-        setViewWalls(newWalls.filter(w => w.owner !== dal.currentUser.id));
-        setOwnedWalls(newWalls.filter(w => w.owner === dal.currentUser.id));
+        dal.currentUser.removeWall(wall.id).then(
+            () => {
+                setViewWalls(dal.currentUser.viewerWalls);
+                setOwnedWalls(dal.currentUser.ownedWalls);
+            }
+        ) 
         setWallToRemove(null);
     };
     const DeleteWall = (wall: Wall) => {
         dal.walls.Delete({id: wall.id}).then(() => {
-            let newWalls = dal.currentUser.walls;
-            setViewWalls(newWalls.filter(w => w.owner !== dal.currentUser.id));
-            setOwnedWalls(newWalls.filter(w => w.owner === dal.currentUser.id));
-        });
+            setViewWalls(dal.currentUser.viewerWalls);
+            setOwnedWalls(dal.currentUser.ownedWalls);
+        }).catch(console.log);
         setWallToDelete(null);
     };
-    const allWalls = dal.currentUser.walls;
-    const [viewWalls, setViewWalls] = useState(allWalls.filter(w => w.owner !== dal.currentUser.id));
-    const [ownedWalls, setOwnedWalls] = useState(allWalls.filter(w => w.owner === dal.currentUser.id));
+    const [viewWalls, setViewWalls] = useState(dal.currentUser.viewerWalls);
+    const [ownedWalls, setOwnedWalls] = useState(dal.currentUser.ownedWalls);
     return (
         <ParallaxScrollView
             headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}

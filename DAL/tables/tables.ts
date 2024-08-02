@@ -193,7 +193,7 @@ export class UserWallTable extends BaseTable {
     public static tableName: string = "user_wall";
     public static fields: Field[] = [
         ...BaseTable.getDefaultFields(),
-        new Field({ name: "role", type: "TEXT", default_: () => "climber", notNull: true }),
+        new Field({ name: "role", type: "TEXT", default_: () => "viewer", notNull: true }),
         new Field({ name: "user_id", type: "TEXT", notNull: true, fk: UserTable.getField('id') }),
         new Field({ name: "wall_id", type: "TEXT", notNull: true, fk: WallTable.getField('id') }),
     ];
