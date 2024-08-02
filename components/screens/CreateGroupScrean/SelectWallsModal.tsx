@@ -13,12 +13,11 @@ import BasicButton from "@/components/general/Buttom";
 const SelectWallModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     onSelect: (id: string) => void;
     onRemove?: (id: string) => void;
-    selectedWalls: Wall[];
+    selectedWalls: string[];
 }> = ({ onSelect, onRemove, selectedWalls, ...props }) => {
     const dal = useDal();
     const [filterWallName, setFilterWallName] = useState<string>('');
     const [filterGymName, setFilterGymName] = useState<string>(''); const [name, setName] = useState<string>('');
-    const screenDimension = useWindowDimensions();
     return (
         <BasicModal {...props} style={[{ height: "70%", overflow: "hidden", borderRadius: 8 }, props.style]}>
             <ParallaxScrollView
@@ -44,7 +43,7 @@ const SelectWallModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                                     style={{ height: 70 }}
                                 />
                                 {
-                                    selectedWalls.includes(wall) &&
+                                    selectedWalls.includes(wall.id) &&
                                     <TouchableOpacity
                                         onPress={() => onRemove?.(wall.id)}
                                         style={{ position: "absolute", height: 70, width: "100%", backgroundColor: "black", opacity: 0.5, borderRadius: 8 }} />

@@ -65,8 +65,10 @@ export class BaseDAL<
 }
 
 export class UserDAL extends BaseDAL<User> {
-    public GetWalls(params: { user_id: string, role?: string }): Wall[] {
-        let filters = [UserWallTable.getField("user_id")!.eq(params.user_id)];
+    public GetWalls(params: { user_id: string, role?: string, isPublic?: boolean }): Wall[] {
+        let filters = [
+            UserWallTable.getField("user_id")!.eq(params.user_id),
+        ];
         if (params.role !== undefined) filters.push(UserWallTable.getField("role")!.eq(params.role));
         let results = this._dal.db!.getAllSync<{ wall_id: string }>(
             ...UserWallTable.filter(
@@ -74,10 +76,10 @@ export class UserDAL extends BaseDAL<User> {
                 [UserWallTable.getField("wall_id")!]
             )
         );
-
-        return results.map((w => {
-            return this._dal.walls.Get({ id: w.wall_id });
-        })).filter(w => !!w)
+        return this._dal.walls.List({ 
+            ids: results.map(w => w.wall_id), 
+            isPublic: params.isPublic === undefined ? true : params.isPublic 
+        });
     }
 
     public async AddWall(params: { wall_id: string, user_id: string }): Promise<void> {
@@ -116,8 +118,15 @@ export class UserDAL extends BaseDAL<User> {
 }
 
 export class WallDAL extends BaseDAL<Wall> {
-    public List(params: { isPublic?: boolean, name?: string, gym?: string, userId?: string }): Wall[] {
+    public List(params: { 
+        isPublic?: boolean, 
+        name?: string, 
+        gym?: string, 
+        userId?: string,
+        ids?: string[]
+    }): Wall[] {
         let filters = [];
+        let selectedIds: string[] = [];
         if (params.isPublic) {
             filters.push(
                 WallTable.getField("is_public")!.eq(params.isPublic)
@@ -133,6 +142,9 @@ export class WallDAL extends BaseDAL<Wall> {
                 WallTable.getField("gym")!.like(params.gym)
             );
         }
+        if (params.ids) {
+            selectedIds = selectedIds.concat(params.ids);
+        }
         if (params.userId) {
             let walls = this._dal.db!.getAllSync<{ wall_id: string }>(
                 ...UserWallTable.filter(
@@ -140,8 +152,11 @@ export class WallDAL extends BaseDAL<Wall> {
                     [UserWallTable.getField("wall_id")!]
                 )
             ).map(w => w.wall_id);
+            selectedIds = selectedIds.concat(walls);
+        }
+        if (selectedIds) {
             filters.push(
-                WallTable.getField("id")!.in(walls)
+                WallTable.getField("id")!.in(selectedIds)
             );
         }
 
@@ -159,7 +174,7 @@ export class WallDAL extends BaseDAL<Wall> {
         let wall = await super.Add(obj);
         await UserWallTable.insert({
             wall_id: wall.id,
-            user_id: this._dal.currentUser.id, // todo: use wall object
+            user_id: this._dal.currentUser.id, 
             role: "owner"
         }, this._dal.db!);
         return wall;

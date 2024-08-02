@@ -20,7 +20,7 @@ export interface IBaseDAL<ObjType extends { id: string }, ListParams = {}, GetPa
 export interface IDAL {
     walls: IBaseDAL<Wall>;
     users: IBaseDAL<User> & {
-        GetWalls(params: {user_id: string, role?: string}): Wall[];
+        GetWalls(params: {user_id: string, role?: string, isPublic?: boolean}): Wall[];
         AddWall(params: {wall_id: string, user_id: string}): Promise<void>;
         RemoveWall(params: {wall_id: string, user_id: string}): Promise<void>;
     };

@@ -179,7 +179,6 @@ export class GroupWallTable extends BaseTable {
         new Field({ name: "group_id", type: "TEXT", notNull: true, fk: GroupTable.getField('id') }),
     ];
     public static insert(data: { [key: string]: any; }, db: SQLiteDatabase): Promise<any> {
-        console.log("inserting...", data);
         return super.insert(data, db);
     }
 }

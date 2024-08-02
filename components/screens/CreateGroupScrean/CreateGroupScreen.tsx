@@ -21,15 +21,21 @@ import SelectWallModal from "./SelectWallsModal";
 import { FlatList, ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { Wall } from "@/DAL/entities/wall";
 import { useDal } from "@/DAL/DALService";
-const WallItem = ({ wall, onRemove }: { wall: Wall, onRemove: (id: string) => void }) => (
-    <View style={{ flexDirection: "row", borderRadius: 17, backgroundColor: "gray", justifyContent: "space-between", margin: 5 }}>
-        <Image source={wall.image} style={{ height: 30, width: 30, borderRadius: 15, margin: 2 }} />
-        <Text style={{ alignSelf: "center", fontSize: 18, padding: 5 }}>{wall.fullName}</Text>
-        <TouchableOpacity onPress={() => onRemove(wall.id)} style={{ height: 30, width: 30, borderRadius: 15, margin: 2, justifyContent: "center", backgroundColor: "white" }}>
-            <Text style={{ alignSelf: "center", fontSize: 18 }}>X</Text>
-        </TouchableOpacity>
-    </View>
-);
+const WallItem = ({ wall, onRemove }: { wall: Wall | string, onRemove: (id: string) => void }) => {
+    const dal = useDal();
+
+    if (typeof wall === "string") wall = dal.walls.Get({ id: wall });
+
+    return (
+        <View style={{ flexDirection: "row", borderRadius: 17, backgroundColor: "gray", justifyContent: "space-between", margin: 5 }}>
+            <Image source={wall.image} style={{ height: 30, width: 30, borderRadius: 15, margin: 2 }} />
+            <Text style={{ alignSelf: "center", fontSize: 18, padding: 5 }}>{wall.fullName}</Text>
+            <TouchableOpacity onPress={() => onRemove(wall.id)} style={{ height: 30, width: 30, borderRadius: 15, margin: 2, justifyContent: "center", backgroundColor: "white" }}>
+                <Text style={{ alignSelf: "center", fontSize: 18 }}>X</Text>
+            </TouchableOpacity>
+        </View>
+    )
+};
 
 const CreateGroupScreen: React.FC = ({ }) => {
     const router = useRouter();
@@ -39,7 +45,7 @@ const CreateGroupScreen: React.FC = ({ }) => {
     const [selectWallModal, setSelectWallModal] = useState(false);
     const [groupName, setGroupName] = useState('');
     const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-    const [selectedWalls, setSelectedWalls] = useState<Wall[]>([]);
+    const [selectedWalls, setSelectedWalls] = useState<string[]>([]);
     const usersMultiSelect = useRef<MultiSelect>()
     const createGroup = () => {
         if (!selectedImage) {
@@ -55,9 +61,9 @@ const CreateGroupScreen: React.FC = ({ }) => {
         let group = new Group({
             name: groupName,
             image: { uri: selectedImage },
-            members: [ dal.currentUser.id, ...selectedUsers],
+            members: [dal.currentUser.id, ...selectedUsers],
             admins: [dal.currentUser.id],
-            walls: selectedWalls.map(w => w.id)
+            walls: selectedWalls
         });
         dal.groups.Add(group);
         router.push({ pathname: "/MyGroupsScreen" });
@@ -77,18 +83,21 @@ const CreateGroupScreen: React.FC = ({ }) => {
                     <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>CreateWall</ThemedText>
                 </ThemedView>
             }>
-            {selectImageModal && <SelectImageModal
-                closeModal={() => setSelectImageModal(false)}
-                getImage={SaveWallImage}
-                text='Choose source' />
-
+            {
+                selectImageModal &&
+                <SelectImageModal
+                    closeModal={() => setSelectImageModal(false)}
+                    getImage={SaveWallImage}
+                    text='Choose source' />
             }
-            {selectWallModal &&
+            {
+                selectWallModal &&
                 <SelectWallModal
                     selectedWalls={selectedWalls}
-                    onSelect={(id: string) => setSelectedWalls(selectedWalls.concat([dal.walls.Get({ id })]))}
-                    onRemove={(id) => setSelectedWalls(selectedWalls.filter(w => w.id !== id))}
-                    closeModal={() => setSelectWallModal(false)} />}
+                    onSelect={(id: string) => setSelectedWalls(selectedWalls.concat([id]))}
+                    onRemove={(id) => setSelectedWalls(selectedWalls.filter(w => w !== id))}
+                    closeModal={() => setSelectWallModal(false)} />
+            }
             <View style={{ alignSelf: "center", height: 200, width: 200 }}>
                 <Image style={{ height: "100%", width: "100%", borderRadius: 10000 }} source={selectedImage ? { uri: selectedImage } : require('../../../assets/images/upload.png')} />
                 <Ionicons
@@ -130,8 +139,11 @@ const CreateGroupScreen: React.FC = ({ }) => {
                     />
                     <FlatList
                         data={selectedWalls}
-                        keyExtractor={(item) => item.id}
-                        renderItem={({ item }) => <WallItem wall={item} onRemove={(id) => setSelectedWalls(selectedWalls.filter(w => w.id !== id))} />}
+                        keyExtractor={(item) => item}
+                        renderItem={({ item }) => (
+                            <WallItem wall={item}
+                                onRemove={(id) => setSelectedWalls(selectedWalls.filter(w => w !== id))} />)
+                        }
                         numColumns={1} // Set the number of columns
                         contentContainerStyle={{}}
                     />
