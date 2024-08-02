@@ -165,9 +165,34 @@ export class WallDAL extends BaseDAL<Wall> {
 }
 
 export class GroupDAL extends BaseDAL<Group> {
+    public Add(obj: Group): Group {
+        let group = super.Add(obj);
+        group.members.map(u => {
+            GroupMemberTable.insert({
+                user_id: u,
+                group_id: group.id,
+                role: group.admins.includes(u) ? "admin" : "member"
+            }, this._dal.db!)
+        });
+        group.walls.map(w => {
+            GroupWallTable.insert({
+                wall_id: w,
+                group_id: group.id
+            }, this._dal.db!)
+        })
+        return group;
+    }
+
     public AddProblem(params: { problem_id: string, group_id: string }) {
         return GroupProblemTable.insert({
             problem_id: params.problem_id,
+            group_id: params.group_id
+        }, this._dal.db!).catch(console.log);
+    }
+
+    public AddWall(params: { wall_id: string, group_id: string }) {
+        return GroupWallTable.insert({
+            wall_id: params.wall_id,
             group_id: params.group_id
         }, this._dal.db!).catch(console.log);
     }
@@ -216,6 +241,7 @@ export class GroupDAL extends BaseDAL<Group> {
         })
     }
 }
+
 export class ProblemDAL extends BaseDAL<Problem> {
     public List(params: { wallId: string, isPublic?: boolean }): Problem[] {
         let filters: [string, any][] = [

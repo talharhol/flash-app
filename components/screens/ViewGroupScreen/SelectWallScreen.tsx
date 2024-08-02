@@ -25,8 +25,8 @@ const SelectWallScreen: React.FC = () => {
             isPublic: false,
             owner: group.id
         });
-        group.walls.push(wall.id);
         dal.walls.Add(wall);
+        group.AddWall({ wall_id: wall.id });
         createProblem(wall);
     };
     const createProblem = (wall: Wall) => {

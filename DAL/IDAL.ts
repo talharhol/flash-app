@@ -30,6 +30,10 @@ export interface IDAL {
             problem_id: string;
             group_id: string;
         }): Promise<void | SQLiteRunResult>
+        AddWall(params: {
+            wall_id: string;
+            group_id: string;
+        }): Promise<void | SQLiteRunResult>
     };
 
     currentUser: User;

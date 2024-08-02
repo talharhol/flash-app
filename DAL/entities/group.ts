@@ -35,8 +35,15 @@ export class Group extends Entity {
     }
 
     public AddProblem(params: {problem_id: string}) {
-        return this.dal?.groups.AddProblem({
+        return this.dal!.groups.AddProblem({
             problem_id: params.problem_id,
+            group_id: this.id
+        })
+    }
+
+    public AddWall(params: {wall_id: string}) {
+        return this.dal!.groups.AddWall({
+            wall_id: params.wall_id,
             group_id: this.id
         })
     }
