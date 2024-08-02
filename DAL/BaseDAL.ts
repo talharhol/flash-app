@@ -43,10 +43,6 @@ export class BaseDAL<
         let result = this._dal.db!.getFirstSync<{ [ket: string]: any }>(
             ...this.table.filter([this.table.getField("id")!.eq(params.id)])
         );
-        if (!result) {
-            console.log("PROBLEMMMMMMMMMMMMMMMMMMMMMM");
-            return null
-        }
         let entity = this.table.toEntity(result!);
         entity.setDAL(this._dal);
         return entity as ObjType;
