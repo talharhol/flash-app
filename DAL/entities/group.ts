@@ -1,6 +1,8 @@
 import { ImageSourcePropType } from "react-native";
 import { Entity, EntityProps } from "./BaseEntity";
 
+export type GroupProps = EntityProps & {name: string, image: ImageSourcePropType, members?: string[], admins?: string[], walls?: string[], problems?: string[]}
+
 export class Group extends Entity {
     name: string;
     image: ImageSourcePropType;
@@ -8,7 +10,7 @@ export class Group extends Entity {
     admins: string[];
     walls: string[];
     problems: string[];
-    constructor({ name, image, members, admins, walls, problems, ...props }: {name: string, image: ImageSourcePropType, members?: string[], admins?: string[], walls?: string[], problems?: string[]} & EntityProps) {
+    constructor({ name, image, members, admins, walls, problems, ...props }: EntityProps) {
         super(props)
         this.name = name;
         this.image = image;

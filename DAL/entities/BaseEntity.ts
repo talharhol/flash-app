@@ -1,13 +1,13 @@
 import uuid from "react-native-uuid";
 import { IDAL } from "../IDAL";
-export interface EntityProps  { id?: string, dal?: IDAL };
+export type EntityProps = {[key: string]: any} & { id?: string, dal?: IDAL };
 export class Entity {
     id: string;
     protected dal?: IDAL;
 
-    constructor({ id, dal }: EntityProps) {
-        this.id = id || uuid.v4() as string;
-        this.dal = dal;
+    constructor(data: EntityProps) {
+        this.id = data.id || uuid.v4() as string;
+        this.dal = data.dal;
     }
 
     setDAL = (dal: IDAL) => {

@@ -1,6 +1,8 @@
 import { HoldInterface } from "../hold";
 import { Entity, EntityProps } from "./BaseEntity";
 
+export type ProblemProps = EntityProps &  { name: string, wallId: string, grade: number, holds: HoldInterface[], setter: string, isPublic?: boolean};
+
 export class Problem extends Entity {
     name: string;
     wallId: string;
@@ -8,7 +10,7 @@ export class Problem extends Entity {
     holds: HoldInterface[];
     setter: string;
     isPublic: boolean;
-    constructor({ name, wallId, grade, holds, setter, isPublic, ...props }: { name: string, wallId: string, grade: number, holds: HoldInterface[], setter: string, isPublic?: boolean} & EntityProps) {
+    constructor({ name, wallId, grade, holds, setter, isPublic, ...props }: ProblemProps) {
         super(props);
         this.name = name;
         this.wallId = wallId;

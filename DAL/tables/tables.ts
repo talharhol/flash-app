@@ -1,80 +1,84 @@
+import { createContext, useContext } from "react";
+import * as SQLite from 'expo-sqlite';
+
+import { Image, ImageSourcePropType } from "react-native";
+import * as FileSystem from 'expo-file-system';
+import uuid from "react-native-uuid";
 import { BaseTable, Field } from "./BaseTable";
 import { SQLiteDatabase, SQLiteRunResult } from "expo-sqlite";
 import { User } from "../entities/user";
 import { Wall } from "../entities/wall";
 import { Problem } from "../entities/problem";
 import { Group } from "../entities/group";
+import { Entity } from "../entities/BaseEntity";
+
+function convertToLocalImage(image: ImageSourcePropType): string {
+    let localFileName = FileSystem.documentDirectory + `${uuid.v4() as string}.png`;
+    const imageSrc = Image.resolveAssetSource(image);
+    if (imageSrc.uri.startsWith("http")) {
+        FileSystem.downloadAsync(
+            imageSrc.uri,
+            localFileName
+        ).catch(alert);
+    } else {
+        FileSystem.copyAsync({
+            from: imageSrc.uri,
+            to: localFileName
+        }).catch(alert);
+    }
+
+    return localFileName;
+}
+
 
 export class UserTable extends BaseTable {
+    public static entity: typeof Entity = User;
     public static tableName: string = "user";
     public static fields: Field[] = [
         ...BaseTable.getDefaultFields(),
         new Field({ name: "name", type: "TEXT", notNull: true }),
-        new Field({ name: "image", type: "TEXT", notNull: true }),
-    ];
-
-    public static insertFromEntity(obj: User): Promise<SQLiteRunResult> {
-        return this.insert({
-            id: obj.id,
-            name: obj.name,
-            image: obj.getDAL().convertToLocalImage(obj.image)
-        }, obj.getDAL().db!)
-    }
-
-    public static toEntity(data: { [key: string]: any; }): User {
-        return new User({
-            id: data["id"],
-            name: data["name"],
-            image: {
-                uri: data["image"]
+        new Field(
+            {
+                name: "image", type: "TEXT", notNull: true,
+                dumper: convertToLocalImage,
+                loader: (image) => {
+                    return {
+                        uri: image
+                    }
+                }
             }
-        });
-    }
+        ),
+    ];
 }
 
 export class WallTable extends BaseTable {
+    public static entity: typeof Entity = Wall;
     public static tableName: string = "wall";
     public static fields: Field[] = [
         ...BaseTable.getDefaultFields(),
         new Field({ name: "name", type: "TEXT", notNull: true }),
         new Field({ name: "gym", type: "TEXT", notNull: true }),
-        new Field({ name: "owner_id", type: "TEXT", notNull: true, fk: UserTable.getField('id')}),
-        new Field({ name: "image", type: "TEXT", notNull: true }),
+        new Field(
+            {
+                name: "image", type: "TEXT", notNull: true,
+                dumper: convertToLocalImage,
+                loader: (image) => {
+                    return {
+                        uri: image
+                    }
+                }
+            }
+        ),
         new Field({ name: "angel", type: "INTEGER" }),
-        new Field({ name: "is_public", type: "BOOLEAN" }),
-        new Field({ name: "holds", type: "TEXT" }),
+        new Field({ name: "is_public", type: "BOOLEAN", notNull: true, alias: "isPublic" }),
+        new Field({
+            name: "holds", type: "TEXT",
+            dumper: JSON.stringify,
+            loader: JSON.parse,
+            alias: "configuredHolds"
+        }),
         new Field({ name: "owner", type: "TEXT" }),
     ];
-
-    public static insertFromEntity(obj: Wall): Promise<SQLiteRunResult> {
-        return this.insert({
-            id: obj.id,
-            name: obj.name,
-            gym: obj.gym,
-            owner_id: obj.getDAL().currentUser.id,
-            image: obj.getDAL().convertToLocalImage(obj.image),
-            angel: obj.angle,
-            is_public: obj.isPublic,
-            holds: JSON.stringify(obj.configuredHolds),
-            owner: obj.owner,
-        }, obj.getDAL().db!);
-    }
-
-    public static toEntity(data: { [key: string]: any; }): Wall {
-        return new Wall({
-            id: data["id"],
-            name: data["name"],
-            gym: data["gym"],
-            image: {
-                uri: data["image"]
-            },
-            angle: data["angle"],
-            configuredHolds: JSON.parse(data["holds"]),
-            isPublic: data["is_public"],
-            owner: data["owner"],
-        });
-    }
-
 }
 
 export class ProblemTable extends BaseTable {
@@ -82,36 +86,16 @@ export class ProblemTable extends BaseTable {
     public static fields: Field[] = [
         ...BaseTable.getDefaultFields(),
         new Field({ name: "name", type: "TEXT", notNull: true }),
-        new Field({ name: "owner_id", type: "TEXT", notNull: true, fk: UserTable.getField('id') }),
-        new Field({ name: "wall_id", type: "TEXT", notNull: true, fk: WallTable.getField('id') }),
-        new Field({ name: "is_public", type: "BOOLEAN", default_: () => true, notNull: true }),
-        new Field({ name: "holds", type: "TEXT", notNull: true }),
+        new Field({ name: "owner_id", type: "TEXT", notNull: true, fk: UserTable.getField('id'), alias: "setter" }),
+        new Field({ name: "wall_id", type: "TEXT", notNull: true, fk: WallTable.getField('id'), alias: "wallId" }),
+        new Field({ name: "is_public", type: "BOOLEAN", default_: () => true, notNull: true, alias: "isPublic" }),
+        new Field({
+            name: "holds", type: "TEXT",
+            dumper: JSON.stringify,
+            loader: JSON.parse,
+        }),
         new Field({ name: "grade", type: "INTEGER", notNull: true }),
     ];
-
-    public static insertFromEntity(obj: Problem): Promise<SQLiteRunResult> {
-        return this.insert({
-            id: obj.id,
-            name: obj.name,
-            owner_id: obj.getDAL().currentUser.id,
-            wall_id: obj.wallId,
-            is_public: obj.isPublic,
-            holds: JSON.stringify(obj.holds),
-            grade: obj.grade
-        }, obj.getDAL().db!);
-    }
-
-    public static toEntity(data: { [key: string]: any; }): Problem {
-        return new Problem({
-            id: data["id"],
-            wallId: data["wall_id"],
-            setter: data["owner_id"],
-            name: data["name"],
-            grade: data["grade"],
-            holds: JSON.parse(data["holds"]),
-            isPublic: data["is_public"]
-        });
-    }
 }
 
 export class GroupTable extends BaseTable {
@@ -119,15 +103,21 @@ export class GroupTable extends BaseTable {
     public static fields: Field[] = [
         ...BaseTable.getDefaultFields(),
         new Field({ name: "name", type: "TEXT", notNull: true }),
-        new Field({ name: "image", type: "TEXT", notNull: true }),
-    ];
+        new Field(
+            {
+                name: "image", type: "TEXT", notNull: true,
+                dumper: convertToLocalImage,
+                loader: (image) => {
+                    return {
+                        uri: image
+                    }
+                }
+            }
+        ),    ];
 
     public static insertFromEntity(obj: Group): Promise<any> {
-        return this.insert({
-            id: obj.id,
-            name: obj.name,
-            image: obj.getDAL().convertToLocalImage(obj.image),
-        }, obj.getDAL().db!).then(() => {
+        return super.insertFromEntity(obj)
+        .then(() => {
             obj.members.map(userId => {
                 GroupMemberTable.insert({
                     user_id: userId,
@@ -147,16 +137,6 @@ export class GroupTable extends BaseTable {
                     group_id: obj.id,
                 }, obj.getDAL().db!).catch(console.log)
             });
-        });
-    }
-
-    public static toEntity(data: { [key: string]: any; }): Group {
-        return new Group({
-            id: data["id"],
-            name: data["name"],
-            image: {
-                uri: data["image"]
-            }
         });
     }
 }

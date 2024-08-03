@@ -20,7 +20,7 @@ import { useDal } from "@/DAL/DALService";
 
 const CreateWallHoldsScreen: React.FC = ({ }) => {
     const dal = useDal();
-    const wall = dal.walls.Get(useLocalSearchParams());
+    const wall = dal.walls.Get({ id: useLocalSearchParams().id as string });
     const [isDrawingHold, setIsDrawingHold] = useState(false);
     const [editedHold, setEditedHold] = useState<string | null>(null);
     const [holds, setHolds] = useState<HoldInterface[]>(wall?.configuredHolds.map((h) => ({ id: h.id, svgPath: h.svgPath, color: new HoldType(HoldTypes.route).color })));

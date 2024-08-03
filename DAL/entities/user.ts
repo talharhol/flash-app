@@ -1,10 +1,12 @@
 import { ImageSourcePropType } from "react-native";
 import { Entity, EntityProps } from "./BaseEntity";
 
+export type UserProps = EntityProps & {name: string, image: ImageSourcePropType }
+
 export class User extends Entity {
     name: string;
     image: ImageSourcePropType;
-    constructor({ name, image, ...props }: {name: string, image: ImageSourcePropType } & EntityProps) {
+    constructor({ name, image, ...props }: UserProps) {
         super(props)
         this.name = name;
         this.image = image;

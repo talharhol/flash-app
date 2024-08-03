@@ -41,7 +41,6 @@ const migrations = [
                 ...BaseTable.getDefaultFields(),
                 new Field({ name: "name", type: "TEXT", notNull: true }),
                 new Field({ name: "gym", type: "TEXT", notNull: true }),
-                new Field({ name: "owner_id", type: "TEXT", notNull: true, fk: User.getField('id') }),
                 new Field({ name: "image", type: "TEXT", notNull: true }),
                 new Field({ name: "angel", type: "INTEGER" }),
                 new Field({ name: "is_public", type: "BOOLEAN" }),
@@ -127,6 +126,6 @@ const migrations = [
         await GroupWall.createTable(db);
         await GroupProblem.createTable(db);
         await UserWall.createTable(db);
-    },
+    }
     
 ];
