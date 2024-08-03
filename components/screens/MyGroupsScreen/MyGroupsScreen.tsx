@@ -16,14 +16,19 @@ const MyGroupsScreen: React.FC = () => {
     const dal = useDal();
     const [groupToRemove, setGroupToRemove] = useState<Group | null>(null);
     const RemoveGroup = (group: Group) => {
-        dal.currentUser.removeGroup(group.id);
+        dal.currentUser.removeGroup(group.id).then(
+            () => setGroups(dal.currentUser.groups)
+        );;
         setGroupToRemove(null);
     };
     const [groupToDelete, setGroupToDelete] = useState<Group | null>(null);
     const DeleteGroup = (group: Group) => {
-        dal.groups.Remove(group);
+        dal.groups.Remove(group).then(
+            () => setGroups(dal.currentUser.groups)
+        );
         setGroupToRemove(null);
     };
+    const [groups, setGroups] = useState<Group[]>(dal.currentUser.groups);
     return (
         <ParallaxScrollView
             headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -49,7 +54,7 @@ const MyGroupsScreen: React.FC = () => {
                 />
             }
             {
-                dal.currentUser.groups.map(group =>
+                groups.map(group =>
                     <SwipablePreviewItem
                         key={group.id}
                         onPress={() => router.push({ pathname: "/ViewGroupScreen", params: { id: group.id } })}
