@@ -76,16 +76,19 @@ const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
       setter: dal.currentUser.id,
       isPublic: targetGroup === undefined
     });
-    dal.problems.Add(problem);
-    if (targetGroup) {
-      let group = dal.groups.Get({ id: targetGroup });
-      group.AddProblem({problem_id: problem.id}).finally(
-        () => router.navigate({ pathname: "/ViewGroupScreen", params: { id: group.id } })
-      );
-      ;
-    }
-    else
-      router.navigate({ pathname: "/ViewWall", params: { id: wall.id } });
+    dal.problems.Add(problem).then(
+      () => {
+        if (targetGroup) {
+          let group = dal.groups.Get({ id: targetGroup });
+          group.AddProblem({ problem_id: problem.id }).finally(
+            () => router.navigate({ pathname: "/ViewGroupScreen", params: { id: group.id } })
+          );
+        }
+        else
+          router.navigate({ pathname: "/ViewWall", params: { id: wall.id } });
+      }
+    );
+
   }
 
   return (

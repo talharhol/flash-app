@@ -1,11 +1,9 @@
-import { createContext, useContext } from "react";
-import * as SQLite from 'expo-sqlite';
 
 import { Image, ImageSourcePropType } from "react-native";
 import * as FileSystem from 'expo-file-system';
 import uuid from "react-native-uuid";
 import { BaseTable, Field } from "./BaseTable";
-import { SQLiteDatabase, SQLiteRunResult } from "expo-sqlite";
+import { SQLiteDatabase } from "expo-sqlite";
 import { User } from "../entities/user";
 import { Wall } from "../entities/wall";
 import { Problem } from "../entities/problem";

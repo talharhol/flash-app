@@ -35,4 +35,8 @@ export class User extends Entity {
     public removeWall(id: string) {
         return this.dal!.users.RemoveWall({wall_id: id, user_id: this.id})
     }
+
+    public removeGroup(id: string) {
+        return this.dal!.users.RemoveGroup({group_id: id, user_id: this.id});
+    }
 };

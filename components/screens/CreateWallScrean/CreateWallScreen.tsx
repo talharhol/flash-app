@@ -51,8 +51,9 @@ const CreateWallScreen: React.FC = ({ }) => {
             isPublic: isPublic,
             owner: dal.currentUser.id
         });
-        dal.walls.Add(wall);
-        router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } });
+        dal.walls.Add(wall).then(
+            () => router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } })
+        );
     };
     const SaveWallImage: (uri: string) => void = (uri) => {
         setSelectedImage(uri);
@@ -69,11 +70,13 @@ const CreateWallScreen: React.FC = ({ }) => {
                     <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>CreateWall</ThemedText>
                 </ThemedView>
             }>
-            {selectImageModal && <SelectImageModal
-                closeModal={() => setSelectImageModal(false)}
-                getImage={SaveWallImage}
-                text='Choose source' />
-
+            {
+                selectImageModal &&
+                <SelectImageModal
+                    closeModal={() => setSelectImageModal(false)}
+                    getImage={SaveWallImage}
+                    text='Choose source'
+                />
             }
             <View style={{ alignSelf: "center", height: 200, width: 200 }}>
                 <Image style={{ height: "100%", width: "100%", borderRadius: 10000 }} source={selectedImage ? { uri: selectedImage } : require('../../../assets/images/upload.png')} />

@@ -115,22 +115,15 @@ export class UserDAL extends BaseDAL<User> {
             ], this._dal.db!);
     }
 
-
-    public async asyncRemoveWall(params: { wall_id: string, user_id: string }): Promise<void> {
-        let results = await this._dal.db!.getAllAsync<{ wall_id: string }>(
-            ...UserWallTable.filter(
-                [UserWallTable.getField("user_id")!.eq(params.user_id)],
-                [UserWallTable.getField("wall_id")!]
-            )
-        )
-        await UserWallTable.delete(
+    public async RemoveGroup(params: { group_id: string, user_id: string }): Promise<void> {
+        await GroupMemberTable.delete(
             [
-                UserWallTable.getField("wall_id")!.in(results.map(r => r.wall_id)),
-                UserWallTable.getField("role")!.neq("owner")
-            ],
-            this._dal.db!
-        )
+                GroupMemberTable.getField("user_id")!.eq(params.user_id),
+                GroupMemberTable.getField("group_id")!.eq(params.group_id),
+            ], this._dal.db!);
     }
+
+
 }
 
 export class WallDAL extends BaseDAL<Wall> {
@@ -237,7 +230,7 @@ export class GroupDAL extends BaseDAL<Group> {
             ),
             this._dal.db!
         );
-        let problems = GroupMemberTable.getAll<{ problem_id: string }>(
+        let problems = GroupProblemTable.getAll<{ problem_id: string }>(
             ...GroupProblemTable.filter(
                 [GroupProblemTable.getField("group_id")!.eq(params.id)],
                 [GroupProblemTable.getField("problem_id")!]

@@ -65,8 +65,9 @@ const CreateGroupScreen: React.FC = ({ }) => {
             admins: [dal.currentUser.id],
             walls: selectedWalls
         });
-        dal.groups.Add(group);
-        router.push({ pathname: "/MyGroupsScreen" });
+        dal.groups.Add(group).then(
+            () => router.push({ pathname: "/MyGroupsScreen" })
+        );
     };
     const SaveWallImage: (uri: string) => void = (uri) => {
         setSelectedImage(uri);

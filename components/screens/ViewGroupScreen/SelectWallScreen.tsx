@@ -21,7 +21,7 @@ const SelectWallScreen: React.FC = () => {
         let wall = new Wall({
             name: "Anonimus",
             gym: group.id,
-            image: { uri },
+            image: { uri: uri },
             isPublic: false,
             owner: group.id
         });

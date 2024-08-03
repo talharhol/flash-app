@@ -16,7 +16,7 @@ const MyGroupsScreen: React.FC = () => {
     const dal = useDal();
     const [groupToRemove, setGroupToRemove] = useState<Group | null>(null);
     const RemoveGroup = (group: Group) => {
-        dal.groups.Remove(dal.groups.Get({ id: group.id }));
+        dal.currentUser.removeGroup(group.id);
         setGroupToRemove(null);
     };
     return (
@@ -27,7 +27,14 @@ const MyGroupsScreen: React.FC = () => {
                     <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>My Groups</ThemedText>
                 </ThemedView>
             }>
-            {groupToRemove && <ActionValidationModal closeModal={setGroupToRemove.bind(this, null)} approveAction={RemoveGroup.bind(this, groupToRemove)} text={`Remove ${groupToRemove.name} from your walls?`} />}
+            {
+                groupToRemove &&
+                <ActionValidationModal
+                    closeModal={setGroupToRemove.bind(this, null)}
+                    approveAction={RemoveGroup.bind(this, groupToRemove)}
+                    text={`Exit ${groupToRemove.name}?`}
+                />
+            }
             {
                 dal.currentUser.groups.map(group =>
                     <SwipablePreviewItem
@@ -40,11 +47,12 @@ const MyGroupsScreen: React.FC = () => {
                             return (
                                 <View style={{ height: "100%", flexDirection: "column", alignItems: 'center', justifyContent: "space-evenly" }}>
                                     <BasicButton
-                                        text='Remove'
+                                        text='Exit'
                                         onPress={() => setGroupToRemove(group)}
                                         color="red"
                                         style={{ width: 100 }}
                                     />
+                                    
                                 </View>
                             )
                         }}
