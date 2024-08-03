@@ -32,7 +32,13 @@ export class BaseDAL<
     }
 
     public async Update(obj: ObjType): Promise<ObjType> {
-        // todo update in DB
+        let data = this.table.fromEntity(obj);
+        delete data.id; // we never want to update the id
+        await this.table.update(
+            [
+                this.table.getField("id")!.eq(obj.id)
+            ], data, this._dal.db!
+        )
         return this._objects[obj.id] = obj;
     }
 

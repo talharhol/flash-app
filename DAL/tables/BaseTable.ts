@@ -129,8 +129,12 @@ export class BaseTable {
         ).catch(console.log);
     }
 
+    public static fromEntity(obj: Entity): { [key: string]: any } {
+        return Object.assign({}, obj);
+    }
+
     public static insertFromEntity(obj: Entity): Promise<SQLite.SQLiteRunResult> {
-        return this.insert(obj, obj.getDAL().db!);
+        return this.insert(this.fromEntity(obj), obj.getDAL().db!);
     }
 
     public static toEntity<EntityType extends Entity>(data: { [key: string]: any }, entityConstructor?: new (data: any) => EntityType): EntityType {
@@ -197,6 +201,25 @@ export class BaseTable {
             new Field({ name: "updated_at", type: "INTEGER", default_: Date.now, notNull: true }),
             new Field({ name: "deleted_at", type: "INTEGER", default_: () => undefined }),
         ]
+    }
+
+    public static update(filters: [string, any][], data: { [key: string]: any }, db: SQLite.SQLiteDatabase) {
+        filters.push(["1 = ?", 1]);
+        let values: [string, any][] = Object.keys(data).map(
+            k => {
+                let field = this.getField(k)!;
+                return [`${field.name} = ?`, field.Dump(data)]
+            }
+        )
+        return db.runAsync(
+            `UPDATE ${this.tableName} 
+            SET ${values.map(v => v[0]).join(', ')} 
+            WHERE ${filters.map(f => f[0]).join(' AND ')}`,
+            [
+                ...values.map(v => v[1]),
+                ...filters.map(f => f[1]).flat(Infinity)
+            ]
+        ).catch(console.log)
     }
 
     public static delete(filters: [string, any][], db: SQLite.SQLiteDatabase) {
