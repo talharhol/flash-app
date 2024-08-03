@@ -210,7 +210,6 @@ export class GroupDAL extends BaseDAL<Group> {
         let groups = GroupMemberTable.getAll<{ group_id: string }>(...GroupMemberTable.filter(
             [
                 GroupMemberTable.getField("user_id")!.eq(params.userId),
-                GroupMemberTable.getField("role")!.eq("member"),
             ],
             [GroupMemberTable.getField("group_id")!]
         ), this._dal.db!);

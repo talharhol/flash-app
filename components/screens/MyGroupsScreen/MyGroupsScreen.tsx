@@ -19,6 +19,11 @@ const MyGroupsScreen: React.FC = () => {
         dal.currentUser.removeGroup(group.id);
         setGroupToRemove(null);
     };
+    const [groupToDelete, setGroupToDelete] = useState<Group | null>(null);
+    const DeleteGroup = (group: Group) => {
+        dal.groups.Remove(group);
+        setGroupToRemove(null);
+    };
     return (
         <ParallaxScrollView
             headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -33,6 +38,14 @@ const MyGroupsScreen: React.FC = () => {
                     closeModal={setGroupToRemove.bind(this, null)}
                     approveAction={RemoveGroup.bind(this, groupToRemove)}
                     text={`Exit ${groupToRemove.name}?`}
+                />
+            }
+            {
+                groupToDelete &&
+                <ActionValidationModal
+                    closeModal={setGroupToDelete.bind(this, null)}
+                    approveAction={DeleteGroup.bind(this, groupToDelete)}
+                    text={`Exit ${groupToDelete.name}?`}
                 />
             }
             {
@@ -52,7 +65,15 @@ const MyGroupsScreen: React.FC = () => {
                                         color="red"
                                         style={{ width: 100 }}
                                     />
-                                    
+                                    {
+                                        group.admins.includes(dal.currentUser.id) &&
+                                        <BasicButton
+                                            text='Delete'
+                                            onPress={() => setGroupToDelete(group)}
+                                            color="red"
+                                            style={{ width: 100 }}
+                                        />
+                                    }
                                 </View>
                             )
                         }}

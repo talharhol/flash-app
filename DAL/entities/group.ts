@@ -11,7 +11,7 @@ export class Group extends Entity {
     walls: string[];
     problems: string[];
     constructor({ name, image, members, admins, walls, problems, ...props }: EntityProps) {
-        super(props)
+        super(props);
         this.name = name;
         this.image = image;
         this.members = members || [];

@@ -123,7 +123,7 @@ export class GroupTable extends BaseTable {
                     GroupMemberTable.insert({
                         user_id: userId,
                         group_id: obj.id,
-                        role: userId in obj.admins ? "admin" : "member"
+                        role: obj.admins.includes(userId) ? "admin" : "member"
                     }, obj.getDAL().db!).catch(console.log)
                 });
                 obj.walls.map(wallId => {
