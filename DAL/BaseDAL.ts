@@ -34,6 +34,7 @@ export class BaseDAL<
     public async Update(obj: ObjType): Promise<ObjType> {
         let data = this.table.fromEntity(obj);
         delete data.id; // we never want to update the id
+        data.updated_at = undefined // in order to update this field to the default value (Date.now)
         await this.table.update(
             [
                 this.table.getField("id")!.eq(obj.id)

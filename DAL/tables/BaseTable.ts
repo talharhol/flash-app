@@ -117,6 +117,7 @@ export class BaseTable {
             field[0].setTable(this);
             return field[0];
         }
+        console.log(`table ${this.tableName} has no column ${name}`);
     }
 
     public static insert(data: { [key: string]: any }, db: SQLite.SQLiteDatabase): Promise<any> {
@@ -130,7 +131,14 @@ export class BaseTable {
     }
 
     public static fromEntity(obj: Entity): { [key: string]: any } {
-        return Object.assign({}, obj);
+        let data = Object.assign<{}, { [key: string]: any }>({}, obj);
+        delete data.dal
+        delete data.setDAL
+        Object.keys(data).map(k => {
+            // removeing all unrelated data
+            if (this.getField(k) === undefined) delete data[k];
+        });
+        return data
     }
 
     public static insertFromEntity(obj: Entity): Promise<SQLite.SQLiteRunResult> {

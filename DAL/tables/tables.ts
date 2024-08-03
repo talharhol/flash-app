@@ -69,7 +69,7 @@ export class WallTable extends BaseTable {
                 }
             }
         ),
-        new Field({ name: "angel", type: "INTEGER" }),
+        new Field({ name: "angle", type: "INTEGER" }),
         new Field({ name: "is_public", type: "BOOLEAN", notNull: true, alias: "isPublic" }),
         new Field({
             name: "holds", type: "TEXT",
@@ -82,6 +82,7 @@ export class WallTable extends BaseTable {
 }
 
 export class ProblemTable extends BaseTable {
+    public static entity: typeof Entity = Problem;
     public static tableName: string = "problem";
     public static fields: Field[] = [
         ...BaseTable.getDefaultFields(),
@@ -99,6 +100,7 @@ export class ProblemTable extends BaseTable {
 }
 
 export class GroupTable extends BaseTable {
+    public static entity: typeof Entity = Group;
     public static tableName: string = "group_table";
     public static fields: Field[] = [
         ...BaseTable.getDefaultFields(),

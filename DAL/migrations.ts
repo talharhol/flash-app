@@ -42,7 +42,7 @@ const migrations = [
                 new Field({ name: "name", type: "TEXT", notNull: true }),
                 new Field({ name: "gym", type: "TEXT", notNull: true }),
                 new Field({ name: "image", type: "TEXT", notNull: true }),
-                new Field({ name: "angel", type: "INTEGER" }),
+                new Field({ name: "angle", type: "INTEGER" }),
                 new Field({ name: "is_public", type: "BOOLEAN" }),
                 new Field({ name: "holds", type: "TEXT" }),
                 new Field({ name: "owner", type: "TEXT" }),
