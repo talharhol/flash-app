@@ -75,7 +75,13 @@ export class BaseDAL<
     }
 
     public async Delete(params: { [ket: string]: any }): Promise<void> {
-        await this.table.delete(Object.keys(params).map(k => this.table.getField(k)!.eq(params[k])), this._dal.db!);
+        let filters = this.table.fromEntity(params);
+        await this.table.delete(
+            Object.keys(filters).map(
+                k => this.table.getField(k)!.eq(params[k])
+            ), 
+            this._dal.db!
+        );
     }
 }
 

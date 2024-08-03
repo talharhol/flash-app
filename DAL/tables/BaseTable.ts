@@ -130,7 +130,7 @@ export class BaseTable {
         ).catch(console.log);
     }
 
-    public static fromEntity(obj: Entity): { [key: string]: any } {
+    public static fromEntity(obj: Entity | { [key: string]: any }): { [key: string]: any } {
         let data = Object.assign<{}, { [key: string]: any }>({}, obj);
         delete data.dal
         delete data.setDAL
