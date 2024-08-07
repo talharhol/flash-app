@@ -294,9 +294,14 @@ export class ProblemDAL extends BaseDAL<Problem> {
         if (params.isPublic !== undefined) filters.push(
             ProblemTable.getField("is_public")!.eq(params.isPublic)
         );
-        return ProblemTable.getAll(
+        let results = ProblemTable.getAll<{ [key: string]: any; }>(
             ...ProblemTable.filter(filters),
             this._dal.db!
-        )
+        );
+        return results.map(r => {
+            let entity = ProblemTable.toEntity(r);
+            entity.setDAL(this._dal);
+            return entity
+        }) as Problem[];
     }
 }
