@@ -17,20 +17,24 @@ const ViewWallScreen: React.FC = () => {
     const router = useRouter();
     const dal = useDal();
     const wall = dal.walls.Get({ id: useLocalSearchParams().id as string });
-    const [problems, setProblems] = useState(dal.problems.List({ wallId: wall.id, isPublic: true }));
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(null);
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
-    const [filters, setFilters] = useState<ProblemFilter>({
+    const [filters, _setFilters] = useState<ProblemFilter>({
         minGrade: 1,
         maxGrade: 15,
         name: "",
         setters: [],
         isPublic: true
     });
+    const [problems, setProblems] = useState(dal.problems.List({ wallId: wall.id, ...filters}));
+    const setFilters = (f: ProblemFilter) => {
+        _setFilters(f);
+        setProblems(dal.problems.List({ wallId: wall.id, ...f }));
+    }
 
     const deleteProblem = (problem: Problem) => {
         dal.problems.Remove(problem).then(() => {
-            setProblems(dal.problems.List({ wallId: wall.id, isPublic: true }));
+            setProblems(dal.problems.List({ wallId: wall.id, ...filters }));
         });
     }
 
@@ -64,8 +68,7 @@ const ViewWallScreen: React.FC = () => {
                     </ThemedView>
                 }>
                 {
-                    problems.filter(FilterProblems(filters))
-                    .map(problem =>
+                    problems.map(problem =>
                             <BolderProblemPreview
                                 key={problem.id}
                                 onPress={() => setDisplayedProblem(problem.id)}

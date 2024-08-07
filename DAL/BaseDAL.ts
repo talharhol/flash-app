@@ -1,6 +1,6 @@
 import { IDAL } from "./IDAL";
 import { Group } from "./entities/group";
-import { Problem } from "./entities/problem";
+import { Problem, ProblemFilter } from "./entities/problem";
 import { User } from "./entities/user";
 import { Wall } from "./entities/wall";
 import { BaseTable } from "./tables/BaseTable";
@@ -281,5 +281,22 @@ export class GroupDAL extends BaseDAL<Group> {
 }
 
 export class ProblemDAL extends BaseDAL<Problem> {
-
+    public List(params: {wallId: string} & ProblemFilter): Problem[] {
+        let filters: [string, any][] = [
+            ProblemTable.getField("wall_id")!.eq(params.wallId),
+            ProblemTable.getField("grade")!.ge(params.minGrade),
+            ProblemTable.getField("grade")!.le(params.maxGrade),
+            ProblemTable.getField("name")!.like(params.name),
+        ];
+        if (params.setters.length > 0) filters.push(
+            ProblemTable.getField("owner_id")!.in(params.setters)
+        );
+        if (params.isPublic !== undefined) filters.push(
+            ProblemTable.getField("is_public")!.eq(params.isPublic)
+        );
+        return ProblemTable.getAll(
+            ...ProblemTable.filter(filters),
+            this._dal.db!
+        )
+    }
 }

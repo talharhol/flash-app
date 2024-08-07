@@ -96,6 +96,10 @@ export class Field {
         return [`${this.toSQL()} >= ?`, value]
     }
 
+    public le(value: number): [string, number] {
+        return [`${this.toSQL()} <= ?`, value]
+    }
+
     public notNull(): [string, []] {
         return [`${this.toSQL()} IS NOT NULL`, []]
     }
