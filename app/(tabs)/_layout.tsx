@@ -59,6 +59,7 @@ export default function TabLayout() {
         name="ViewWall"
         options={{
           href: null,
+          unmountOnBlur: true
         }}
       />
       <Tabs.Screen

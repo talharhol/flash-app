@@ -35,8 +35,8 @@ export function FilterProblems(filter: ProblemFilter) {
             problem.grade >= filter.minGrade
             && problem.grade <= filter.maxGrade
             && problem.name.includes(filter.name)
-            && filter.setters.length > 0 ? filter.setters.includes(problem.setter) : true
-            && filter.isPublic !== undefined ? problem.isPublic == filter.isPublic : true
+            && (filter.setters.length > 0 ? filter.setters.includes(problem.setter) : true)
+            && (filter.isPublic !== undefined ? problem.isPublic == filter.isPublic : true)
         )
     }
 }

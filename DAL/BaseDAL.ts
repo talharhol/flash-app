@@ -105,11 +105,21 @@ export class UserDAL extends BaseDAL<User> {
     }
 
     public async AddWall(params: { wall_id: string, user_id: string }): Promise<void> {
-        await UserWallTable.insert({
-            wall_id: params.wall_id,
-            user_id: params.user_id,
-            role: "viewer"
-        }, this._dal.db!);
+        let existing = await UserWallTable.getAll(
+            ...UserWallTable.filter(
+                [
+                    UserWallTable.getField("user_id")!.eq(params.user_id),
+                    UserWallTable.getField("wall_id")!.eq(params.wall_id),
+                ]
+            ),
+            this._dal.db!
+        );
+        if (existing.length === 0)
+            await UserWallTable.insert({
+                wall_id: params.wall_id,
+                user_id: params.user_id,
+                role: "viewer"
+            }, this._dal.db!);
     }
 
     public async RemoveWall(params: { wall_id: string, user_id: string }): Promise<void> {
@@ -258,9 +268,9 @@ export class GroupDAL extends BaseDAL<Group> {
         );
 
         return new Group({
-            id: group["id"],
-            name: "name",
-            image: group["image"],
+            id: group.id,
+            name: group.name,
+            image: group.image,
             admins: admins!.map(u => u.user_id),
             members: members!.map(u => u.user_id),
             walls: walls!.map(w => w.wall_id),

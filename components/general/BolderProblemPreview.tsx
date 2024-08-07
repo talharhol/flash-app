@@ -9,13 +9,16 @@ import { createRef, useEffect, useRef, useState } from "react";
 import { Image, useWindowDimensions, View } from "react-native";
 import * as Sharing from 'expo-sharing';
 import { SwipeRow } from "react-native-swipe-list-view";
+import { useDal } from "@/DAL/DALService";
 
 
 const BolderProblemPreview: React.FC<React.ComponentProps<typeof ThemedView> & {
     wall: Wall;
     problem: Problem;
     onPress?: () => void;
-}> = ({ wall, problem, onPress, ...props }) => {
+    deleteProblem?: (problem: Problem) => void;
+}> = ({ wall, problem, onPress, deleteProblem, ...props }) => {
+    const dal = useDal();
     const scale = 0.8;
     const screenDimension = useWindowDimensions();
     const [width, setWidth] = useState(0);
@@ -34,7 +37,6 @@ const BolderProblemPreview: React.FC<React.ComponentProps<typeof ThemedView> & {
           });
     }, []);
     const problemRef = useRef<BolderProblemComponent>(null);
-
     const swipeRow = createRef<SwipeRow<typeof ThemedView>>();
     const [isOpen, setIsOpen] = useState(false);
     const OnPressWrapper = () => {
@@ -49,10 +51,16 @@ const BolderProblemPreview: React.FC<React.ComponentProps<typeof ThemedView> & {
                     onPress={async () => {
                         Sharing.shareAsync(await problemRef.current?.getProblemUrl()!);
                     }}
-                    name="share-outline" size={100} color={"white"} style={{ position: "absolute", top: 0, right: 0, marginRight: 5 }} />
+                    name="share-outline" size={50} color={"white"} style={{ position: "absolute", top: 0, right: 0, marginRight: 5 }} />
                 <Ionicons
                     onPress={() => problemRef.current?.exportProblem()}
-                    name="code-download-outline" size={100} color={"white"} style={{ position: "absolute", bottom: 0, right: 0, marginRight: 5 }} />
+                    name="code-download-outline" size={50} color={"white"} style={{ position: "absolute", top: 100, right: 0, marginRight: 5 }} />
+                {
+                    problem.setter === dal.currentUser.id &&
+                    <Ionicons
+                    onPress={() => deleteProblem?.(problem)}
+                    name="trash-outline" size={50} color={"white"} style={{ position: "absolute", top: 200, right: 0, marginRight: 5 }} />
+                }
             </ThemedView>
             <ThemedView {...props} style={[{ overflow: "hidden", flexDirection: "column", borderRadius: 8, width: width, height: height }]}>
                 <ThemedView style={{ backgroundColor: "rgba(50, 50, 50, 0.4)", flexDirection: "row", justifyContent: 'space-between', position: "absolute", width: "100%", paddingLeft: 5, paddingRight: 5, zIndex: 1 }}>

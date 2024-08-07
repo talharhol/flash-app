@@ -10,13 +10,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import DisplayBolderProblemModal from '../../general/modals/DisplayBolderProblemModal';
 import FilterProblemssModal from '@/components/general/modals/FilterBoldersModal';
-import { FilterProblems, ProblemFilter } from '@/DAL/entities/problem';
+import { FilterProblems, Problem, ProblemFilter } from '@/DAL/entities/problem';
 import { useDal } from '@/DAL/DALService';
 
 const ViewWallScreen: React.FC = () => {
     const router = useRouter();
     const dal = useDal();
     const wall = dal.walls.Get({ id: useLocalSearchParams().id as string });
+    const [problems, setProblems] = useState(dal.problems.List({ wallId: wall.id, isPublic: true }));
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(null);
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
     const [filters, setFilters] = useState<ProblemFilter>({
@@ -26,6 +27,12 @@ const ViewWallScreen: React.FC = () => {
         setters: [],
         isPublic: true
     });
+
+    const deleteProblem = (problem: Problem) => {
+        dal.problems.Remove(problem).then(() => {
+            setProblems(dal.problems.List({ wallId: wall.id, isPublic: true }));
+        });
+    }
 
     return (
         <View style={{ height: "100%" }}>
@@ -57,15 +64,15 @@ const ViewWallScreen: React.FC = () => {
                     </ThemedView>
                 }>
                 {
-                    dal.problems.List({ wallId: wall.id, isPublic: true })
-                        .filter(FilterProblems(filters))
-                        .map(problem =>
+                    problems.filter(FilterProblems(filters))
+                    .map(problem =>
                             <BolderProblemPreview
                                 key={problem.id}
                                 onPress={() => setDisplayedProblem(problem.id)}
                                 style={{ alignSelf: "center" }}
                                 wall={wall}
                                 problem={problem}
+                                deleteProblem={deleteProblem}
                             />
                         )
                 }

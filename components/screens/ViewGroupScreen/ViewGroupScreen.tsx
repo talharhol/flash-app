@@ -10,13 +10,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import DisplayBolderProblemModal from '../../general/modals/DisplayBolderProblemModal';
 import FilterProblemssModal from '@/components/general/modals/FilterBoldersModal';
-import { FilterProblems, ProblemFilter } from '@/DAL/entities/problem';
+import { FilterProblems, Problem, ProblemFilter } from '@/DAL/entities/problem';
 import { useDal } from '@/DAL/DALService';
 
 const ViewGroupScreen: React.FC = () => {
     const router = useRouter();
     const dal = useDal();
-    const group = dal.groups.Get({ id: useLocalSearchParams().id as string });
+    const [group, setGroup] = useState(dal.groups.Get({ id: useLocalSearchParams().id as string }));
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(null);
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
     const [filters, setFilters] = useState<ProblemFilter>({
@@ -25,6 +25,11 @@ const ViewGroupScreen: React.FC = () => {
         name: "",
         setters: []
     });
+    const deleteProblem = (problem: Problem) => {
+        dal.problems.Remove(problem).then(() => {
+            setGroup(dal.groups.Get({id: group.id}));
+        });
+    }
 
     return (
         <View style={{ height: "100%" }}>
@@ -57,12 +62,14 @@ const ViewGroupScreen: React.FC = () => {
                 {
                     group.problems.map(problem_id => dal.problems.Get({ id: problem_id })).filter(FilterProblems(filters)).map(problem => {
                         return (
-                            <TouchableOpacity key={problem.id} onPress={setDisplayedProblem.bind(this, problem.id)}>
-                                <BolderProblemPreview
-                                    wall={dal.walls.Get({ id: problem.wallId })}
-                                    problem={problem}
-                                />
-                            </TouchableOpacity>
+                            <BolderProblemPreview
+                                key={problem.id}
+                                onPress={() => setDisplayedProblem(problem.id)}
+                                style={{ alignSelf: "center" }}
+                                wall={dal.walls.Get({ id: problem.wallId })}
+                                problem={problem}
+                                deleteProblem={deleteProblem}
+                            />
                         )
                     }
                     )
