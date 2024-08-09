@@ -73,6 +73,7 @@ export default function TabLayout() {
         name="ViewGroupScreen"
         options={{
           href: null,
+          unmountOnBlur: true
         }}
       />
       <Tabs.Screen

@@ -79,7 +79,7 @@ export class BaseDAL<
         await this.table.delete(
             Object.keys(filters).map(
                 k => this.table.getField(k)!.eq(params[k])
-            ), 
+            ),
             this._dal.db!
         );
     }
@@ -100,7 +100,7 @@ export class UserDAL extends BaseDAL<User> {
 
         return this._dal.walls.List({
             ids: results.map(w => w.wall_id),
-            isPublic: params.isPublic === undefined ? true : params.isPublic
+            isPublic: params.isPublic,
         });
     }
 
@@ -198,11 +198,13 @@ export class WallDAL extends BaseDAL<Wall> {
 
     public async Add(obj: Wall): Promise<Wall> {
         let wall = await super.Add(obj);
-        await UserWallTable.insert({
-            wall_id: wall.id,
-            user_id: this._dal.currentUser.id,
-            role: "owner"
-        }, this._dal.db!);
+        if (wall.owner === this._dal.currentUser.id) {
+            await UserWallTable.insert({
+                wall_id: wall.id,
+                user_id: this._dal.currentUser.id,
+                role: "owner"
+            }, this._dal.db!);
+        }
         return wall;
     }
 }
@@ -281,7 +283,7 @@ export class GroupDAL extends BaseDAL<Group> {
 }
 
 export class ProblemDAL extends BaseDAL<Problem> {
-    public List(params: {wallId: string} & ProblemFilter): Problem[] {
+    public List(params: { wallId: string } & ProblemFilter): Problem[] {
         let filters: [string, any][] = [
             ProblemTable.getField("wall_id")!.eq(params.wallId),
             ProblemTable.getField("grade")!.ge(params.minGrade),
