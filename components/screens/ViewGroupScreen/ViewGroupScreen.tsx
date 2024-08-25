@@ -60,7 +60,7 @@ const ViewGroupScreen: React.FC = () => {
                     </ThemedView>
                 }>
                 {
-                    group.problems.map(problem_id => dal.problems.Get({ id: problem_id })).filter(FilterProblems(filters)).map(problem => {
+                    group.FilterProblems(filters).map(problem => {
                         return (
                             <BolderProblemPreview
                                 key={problem.id}

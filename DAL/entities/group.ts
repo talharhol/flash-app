@@ -1,5 +1,6 @@
 import { ImageSourcePropType } from "react-native";
 import { Entity, EntityProps } from "./BaseEntity";
+import { Problem, ProblemFilter } from "./problem";
 
 export type GroupProps = EntityProps & {name: string, image: ImageSourcePropType, members?: string[], admins?: string[], walls?: string[], problems?: string[]}
 
@@ -48,5 +49,9 @@ export class Group extends Entity {
             wall_id: params.wall_id,
             group_id: this.id
         })
+    }
+
+    public FilterProblems( params: ProblemFilter ): Problem[] {
+        return this.dal!.problems.List({groupId: this.id, ...params})
     }
 };

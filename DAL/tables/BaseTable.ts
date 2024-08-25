@@ -76,38 +76,140 @@ export class Field {
         return `${this._table!.tableName}.${this._name}`
     }
 
-    public eq<T>(value: T): [string, T] {
-        return [`${this.toSQL()} = ?`, value]
+    public eq<T>(value: T): Filter {
+        if (value instanceof Field)
+            return new Filter({ sql: `${this.toSQL()} = ${value.toSQL()}`, value: [] });
+        return new Filter({ sql: `${this.toSQL()} = ?`, value });
     }
 
-    public neq<T>(value: T): [string, T] {
-        return [`${this.toSQL()} != ?`, value]
+    public neq<T>(value: T): Filter {
+        return new Filter({ sql: `${this.toSQL()} != ?`, value: value });
     }
 
-    public like(value: string): [string, string] {
-        return [`${this.toSQL()} LIKE ?`, `%${value}%`]
+    public like(value: string): Filter {
+        return new Filter({ sql: `${this.toSQL()} LIKE ?`, value: `%${value}%` });
     }
 
-    public in<T>(value: T[]): [string, T[]] {
-        return [`${this.toSQL()} IN (${new Array(value.length).fill('?').join(', ')})`, value]
+    public in<T>(value: T[]): Filter {
+        return new Filter({ sql: `${this.toSQL()} IN (${new Array(value.length).fill('?').join(', ')})`, value });
     }
 
-    public ge(value: number): [string, number] {
-        return [`${this.toSQL()} >= ?`, value]
+    public ge(value: number): Filter {
+        return new Filter({ sql: `${this.toSQL()} >= ?`, value });
     }
 
-    public le(value: number): [string, number] {
-        return [`${this.toSQL()} <= ?`, value]
+    public le(value: number): Filter {
+        return new Filter({ sql: `${this.toSQL()} <= ?`, value });
     }
 
-    public notNull(): [string, []] {
-        return [`${this.toSQL()} IS NOT NULL`, []]
+    public notNull(): Filter {
+        return new Filter({ sql: `${this.toSQL()} IS NOT NULL`, value: [] });
     }
 
-    public isNull(): [string, []] {
-        return [`${this.toSQL()} IS NULL`, []]
+    public isNull(): Filter {
+        return new Filter({ sql: `${this.toSQL()} IS NULL`, value: [] });
     }
 }
+
+export class Filter {
+    public sql: string;
+    public value: any;
+    constructor({ sql, value }: { sql: string, value: any }) {
+        this.sql = sql;
+        this.value = value;
+    }
+}
+
+export class Query {
+    private table: typeof BaseTable;
+    private selectedFields: Field[];
+    private filters: Filter[];
+    private joins: { table: typeof BaseTable, on: Filter, joinType: string }[];
+
+    constructor({ table, selectedFields, filters }: { table: typeof BaseTable, selectedFields?: Field[], filters?: Filter[] }) {
+        this.table = table;
+        this.selectedFields = selectedFields || [];
+        this.filters = filters || [];
+        this.joins = [];
+    }
+
+    public Filter(filter: Filter): Query {
+        this.filters.push(filter);
+        return this;
+    }
+
+    public Select(fileds: Field[]): Query {
+        this.selectedFields = this.selectedFields.concat(fileds);
+        return this;
+    }
+
+    public Join(table: typeof BaseTable, on: Filter, joinType?: string): Query {
+        this.joins.push({
+            table: table,
+            on: on,
+            joinType: joinType || "JOIN",
+        });
+        return this;
+    }
+
+    public ToSQL(): [string, any[]] {
+        if (this.selectedFields.length == 0) {
+            this.table.fields.map(f => {
+                f.setTable(this.table);
+                this.selectedFields.push(f);
+            })
+        }
+        let select = this.selectedFields.map(f => `${f.toSQL()} as ${f.name}`).join(", ");
+        let filters = this.filters.map(f => f.sql).join(' AND ');
+        let filtersValues = this.filters.map(f => f.value);
+        let join = "";
+        this.joins.forEach(j => {
+            join += `${j.joinType} ${j.table.tableName} ON ${j.on.sql}`
+        });
+        let joinValues = this.joins.map(j => j.on.value)
+        return [
+            `
+SELECT ${select} 
+FROM ${this.table.tableName}
+${join}
+WHERE ${filters}
+`,
+            joinValues.concat(filtersValues).flat(Infinity)
+        ]
+    }
+
+    public First<T>(db: SQLite.SQLiteDatabase): T {
+        let query = this.ToSQL();
+        let result = db.getFirstSync<{ [ket: string]: any }>(...query);
+        if (result === null) {
+            console.error(`Failed getting object! \nquery: ${query[0]}\n args: ${query[1]}`);
+            return {} as T
+        }
+        let parsed: { [key: string]: any } = {};
+        Object.keys(result).map(k => {
+            let field = this.selectedFields.filter(f => f.matchName(k));
+            if (!field) console.log(`cant find column ${k} in query select`);
+            else parsed[k] = field[0].Load(result[k]);
+        });
+        return parsed as T;
+    }
+
+    public All<T>(db: SQLite.SQLiteDatabase): T[] {
+        let query = this.ToSQL();
+        let results = db.getAllSync<{ [ket: string]: any }>(...query);
+        return results.map(r => {
+            let parsed: { [key: string]: any } = {};
+            Object.keys(r).map(k => {
+                let field = this.selectedFields.filter(f => f.matchName(k));
+                if (!field) console.log(`cant find column ${k} in query select`);
+                else parsed[k] = field[0].Load(r[k]);
+            });
+            return parsed;
+        }) as T[];
+    }
+
+}
+
 
 export class BaseTable {
     public static tableName: string;
@@ -158,11 +260,15 @@ export class BaseTable {
         return new entityConstructor(entityData);
     }
 
-    public static filter(filters: [string, any][], select?: Field[]): [string, any[]] {
+    public static query(filters?: Filter[]): Query {
+        return new Query({ table: this, filters: filters });
+    }
+
+    public static filter(filters: Filter[], select?: Field[]): [string, any[]] {
         filters.push(this.getField("deleted_at")!.isNull()); // make sure it isnt deleted 
         return [
-            `SELECT ${select ? select.map(f => f.name).join(", ") : "*"} FROM ${this.tableName} WHERE ${filters.map(f => f[0]).join(' AND ')}`,
-            filters.map(f => f[1]).flat(Infinity)
+            `SELECT ${select ? select.map(f => f.name).join(", ") : "*"} FROM ${this.tableName} WHERE ${filters.map(f => f.sql).join(' AND ')}`,
+            filters.map(f => f.value).flat(Infinity)
         ]
     }
 
@@ -215,8 +321,8 @@ export class BaseTable {
         ]
     }
 
-    public static update(filters: [string, any][], data: { [key: string]: any }, db: SQLite.SQLiteDatabase) {
-        filters.push(["1 = ?", 1]);
+    public static update(filters: Filter[], data: { [key: string]: any }, db: SQLite.SQLiteDatabase) {
+        filters.push(new Filter({ sql: "1 = ?", value: 1 }));
         let values: [string, any][] = Object.keys(data).map(
             k => {
                 let field = this.getField(k)!;
@@ -226,19 +332,19 @@ export class BaseTable {
         return db.runAsync(
             `UPDATE ${this.tableName} 
             SET ${values.map(v => v[0]).join(', ')} 
-            WHERE ${filters.map(f => f[0]).join(' AND ')}`,
+            WHERE ${filters.map(f => f.sql).join(' AND ')}`,
             [
                 ...values.map(v => v[1]),
-                ...filters.map(f => f[1]).flat(Infinity)
+                ...filters.map(f => f.value).flat(Infinity)
             ]
         ).catch(console.log)
     }
 
-    public static delete(filters: [string, any][], db: SQLite.SQLiteDatabase) {
-        filters.push(["1 = ?", 1]);
+    public static delete(filters: Filter[], db: SQLite.SQLiteDatabase) {
+        filters.push(new Filter({ sql: "1 = ?", value: 1 }));
         return db.runAsync(
-            `DELETE FROM ${this.tableName} WHERE ${filters.map(f => f[0]).join(' AND ')}`,
-            filters.map(f => f[1]).flat(Infinity)
+            `DELETE FROM ${this.tableName} WHERE ${filters.map(f => f.sql).join(' AND ')}`,
+            filters.map(f => f.value).flat(Infinity)
         ).catch(console.log)
     }
 

@@ -3,7 +3,7 @@ import { Group } from "./entities/group";
 import { Problem, ProblemFilter } from "./entities/problem";
 import { User } from "./entities/user";
 import { Wall } from "./entities/wall";
-import { BaseTable } from "./tables/BaseTable";
+import { BaseTable, Filter } from "./tables/BaseTable";
 import { Entity } from "./entities/BaseEntity";
 import { GroupMemberTable, GroupProblemTable, GroupTable, GroupWallTable, ProblemTable, UserWallTable, WallTable } from "./tables/tables";
 
@@ -283,23 +283,30 @@ export class GroupDAL extends BaseDAL<Group> {
 }
 
 export class ProblemDAL extends BaseDAL<Problem> {
-    public List(params: { wallId: string } & ProblemFilter): Problem[] {
-        let filters: [string, any][] = [
-            ProblemTable.getField("wall_id")!.eq(params.wallId),
+    public List(params: { wallId?: string, groupId?: string } & ProblemFilter): Problem[] {
+        let filters: Filter[] = [
             ProblemTable.getField("grade")!.ge(params.minGrade),
             ProblemTable.getField("grade")!.le(params.maxGrade),
             ProblemTable.getField("name")!.like(params.name),
         ];
+        if (params.wallId !== undefined) filters.push(
+            ProblemTable.getField("wall_id")!.eq(params.wallId)
+        );
         if (params.setters.length > 0) filters.push(
             ProblemTable.getField("owner_id")!.in(params.setters)
         );
         if (params.isPublic !== undefined) filters.push(
             ProblemTable.getField("is_public")!.eq(params.isPublic)
         );
-        let results = ProblemTable.getAll<{ [key: string]: any; }>(
-            ...ProblemTable.filter(filters),
-            this._dal.db!
-        );
+        let query = ProblemTable.query(filters);
+        if (params.groupId !== undefined) {
+            query = query.Join(
+                GroupProblemTable, 
+                GroupProblemTable.getField("problem_id")!.eq(ProblemTable.getField("id")!)
+            );
+            query.Filter(GroupProblemTable.getField("group_id")!.eq(params.groupId))
+        }
+        let results = query.All<{ [key: string]: any; }>(this._dal.db!);
         return results.map(r => {
             let entity = ProblemTable.toEntity(r);
             entity.setDAL(this._dal);
