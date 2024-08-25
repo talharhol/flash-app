@@ -129,7 +129,7 @@ export class Query {
     constructor({ table, selectedFields, filters }: { table: typeof BaseTable, selectedFields?: Field[], filters?: Filter[] }) {
         this.table = table;
         this.selectedFields = selectedFields || [];
-        this.filters = filters || [];
+        this.filters = filters || [new Filter({sql: "1 = 1", value: []})];
         this.joins = [];
     }
 
@@ -166,7 +166,7 @@ export class Query {
         this.joins.forEach(j => {
             join += `${j.joinType} ${j.table.tableName} ON ${j.on.sql}`
         });
-        let joinValues = this.joins.map(j => j.on.value)
+        let joinValues = this.joins.map(j => j.on.value);
         return [
             `
 SELECT ${select} 

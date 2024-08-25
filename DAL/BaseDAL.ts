@@ -5,7 +5,7 @@ import { User } from "./entities/user";
 import { Wall } from "./entities/wall";
 import { BaseTable, Filter } from "./tables/BaseTable";
 import { Entity } from "./entities/BaseEntity";
-import { GroupMemberTable, GroupProblemTable, GroupTable, GroupWallTable, ProblemTable, UserWallTable, WallTable } from "./tables/tables";
+import { GroupMemberTable, GroupProblemTable, GroupTable, GroupWallTable, ProblemTable, UserTable, UserWallTable, WallTable } from "./tables/tables";
 
 export class BaseDAL<
     ObjType extends Entity
@@ -86,6 +86,26 @@ export class BaseDAL<
 }
 
 export class UserDAL extends BaseDAL<User> {
+
+    public List(params: { groupId?: string }): User[] {
+        let query = UserTable.query();
+        if (params.groupId !== undefined) {
+            query = query.Join(
+                GroupMemberTable,
+                GroupMemberTable.getField("user_id")!.eq(UserTable.getField("id")!)
+            ).Filter(
+                GroupMemberTable.getField("group_id")!.eq(params.groupId)
+            );
+        }
+        let results = query.All<{ [key: string]: any; }>(this._dal.db!);
+        return results.map(r => {
+            let entity = UserTable.toEntity(r, User);
+            entity.setDAL(this._dal);
+            return entity
+        });
+
+    }
+
     public GetWalls(params: { user_id: string, role?: string, isPublic?: boolean }): Wall[] {
         let filters = [
             UserWallTable.getField("user_id")!.eq(params.user_id),

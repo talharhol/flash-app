@@ -27,22 +27,26 @@ const ViewGroupScreen: React.FC = () => {
     });
     const deleteProblem = (problem: Problem) => {
         dal.problems.Remove(problem).then(() => {
-            setGroup(dal.groups.Get({id: group.id}));
+            setGroup(dal.groups.Get({ id: group.id }));
         });
     }
 
     return (
         <View style={{ height: "100%" }}>
 
-            {displayedProblem && <DisplayBolderProblemModal
-                problem={dal.problems.Get({ id: displayedProblem })}
-                closeModal={setDisplayedProblem.bind(this, null)} />}
+            {
+                displayedProblem &&
+                <DisplayBolderProblemModal
+                    problem={dal.problems.Get({ id: displayedProblem })}
+                    closeModal={setDisplayedProblem.bind(this, null)} />
+            }
             {
                 filterProblemsModal &&
                 <FilterProblemssModal
                     closeModal={() => setFilterProblemsModal(false)}
                     initialFilters={filters}
                     onFiltersChange={setFilters}
+                    groupId={group.id}
                 />
             }
 

@@ -11,9 +11,10 @@ import { useDal } from "@/DAL/DALService";
 
 
 const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
-    initialFilters: ProblemFilter,
+    initialFilters: ProblemFilter;
+    groupId?: string;
     onFiltersChange: (filters: ProblemFilter) => void;
-}> = ({ initialFilters, onFiltersChange, ...props }) => {
+}> = ({ initialFilters, groupId, onFiltersChange, ...props }) => {
     const dal = useDal();
     const [minGrade, setMinGrade] = useState(initialFilters.minGrade);
     const [maxGrade, setMaxGrade] = useState(initialFilters.maxGrade);
@@ -109,7 +110,7 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                             fixedHeight
                             hideTags
                             ref={(component) => { usersMultiSelect.current = component || undefined }}
-                            items={dal.users.List({})}
+                            items={dal.users.List({groupId})}
                             uniqueKey="id"
                             onSelectedItemsChange={(v) => {
                                 setSetters(v);
