@@ -115,31 +115,6 @@ export class GroupTable extends BaseTable {
             }
         ),
     ];
-
-    public static insertFromEntity(obj: Group): Promise<any> {
-        return super.insertFromEntity(obj)
-            .then(() => {
-                obj.members.map(userId => {
-                    GroupMemberTable.insert({
-                        user_id: userId,
-                        group_id: obj.id,
-                        role: obj.admins.includes(userId) ? "admin" : "member"
-                    }, obj.getDAL().db!).catch(console.log)
-                });
-                obj.walls.map(wallId => {
-                    GroupWallTable.insert({
-                        wall_id: wallId,
-                        group_id: obj.id,
-                    }, obj.getDAL().db!).catch(console.log)
-                });
-                obj.problems.map(problemId => {
-                    GroupProblemTable.insert({
-                        problem_id: problemId,
-                        group_id: obj.id,
-                    }, obj.getDAL().db!).catch(console.log)
-                });
-            });
-    }
 }
 
 export class GroupMemberTable extends BaseTable {

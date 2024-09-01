@@ -1,3 +1,3 @@
-import CreateGroupScreen from "@/components/screens/CreateGroupScrean/CreateGroupScreen";
+import ConfigGroupScreen from "@/components/screens/ConfigGroupScreen";
 
-export default CreateGroupScreen;
+export default ConfigGroupScreen;

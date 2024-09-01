@@ -10,11 +10,14 @@ import { useRouter } from 'expo-router';
 import SwipablePreviewItem from '@/components/general/SwipeablePreviewItem';
 import BasicButton from '@/components/general/Buttom';
 import { useDal } from '@/DAL/DALService';
+import ManagmantModal, { ManagmentModalProps } from '@/components/general/modals/ManagmantModal';
+import { Ionicons } from '@expo/vector-icons';
 
 const MyGroupsScreen: React.FC = () => {
     const router = useRouter();
     const dal = useDal();
     const [groupToRemove, setGroupToRemove] = useState<Group | null>(null);
+    const [groupManagment, setGroupManagment] = useState<ManagmentModalProps | null>(null)
     const RemoveGroup = (group: Group) => {
         dal.currentUser.removeGroup(group.id).then(
             () => setGroups(dal.currentUser.groups)
@@ -38,6 +41,15 @@ const MyGroupsScreen: React.FC = () => {
                 </ThemedView>
             }>
             {
+                groupManagment &&
+                <ManagmantModal
+                    closeModal={() => setGroupManagment(null)}
+                    {
+                    ...groupManagment
+                    }
+                />
+            }
+            {
                 groupToRemove &&
                 <ActionValidationModal
                     closeModal={setGroupToRemove.bind(this, null)}
@@ -50,7 +62,7 @@ const MyGroupsScreen: React.FC = () => {
                 <ActionValidationModal
                     closeModal={setGroupToDelete.bind(this, null)}
                     approveAction={DeleteGroup.bind(this, groupToDelete)}
-                    text={`Exit ${groupToDelete.name}?`}
+                    text={`Delete ${groupToDelete.name}?`}
                 />
             }
             {
@@ -64,21 +76,15 @@ const MyGroupsScreen: React.FC = () => {
                         hiddenComponent={() => {
                             return (
                                 <View style={{ height: "100%", flexDirection: "column", alignItems: 'center', justifyContent: "space-evenly" }}>
-                                    <BasicButton
-                                        text='Exit'
-                                        onPress={() => setGroupToRemove(group)}
-                                        color="red"
-                                        style={{ width: 100 }}
-                                    />
-                                    {
-                                        group.admins.includes(dal.currentUser.id) &&
-                                        <BasicButton
-                                            text='Delete'
-                                            onPress={() => setGroupToDelete(group)}
-                                            color="red"
-                                            style={{ width: 100 }}
-                                        />
-                                    }
+                                    <Ionicons name='options-outline' size={35} onPress={
+                                        () => setGroupManagment(
+                                            {
+                                                leave: () => setGroupToRemove(group),
+                                                deleteObj: group.admins.includes(dal.currentUser.id) ? () => setGroupToDelete(group) : undefined,
+                                                edit: group.admins.includes(dal.currentUser.id) ? () => () => router.navigate({ pathname: "/CreateGroup", params: { id: group.id } }) : undefined,
+                                            }
+                                        )
+                                    } />
                                 </View>
                             )
                         }}

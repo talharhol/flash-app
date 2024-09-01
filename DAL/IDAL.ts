@@ -35,6 +35,7 @@ export interface IDAL {
             wall_id: string;
             group_id: string;
         }): Promise<void>
+        GetPrivateWalls(obj: Group): Wall[]
     };
 
     currentUser: User;

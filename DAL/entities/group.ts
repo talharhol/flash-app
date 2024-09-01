@@ -1,6 +1,7 @@
 import { ImageSourcePropType } from "react-native";
 import { Entity, EntityProps } from "./BaseEntity";
 import { Problem, ProblemFilter } from "./problem";
+import { Wall } from "./wall";
 
 export type GroupProps = EntityProps & {name: string, image: ImageSourcePropType, members?: string[], admins?: string[], walls?: string[], problems?: string[]}
 
@@ -11,6 +12,8 @@ export class Group extends Entity {
     admins: string[];
     walls: string[];
     problems: string[];
+    private privateWalls?: Wall[];
+    private publicWalls?: Wall[];
     constructor({ name, image, members, admins, walls, problems, ...props }: EntityProps) {
         super(props);
         this.name = name;
@@ -19,6 +22,8 @@ export class Group extends Entity {
         this.admins = admins || [];
         this.walls = walls || [];
         this.problems = problems || [];
+        this.privateWalls = undefined;
+        this.publicWalls = undefined;
     }
 
     public getMembers() {
@@ -53,5 +58,19 @@ export class Group extends Entity {
 
     public FilterProblems( params: ProblemFilter ): Problem[] {
         return this.dal!.problems.List({groupId: this.id, ...params})
+    }
+
+    public get PrivateWalls(): Wall[] {
+        if (this.privateWalls === undefined)
+            this.privateWalls = this.dal!.groups.GetPrivateWalls(this);
+        return this.privateWalls;
+    }
+
+    public get PublicWalls(): Wall[] {
+        if (this.publicWalls === undefined) {
+            let pWalls = this.PrivateWalls.map(w => w.id);
+            this.publicWalls = this.dal!.walls.List({ids: this.walls.filter(w => !pWalls.includes(w))});
+        }
+        return this.publicWalls;
     }
 };

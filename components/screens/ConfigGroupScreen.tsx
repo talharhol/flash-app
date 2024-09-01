@@ -1,9 +1,6 @@
 import React, { useRef, useState } from "react";
 import {
     Image,
-    Platform,
-    StatusBar,
-    StyleSheet,
     Text,
     TextInput,
     View,
@@ -13,14 +10,15 @@ import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
 import SelectImageModal from "@/components/general/modals/SelectImageModal";
 import BasicButton from "@/components/general/Buttom";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Group } from "@/DAL/entities/group";
 import MultiSelect from "react-native-multiple-select";
-import SelectWallModal from "./SelectWallsModal";
 import { FlatList, ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { Wall } from "@/DAL/entities/wall";
 import { useDal } from "@/DAL/DALService";
+import SelectWallModal from "@/components/general/modals/SelectWallsModal";
+
 const WallItem = ({ wall, onRemove }: { wall: Wall | string, onRemove: (id: string) => void }) => {
     const dal = useDal();
 
@@ -37,15 +35,16 @@ const WallItem = ({ wall, onRemove }: { wall: Wall | string, onRemove: (id: stri
     )
 };
 
-const CreateGroupScreen: React.FC = ({ }) => {
+const ConfigGroupScreen: React.FC = ({ }) => {
     const router = useRouter();
     const dal = useDal();
-    const [selectedImage, setSelectedImage] = useState<string>('');
-    const [selectImageModal, setSelectImageModal] = useState(true);
+    const group = useLocalSearchParams().id !== undefined ? dal.groups.Get({ id: useLocalSearchParams().id as string }) : undefined;
+    const [selectedImage, setSelectedImage] = useState<string>(group?.image.uri || '');
+    const [selectImageModal, setSelectImageModal] = useState(group === undefined);
     const [selectWallModal, setSelectWallModal] = useState(false);
-    const [groupName, setGroupName] = useState('');
-    const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-    const [selectedWalls, setSelectedWalls] = useState<string[]>([]);
+    const [groupName, setGroupName] = useState(group ? group.name : '');
+    const [selectedUsers, setSelectedUsers] = useState<string[]>(group ? group.members.filter(u => u !== dal.currentUser.id) : []);
+    const [selectedWalls, setSelectedWalls] = useState<string[]>(group ? group.PublicWalls.map(w=>w.id) : []);
     const usersMultiSelect = useRef<MultiSelect>()
     const createGroup = () => {
         if (!selectedImage) {
@@ -57,17 +56,22 @@ const CreateGroupScreen: React.FC = ({ }) => {
             alert("missing group name");
             return
         }
-
-        let group = new Group({
+        let new_group = new Group({
+            id: group?.id,
             name: groupName,
             image: { uri: selectedImage },
             members: [dal.currentUser.id, ...selectedUsers],
             admins: [dal.currentUser.id],
             walls: selectedWalls
         });
-        dal.groups.Add(group).then(
-            () => router.push({ pathname: "/MyGroupsScreen" })
-        );
+        if (!group)
+            dal.groups.Add(new_group).then(
+                () => router.push({ pathname: "/MyGroupsScreen" })
+            );
+        else 
+            dal.groups.Update(new_group).then(
+                () => router.push({ pathname: "/MyGroupsScreen" })
+            ).catch(console.log);
     };
     const SaveWallImage: (uri: string) => void = (uri) => {
         setSelectedImage(uri);
@@ -100,7 +104,7 @@ const CreateGroupScreen: React.FC = ({ }) => {
                     closeModal={() => setSelectWallModal(false)} />
             }
             <View style={{ alignSelf: "center", height: 200, width: 200 }}>
-                <Image style={{ height: "100%", width: "100%", borderRadius: 10000 }} source={selectedImage ? { uri: selectedImage } : require('../../../assets/images/upload.png')} />
+                <Image style={{ height: "100%", width: "100%", borderRadius: 10000 }} source={selectedImage ? { uri: selectedImage } : require('../../assets/images/upload.png')} />
                 <Ionicons
                     style={{ position: "absolute", bottom: 0, right: 0 }}
                     onPress={() => setSelectImageModal(true)}
@@ -151,108 +155,9 @@ const CreateGroupScreen: React.FC = ({ }) => {
                 </View>
             </ScrollView>
             <BasicButton onPress={() => setSelectWallModal(true)} style={{ alignSelf: "center" }} text="Add wall" color="blue" />
-            <BasicButton onPress={createGroup} style={{ alignSelf: "center", margin: 20 }} text="Create" color="green" />
+            <BasicButton onPress={createGroup} style={{ alignSelf: "center", margin: 20 }} text={!!group ? "Update" : "Create"} color="green" />
         </ParallaxScrollView>
     );
 };
 
-export default CreateGroupScreen;
-
-const styles = StyleSheet.create({
-    problemImage: {
-        resizeMode: "center"
-    },
-    buttonContainer: {
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-evenly",
-        marginTop: "auto",
-        marginBottom: "auto"
-    },
-    zoomedContainer: {
-        maxHeight: "75%",
-        overflow: "hidden",
-        flex: 1,
-    },
-    zoomedContent: {
-        flex: 1,
-        position: "relative",
-        display: "flex"
-    },
-    saveHoldButton: {
-        height: 40,
-        width: "50%",
-        backgroundColor: "green",
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    discardHoldButton: {
-        height: 40,
-        width: "50%",
-        backgroundColor: "red",
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    sliderLable: { alignSelf: "center" },
-    sliderContainer: {
-        marginLeft: 10,
-        marginRight: 10,
-        justifyContent: "center",
-    },
-    next: { color: "#FF0101" },
-    modal: {
-        width: "80%",
-        height: 260,
-        backgroundColor: "#E8E8E8",
-        borderRadius: 20,
-        opacity: 0.8,
-        justifyContent: "space-around",
-        alignItems: "center",
-    },
-    modalContainer: {
-        width: "100%",
-        height: "100%",
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    addHoldText: { fontWeight: "bold" },
-    addHoldTextTitle: { color: "white" },
-    addHoldButton: {
-        height: 40,
-        width: "50%",
-        borderRadius: 10,
-        borderWidth: 2,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    container: {
-        width: "100%",
-        marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-        flex: 1,
-    },
-    problemHeader: {
-        height: 50 + (StatusBar.currentHeight ?? 0),
-        width: "100%",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        paddingLeft: 15,
-        paddingRight: 15,
-        alignItems: "center",
-        backgroundColor: "black",
-        opacity: 0.5,
-        position: "absolute",
-        paddingTop: StatusBar.currentHeight,
-        zIndex: 10,
-        top: -(StatusBar.currentHeight ?? 0),
-    },
-    headerText: {
-        color: "white",
-    },
-    problemImageContainer: {
-        backgroundColor: "black",
-        zIndex: 0,
-    },
-    problemData: {
-        width: "100%",
-    },
-});
+export default ConfigGroupScreen;
