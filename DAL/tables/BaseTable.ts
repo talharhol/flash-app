@@ -1,6 +1,6 @@
 import uuid from "react-native-uuid";
 import * as SQLite from 'expo-sqlite';
-import { Entity, EntityProps } from '../entities/BaseEntity';
+import { Entity } from '../entities/BaseEntity';
 
 export class Field {
     protected _name: string;

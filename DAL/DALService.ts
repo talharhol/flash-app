@@ -2,12 +2,14 @@ import { createContext, useContext } from "react";
 import * as SQLite from 'expo-sqlite';
 
 import { User } from "./entities/user";
-import { ProblemDAL, UserDAL, WallDAL } from "./BaseDAL";
 import { GroupTable, ProblemTable, UserTable, WallTable } from "./tables/tables";
 import { Image, ImageSourcePropType } from "react-native";
 import * as FileSystem from 'expo-file-system';
 import uuid from "react-native-uuid";
 import { GroupDAL } from "./dals/group";
+import { UserDAL } from "./dals/user";
+import { WallDAL } from "./dals/wall";
+import { ProblemDAL } from "./dals/problem";
 
 
 class DalService {
