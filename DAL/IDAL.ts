@@ -8,6 +8,7 @@ import { ProblemDAL } from "./dals/problem";
 import { GroupDAL } from "./dals/group";
 import { UserDAL } from "./dals/user";
 import { WallDAL } from "./dals/wall";
+import { Firestore } from "firebase/firestore";
 
 export interface IDAL {
     walls: WallDAL;
@@ -18,4 +19,5 @@ export interface IDAL {
     currentUser: User;
     convertToLocalImage(image: ImageSourcePropType): string;
     db: SQLiteDatabase | null;
+    remoteDB: Firestore;
 }

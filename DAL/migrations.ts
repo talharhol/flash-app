@@ -109,14 +109,14 @@ const migrations = [
             ];
         }
         
-        await db.execSync(`DROP TABLE ${User.tableName};`)
-        await db.execSync(`DROP TABLE ${Wall.tableName};`)
-        await db.execSync(`DROP TABLE ${Problem.tableName};`)
-        await db.execSync(`DROP TABLE ${Group.tableName};`)
-        await db.execSync(`DROP TABLE ${GroupMember.tableName};`)
-        await db.execSync(`DROP TABLE ${GroupProblem.tableName};`)
-        await db.execSync(`DROP TABLE ${GroupWall.tableName};`)
-        await db.execSync(`DROP TABLE ${UserWall.tableName};`)
+        await db.execSync(`DROP TABLE IF EXISTS ${User.tableName};`)
+        await db.execSync(`DROP TABLE IF EXISTS ${Wall.tableName};`)
+        await db.execSync(`DROP TABLE IF EXISTS ${Problem.tableName};`)
+        await db.execSync(`DROP TABLE IF EXISTS ${Group.tableName};`)
+        await db.execSync(`DROP TABLE IF EXISTS ${GroupMember.tableName};`)
+        await db.execSync(`DROP TABLE IF EXISTS ${GroupProblem.tableName};`)
+        await db.execSync(`DROP TABLE IF EXISTS ${GroupWall.tableName};`)
+        await db.execSync(`DROP TABLE IF EXISTS ${UserWall.tableName};`)
         
         await User.createTable(db);
         await Wall.createTable(db);

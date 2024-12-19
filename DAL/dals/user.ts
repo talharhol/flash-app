@@ -2,9 +2,14 @@ import { User } from "../entities/user";
 import { Wall } from "../entities/wall";
 import { GroupMemberTable, UserTable, UserWallTable } from "../tables/tables";
 import { BaseDAL } from "../BaseDAL";
+import { collection, addDoc, Timestamp } from "firebase/firestore"; 
 
 
 export class UserDAL extends BaseDAL<User> {
+
+    public async Add(obj: User): Promise<User> {
+        return await super.Add(obj);
+    }
 
     public List(params: { groupId?: string }): User[] {
         let query = UserTable.query();

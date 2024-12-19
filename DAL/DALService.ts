@@ -10,12 +10,15 @@ import { GroupDAL } from "./dals/group";
 import { UserDAL } from "./dals/user";
 import { WallDAL } from "./dals/wall";
 import { ProblemDAL } from "./dals/problem";
+import { Firestore } from "firebase/firestore";
+import db from "../firebaseConfig"
 
 
 class DalService {
     private static _instance: DalService;
 
     private _db: SQLite.SQLiteDatabase | null = null;
+    private _remoteDB: Firestore = db;
     public connected: boolean = false;
 
     private _userDal?: UserDAL;
@@ -69,7 +72,7 @@ class DalService {
         let user = this.users.List({})[0];
         if (user === undefined) {
             user = new User({
-                name: "tal",
+                name: "testing",
                 image: require("../assets/images/climber.png")
             });
             this.users.Add(user);
@@ -99,6 +102,9 @@ class DalService {
 
     public get db() {
         return this._db;
+    }
+    public get remoteDB() {
+        return this._remoteDB;
     }
 }
 
