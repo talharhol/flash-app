@@ -11,7 +11,9 @@ import { UserDAL } from "./dals/user";
 import { WallDAL } from "./dals/wall";
 import { ProblemDAL } from "./dals/problem";
 import { Firestore } from "firebase/firestore";
-import db from "../firebaseConfig"
+import { Auth, NextOrObserver, User as AuthUser } from "firebase/auth";
+import db, { auth } from "../firebaseConfig"
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
 
 
 class DalService {
@@ -19,6 +21,7 @@ class DalService {
 
     private _db: SQLite.SQLiteDatabase | null = null;
     private _remoteDB: Firestore = db;
+    private _remoteAuth: Auth = auth;
     public connected: boolean = false;
 
     private _userDal?: UserDAL;
@@ -100,12 +103,37 @@ class DalService {
         return localFileName;
     }
 
+    public async signin(email: string, password: string) {
+        await signInWithEmailAndPassword(this._remoteAuth, email, password);
+    }
+
+    public async signout() {
+        if (this.isLogin) {
+            await this._remoteAuth.signOut()
+        }
+
+    }
+
+    public async signup(email: string, password: string) {
+        await createUserWithEmailAndPassword(this._remoteAuth, email, password);
+    }
+
+    public onAuthStateChanged(callback: NextOrObserver<AuthUser | null>) {
+        this._remoteAuth.onAuthStateChanged(callback)
+    }
+
     public get db() {
         return this._db;
     }
+
     public get remoteDB() {
         return this._remoteDB;
     }
+
+    public get isLogin() {
+        return !!this._remoteAuth.currentUser
+    }
+
 }
 
 const dalService = DalService.Instance;
