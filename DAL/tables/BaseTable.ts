@@ -236,21 +236,6 @@ export class BaseTable {
         ).catch(console.log);
     }
 
-    public static fromEntity(obj: Entity | { [key: string]: any }): { [key: string]: any } {
-        let data = Object.assign<{}, { [key: string]: any }>({}, obj);
-        delete data.dal
-        delete data.setDAL
-        Object.keys(data).map(k => {
-            // removeing all unrelated data
-            if (this.getField(k) === undefined) delete data[k];
-        });
-        return data
-    }
-
-    public static insertFromEntity(obj: Entity): Promise<SQLite.SQLiteRunResult> {
-        return this.insert(this.fromEntity(obj), obj.getDAL().db!);
-    }
-
     public static toEntity<EntityType extends Entity>(data: { [key: string]: any }, entityConstructor?: new (data: any) => EntityType): EntityType {
         let entityData: { [key: string]: any } = {};
         Object.keys(data).map(k => {

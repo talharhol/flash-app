@@ -9,6 +9,7 @@ import { GroupDAL } from "./dals/group";
 import { UserDAL } from "./dals/user";
 import { WallDAL } from "./dals/wall";
 import { Firestore } from "firebase/firestore";
+import { RemoteStorage } from "./remoteStorage";
 
 export interface IDAL {
     walls: WallDAL;
@@ -20,4 +21,6 @@ export interface IDAL {
     convertToLocalImage(image: ImageSourcePropType): string;
     db: SQLiteDatabase | null;
     remoteDB: Firestore;
+    remoteStorage: RemoteStorage;
+    compressImage(uri: string): Promise<string>;
 }

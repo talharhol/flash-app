@@ -1,4 +1,4 @@
-import { ImageSourcePropType } from "react-native";
+import { Image, ImageResolvedAssetSource, ImageSourcePropType } from "react-native";
 import { HoldInterface } from "../hold";
 import { Entity, EntityProps } from "./BaseEntity";
 
@@ -7,20 +7,38 @@ export type WallProps = EntityProps & { name: string, gym: string, image: ImageS
 export class Wall extends Entity {
     name: string;
     gym: string;
-    image: ImageSourcePropType;
+    image: ImageResolvedAssetSource;
     angle?: number;
     configuredHolds: HoldInterface[];
     isPublic: boolean;
     owner: string
+    
     constructor({ name, gym, image, angle, configuredHolds, isPublic, owner, ...props }: WallProps) {
         super(props);
         this.name = name;
         this.gym = gym;
-        this.image = image;
+        this.image = Image.resolveAssetSource(image);
         this.angle = angle;
         this.configuredHolds = configuredHolds || [];
         this.isPublic = isPublic || false;
         this.owner = owner
+    }
+
+    public toRemoteDoc(): { [key: string]: any} {
+        return {
+            ...super.toRemoteDoc(),
+            name: this.name,
+            gym: this.gym,
+            image: this.image,
+            angle: this.angle || -1,
+            configuredHolds: this.configuredHolds,
+            owner: this.owner,
+        }
+    }
+
+    public async addToRemote(collectionName: string): Promise<void> {
+        if (!this.isPublic) return;
+        return super.addToRemote(collectionName);
     }
 
     get fullName() {

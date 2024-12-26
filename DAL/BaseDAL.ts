@@ -8,16 +8,19 @@ export class BaseDAL<
     protected _objects: { [key: string]: ObjType } = {};
     protected _dal: IDAL;
     public table: typeof BaseTable;
+    protected remoteCollection?: string;
 
-    constructor(dal: IDAL, table: typeof BaseTable) {
+    constructor(dal: IDAL, table: typeof BaseTable, remoteCollection?: string) {
         this.table = table
         this._dal = dal;
+        this.remoteCollection = remoteCollection;
     }
 
     public async Add(obj: ObjType): Promise<ObjType> {
         obj.setDAL(this._dal);
         this._objects[obj.id] = obj;
-        await this.table.insertFromEntity(obj).catch(console.log);
+        await this.table.insert(obj.toTable(this.table), this._dal.db!).catch(console.log);
+        if (!!this.remoteCollection) obj.addToRemote(this.remoteCollection);
         return obj;
     }
 
@@ -27,7 +30,7 @@ export class BaseDAL<
     }
 
     public async Update(obj: ObjType): Promise<ObjType> {
-        let data = this.table.fromEntity(obj);
+        let data = obj.toTable(this.table);
         delete data.id; // we never want to update the id
         data.updated_at = undefined // in order to update this field to the default value (Date.now)
         await this.table.update(
@@ -69,10 +72,11 @@ export class BaseDAL<
         }) as ObjType[];
     }
 
-    public async Delete(params: { [ket: string]: any }): Promise<void> {
-        let filters = this.table.fromEntity(params);
+    public async Delete(params: { [key: string]: any }): Promise<void> {
         await this.table.delete(
-            Object.keys(filters).map(
+            Object.keys(params)
+            .filter( k => this.table.getField(k) !== undefined )
+            .map(
                 k => this.table.getField(k)!.eq(params[k])
             ),
             this._dal.db!

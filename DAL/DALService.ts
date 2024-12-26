@@ -5,6 +5,7 @@ import { User } from "./entities/user";
 import { GroupTable, ProblemTable, UserTable, WallTable } from "./tables/tables";
 import { Image, ImageSourcePropType } from "react-native";
 import * as FileSystem from 'expo-file-system';
+import * as ImageManipulator from "expo-image-manipulator";
 import uuid from "react-native-uuid";
 import { GroupDAL } from "./dals/group";
 import { UserDAL } from "./dals/user";
@@ -12,8 +13,9 @@ import { WallDAL } from "./dals/wall";
 import { ProblemDAL } from "./dals/problem";
 import { Firestore } from "firebase/firestore";
 import { Auth, NextOrObserver, User as AuthUser } from "firebase/auth";
-import db, { auth } from "../firebaseConfig"
+import { auth, app, db } from "../firebaseConfig"
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
+import { RemoteStorage } from "./remoteStorage";
 
 
 class DalService {
@@ -28,6 +30,7 @@ class DalService {
     private _wallDal?: WallDAL;
     private _problemDal?: ProblemDAL;
     private _groupDal?: GroupDAL;
+    private _remoteStorage?: RemoteStorage;
 
     private _currentUser?: User;
 
@@ -45,10 +48,10 @@ class DalService {
             return DalService._instance;
         }
         this._userDal = new UserDAL(this, UserTable);
-        this._wallDal = new WallDAL(this, WallTable);
+        this._wallDal = new WallDAL(this, WallTable, "wall");
         this._problemDal = new ProblemDAL(this, ProblemTable);
         this._groupDal = new GroupDAL(this, GroupTable);
-
+        this._remoteStorage = new RemoteStorage(app);
         DalService._instance = this;
     }
 
@@ -103,6 +106,14 @@ class DalService {
         return localFileName;
     }
 
+    public async compressImage(uri: string): Promise<string> {
+        const compressed = await ImageManipulator.manipulateAsync(uri, [], 
+            {compress: 0.0, format: ImageManipulator.SaveFormat.JPEG}
+        );
+        
+        return compressed.uri;
+    }
+
     public async signin(email: string, password: string) {
         await signInWithEmailAndPassword(this._remoteAuth, email, password);
     }
@@ -132,6 +143,10 @@ class DalService {
 
     public get isLogin() {
         return !!this._remoteAuth.currentUser
+    }
+
+    public get remoteStorage(): RemoteStorage {
+        return this._remoteStorage!;
     }
 
 }
