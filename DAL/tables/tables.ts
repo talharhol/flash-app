@@ -11,8 +11,9 @@ import { Group } from "../entities/group";
 import { Entity } from "../entities/BaseEntity";
 
 function convertToLocalImage(image: ImageSourcePropType): string {
-    let localFileName = FileSystem.documentDirectory + `${uuid.v4() as string}.png`;
     const imageSrc = Image.resolveAssetSource(image);
+    if (imageSrc.uri.startsWith(FileSystem.documentDirectory!)) return imageSrc.uri;
+    let localFileName = FileSystem.documentDirectory + `${uuid.v4() as string}.png`;
     if (imageSrc.uri.startsWith("http")) {
         FileSystem.downloadAsync(
             imageSrc.uri,

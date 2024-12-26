@@ -2,6 +2,7 @@ import { Image, ImageResolvedAssetSource, ImageSourcePropType } from "react-nati
 import { HoldInterface } from "../hold";
 import { Entity, EntityProps } from "./BaseEntity";
 
+
 export type WallProps = EntityProps & { name: string, gym: string, image: ImageSourcePropType, angle?: number, configuredHolds?: { svgPath: string; id: string }[], isPublic?: boolean, owner: string }
 
 export class Wall extends Entity {
@@ -31,7 +32,7 @@ export class Wall extends Entity {
             gym: this.gym,
             image: this.image,
             angle: this.angle || -1,
-            configuredHolds: this.configuredHolds,
+            configuredHolds: this.configuredHolds.map(hold => { return {...hold}}),
             owner: this.owner,
         }
     }

@@ -1,8 +1,8 @@
 import uuid from "react-native-uuid";
 import { IDAL } from "../IDAL";
 import { BaseTable } from "../tables/BaseTable";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore"; 
-import { Image, ImageResolvedAssetSource } from "react-native";
+import { collection, serverTimestamp, updateDoc, setDoc, doc } from "firebase/firestore"; 
+import { ImageResolvedAssetSource } from "react-native";
 
 
 export type EntityProps = {[key: string]: any} & { id?: string, dal?: IDAL };
@@ -73,17 +73,39 @@ export class Entity {
         let dal = this.getDAL();
         try {
             let remoteDoc = this.uploadAssets(this.toRemoteDoc());
-            await addDoc(
-                collection(dal.remoteDB, collectionName), 
+            await setDoc(
+                doc(dal.remoteDB, collectionName, this.id), 
                 {
                     "updated_at": serverTimestamp(),
                     ...remoteDoc
                 }
-            )
+            );
         }
         catch (e) {
             console.log(e);
             alert("failed to push to server");
+        }
+    }
+
+    public async updateInRemote(collectionName: string): Promise<void> {
+        let dal = this.getDAL();
+        try {
+            let remoteDoc = this.toRemoteDoc();
+            console.log(remoteDoc);
+            Object.keys(remoteDoc).map(k => {
+                if (k === "image") delete remoteDoc[k]; // remove image data from updating
+            });
+            await updateDoc(
+                doc(dal.remoteDB, collectionName, this.id), 
+                {
+                    "updated_at": serverTimestamp(),
+                    ...remoteDoc
+                }
+            );
+        }
+        catch (e) {
+            console.log(e);
+            alert("failed to push update to server");
         }
     }
 

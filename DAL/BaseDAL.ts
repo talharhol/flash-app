@@ -38,6 +38,7 @@ export class BaseDAL<
                 this.table.getField("id")!.eq(obj.id)
             ], data, this._dal.db!
         )
+        if (!!this.remoteCollection) obj.updateInRemote(this.remoteCollection);
         return this._objects[obj.id] = obj;
     }
 
