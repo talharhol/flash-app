@@ -30,10 +30,16 @@ export class Wall extends Entity {
             ...super.toRemoteDoc(),
             name: this.name,
             gym: this.gym,
-            image: this.image,
             angle: this.angle || -1,
             configuredHolds: this.configuredHolds.map(hold => { return {...hold}}),
             owner: this.owner,
+        }
+    }
+
+    protected async uploadAssets(data: { [key: string]: any }): Promise<{ [key: string]: any }> {
+        return {
+            ...data,
+            image: this.uploadImage(this.image),
         }
     }
 

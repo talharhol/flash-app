@@ -16,6 +16,7 @@ import { Auth, NextOrObserver, User as AuthUser } from "firebase/auth";
 import { auth, app, db } from "../firebaseConfig"
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
 import { RemoteStorage } from "./remoteStorage";
+import { collection, query, where, getDocs, Timestamp } from "firebase/firestore";
 
 
 class DalService {
@@ -34,13 +35,31 @@ class DalService {
 
     private _currentUser?: User;
 
-    public connect() {
-        return SQLite.openDatabaseAsync('flashLocalDB.db').then(
-            db => {
-                db.execAsync("PRAGMA foreign_keys = ON").catch(console.log);
-                this._db = db;                
-            }
-        ).then(() => this.connected = true).catch(alert);
+    private async loadUpdates() {
+        let last = Timestamp.fromMillis(0);
+        while (true) {
+            console.log("Running...");
+            const q = query(collection(db, "wall"), where("updated_at", ">=", last )); 
+            let docs = await getDocs(q);
+            docs.forEach(console.log);
+            last = Timestamp.now();
+            await new Promise(resolve => setTimeout(resolve, 10000)); 
+          }
+        
+    }
+
+    public async connect() {
+        try {
+            let db = await SQLite.openDatabaseAsync('flashLocalDB.db');
+            await db.execAsync("PRAGMA foreign_keys = ON").catch(console.log);
+            this._db = db;                
+            this.connected = true;
+            this.loadUpdates().catch(console.log);
+        }
+        catch (e) {
+            console.log(e);
+        }
+        
     }
 
     constructor() {

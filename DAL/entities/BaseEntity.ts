@@ -60,13 +60,7 @@ export class Entity {
     }
 
     protected async uploadAssets(data: { [key: string]: any }): Promise<{ [key: string]: any }> {
-        Object.keys(data).map(async k => {
-            if (k === "image") {
-                data[k] = await this.uploadImage(data[k]);
-            }
-        });
-        
-        return data;
+        return data
     }
 
     public async addToRemote(collectionName: string): Promise<void> {
@@ -91,10 +85,6 @@ export class Entity {
         let dal = this.getDAL();
         try {
             let remoteDoc = this.toRemoteDoc();
-            console.log(remoteDoc);
-            Object.keys(remoteDoc).map(k => {
-                if (k === "image") delete remoteDoc[k]; // remove image data from updating
-            });
             await updateDoc(
                 doc(dal.remoteDB, collectionName, this.id), 
                 {
