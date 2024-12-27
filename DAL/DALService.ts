@@ -43,7 +43,7 @@ class DalService {
             let docs = await getDocs(q);
             docs.forEach(console.log);
             last = Timestamp.now();
-            await new Promise(resolve => setTimeout(resolve, 10000)); 
+            await new Promise(resolve => setTimeout(resolve, 300 * 1000)); 
           }
         
     }
@@ -68,8 +68,8 @@ class DalService {
         }
         this._userDal = new UserDAL(this, UserTable);
         this._wallDal = new WallDAL(this, WallTable, "wall");
-        this._problemDal = new ProblemDAL(this, ProblemTable);
-        this._groupDal = new GroupDAL(this, GroupTable);
+        this._problemDal = new ProblemDAL(this, ProblemTable, "problem");
+        this._groupDal = new GroupDAL(this, GroupTable, "group");
         this._remoteStorage = new RemoteStorage(app);
         DalService._instance = this;
     }

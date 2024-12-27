@@ -39,12 +39,17 @@ export class Wall extends Entity {
     protected async uploadAssets(data: { [key: string]: any }): Promise<{ [key: string]: any }> {
         return {
             ...data,
-            image: this.uploadImage(this.image),
+            image: await this.uploadImage(this.image),
         }
     }
 
+    public shouldPushToRemote(): boolean {
+        let isBelongsToGroup = (this.owner === this.gym && this.name === "Anonimus");
+        return this.isPublic || isBelongsToGroup
+    }
+
     public async addToRemote(collectionName: string): Promise<void> {
-        if (!this.isPublic) return;
+        if (!this.shouldPushToRemote()) return;
         return super.addToRemote(collectionName);
     }
 

@@ -16,11 +16,19 @@ export class BaseDAL<
         this.remoteCollection = remoteCollection;
     }
 
+    public async AddToLocal(obj: ObjType): Promise<void> {
+        await this.table.insert(obj.toTable(this.table), this._dal.db!).catch(console.log);
+    }
+
+    public async AddToRemote(obj: ObjType): Promise<void> {
+        if (!!this.remoteCollection) obj.addToRemote(this.remoteCollection);
+    }
+
     public async Add(obj: ObjType): Promise<ObjType> {
         obj.setDAL(this._dal);
         this._objects[obj.id] = obj;
-        await this.table.insert(obj.toTable(this.table), this._dal.db!).catch(console.log);
-        if (!!this.remoteCollection) obj.addToRemote(this.remoteCollection);
+        await this.AddToLocal(obj);
+        await this.AddToRemote(obj);
         return obj;
     }
 

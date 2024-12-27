@@ -1,4 +1,4 @@
-import { ImageSourcePropType } from "react-native";
+import { ImageResolvedAssetSource, ImageSourcePropType, Image } from "react-native";
 import { Entity, EntityProps } from "./BaseEntity";
 import { Problem, ProblemFilter } from "./problem";
 import { Wall } from "./wall";
@@ -7,7 +7,7 @@ export type GroupProps = EntityProps & {name: string, image: ImageSourcePropType
 
 export class Group extends Entity {
     name: string;
-    image: ImageSourcePropType;
+    image: ImageResolvedAssetSource;
     members: string[];
     admins: string[];
     walls: string[];
@@ -17,7 +17,7 @@ export class Group extends Entity {
     constructor({ name, image, members, admins, walls, problems, ...props }: EntityProps) {
         super(props);
         this.name = name;
-        this.image = image;
+        this.image = Image.resolveAssetSource(image);
         this.members = members || [];
         this.admins = admins || [];
         this.walls = walls || [];
@@ -26,12 +26,29 @@ export class Group extends Entity {
         this.publicWalls = undefined;
     }
 
+    protected async uploadAssets(data: { [key: string]: any }): Promise<{ [key: string]: any }> {
+        return {
+            ...data,
+            image: await this.uploadImage(this.image),
+        };
+    }
+
+    public toRemoteDoc(): { [key: string]: any} {
+        return {
+            ...super.toRemoteDoc(),
+            name: this.name,
+            members: this.members,
+            admins: this.admins,
+            walls: this.walls,
+            problems: this.problems,
+        }
+    }
+
     public getMembers() {
         if (this.dal === undefined) {
             return [];
         } 
-            return this.members.map(uid => this.dal!.users.Get({id: uid}));
-        
+        return this.members.map(uid => this.dal!.users.Get({id: uid}));
     }
 
     public getDescription(): string {

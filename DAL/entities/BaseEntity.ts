@@ -66,7 +66,7 @@ export class Entity {
     public async addToRemote(collectionName: string): Promise<void> {
         let dal = this.getDAL();
         try {
-            let remoteDoc = this.uploadAssets(this.toRemoteDoc());
+            let remoteDoc = await this.uploadAssets(this.toRemoteDoc());
             await setDoc(
                 doc(dal.remoteDB, collectionName, this.id), 
                 {

@@ -1,5 +1,6 @@
 import { HoldInterface } from "../hold";
 import { Entity, EntityProps } from "./BaseEntity";
+import { Wall } from "./wall";
 
 export type ProblemProps = EntityProps &  { name: string, wallId: string, grade: number, holds: HoldInterface[], setter: string, isPublic?: boolean};
 
@@ -18,6 +19,27 @@ export class Problem extends Entity {
         this.holds = holds;
         this.setter = setter;
         this.isPublic = isPublic ?? true;
+    }
+
+    public toRemoteDoc(): { [key: string]: any} {
+        return {
+            ...super.toRemoteDoc(),
+            name: this.name,
+            wallId: this.wallId,
+            grade: this.grade,
+            holds: this.holds.map(h => {return {...h}}),
+            setter: this.setter,
+            isPublic: this.isPublic,
+        }
+    }
+
+    public async addToRemote(collectionName: string): Promise<void> {
+        if (!this.wall.shouldPushToRemote()) return;
+        return super.addToRemote(collectionName);
+    } 
+
+    get wall(): Wall {
+        return this.dal!.walls.Get({id: this.wallId})
     }
 };
 
