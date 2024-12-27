@@ -1,15 +1,15 @@
-import { ImageSourcePropType } from "react-native";
+import { ImageSourcePropType, Image } from "react-native";
 import { Entity, EntityProps } from "./BaseEntity";
 
-export type UserProps = EntityProps & {name: string, image: ImageSourcePropType }
+export type UserProps = EntityProps & {name: string, image?: ImageSourcePropType }
 
 export class User extends Entity {
     name: string;
-    image: ImageSourcePropType;
+    private _image?: ImageSourcePropType;
     constructor({ name, image, ...props }: UserProps) {
         super(props)
         this.name = name;
-        this.image = image;
+        this._image = image;
     }
 
     public get groups() {
@@ -38,5 +38,26 @@ export class User extends Entity {
 
     public removeGroup(id: string) {
         return this.dal!.users.RemoveGroup({group_id: id, user_id: this.id});
+    }
+
+    get image(): ImageSourcePropType {
+        return this._image || require("../../assets/images/climber.png")
+    }
+
+    protected async uploadAssets(data: { [key: string]: any }): Promise<{ [key: string]: any }> {
+        let image = {};
+        if (!!this._image) image = await this.uploadImage(Image.resolveAssetSource(this._image));
+        
+        return {
+            ...data,
+            image: image,
+        };
+    }
+
+    public toRemoteDoc(): { [key: string]: any} {
+        return {
+            ...super.toRemoteDoc(),
+            name: this.name,
+        }
     }
 };

@@ -38,10 +38,10 @@ class DalService {
     private async loadUpdates() {
         let last = Timestamp.fromMillis(0);
         while (true) {
-            console.log("Running...");
-            const q = query(collection(db, "wall"), where("updated_at", ">=", last )); 
-            let docs = await getDocs(q);
-            docs.forEach(console.log);
+            // console.log("Running...");
+            // const q = query(collection(db, "wall"), where("updated_at", ">=", last )); 
+            // let docs = await getDocs(q);
+            // docs.forEach(console.log);
             last = Timestamp.now();
             await new Promise(resolve => setTimeout(resolve, 300 * 1000)); 
           }
@@ -66,7 +66,7 @@ class DalService {
         if (!!DalService._instance) {
             return DalService._instance;
         }
-        this._userDal = new UserDAL(this, UserTable);
+        this._userDal = new UserDAL(this, UserTable, "user");
         this._wallDal = new WallDAL(this, WallTable, "wall");
         this._problemDal = new ProblemDAL(this, ProblemTable, "problem");
         this._groupDal = new GroupDAL(this, GroupTable, "group");
@@ -93,12 +93,17 @@ class DalService {
 
     public get currentUser() {
         if (this._currentUser) return this._currentUser;
-        
-        let user = this.users.List({})[0];
+        if (!this.isLogin) {
+            let user = new User({name: "tmp"});
+            user.setDAL(this);
+            return user;
+        }
+
+        let user = this.users.List({id: this._remoteAuth.currentUser!.uid})[0];
         if (user === undefined) {
             user = new User({
-                name: "testing",
-                image: require("../assets/images/climber.png")
+                id: this._remoteAuth.currentUser!.uid,
+                name: this._remoteAuth.currentUser!.email || "User"
             });
             this.users.Add(user);
         }

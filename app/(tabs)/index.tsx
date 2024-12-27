@@ -1,3 +1,3 @@
-import MyWalssScreen from "@/components/screens/MyWallsScreen/MyWallsScreen";
+import MyWallsScreen from "@/components/screens/MyWallsScreen/MyWallsScreen";
 
-export default MyWalssScreen;
+export default MyWallsScreen;

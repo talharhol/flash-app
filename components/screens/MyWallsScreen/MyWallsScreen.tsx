@@ -11,7 +11,7 @@ import BasicButton from '@/components/general/Buttom';
 import SwipablePreviewItem from '@/components/general/SwipeablePreviewItem';
 import { useDal } from '@/DAL/DALService';
 
-const MyWalssScreen: React.FC = () => {
+const MyWallsScreen: React.FC = () => {
     const dal = useDal();
     const router = useRouter();
     const [wallToRemove, setWallToRemove] = useState<Wall | null>(null);
@@ -124,4 +124,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default MyWalssScreen;
+export default MyWallsScreen;

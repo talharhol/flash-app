@@ -29,6 +29,26 @@ function convertToLocalImage(image: ImageSourcePropType): string {
     return localFileName;
 }
 
+function optionalConvertToLocalImage(image?: ImageSourcePropType): string | undefined {
+    if (!image) return undefined;
+    const imageSrc = Image.resolveAssetSource(image);
+    if (imageSrc.uri.startsWith(FileSystem.documentDirectory!)) return imageSrc.uri;
+    let localFileName = FileSystem.documentDirectory + `${uuid.v4() as string}.png`;
+    if (imageSrc.uri.startsWith("http")) {
+        FileSystem.downloadAsync(
+            imageSrc.uri,
+            localFileName
+        ).catch(alert);
+    } else {
+        FileSystem.copyAsync({
+            from: imageSrc.uri,
+            to: localFileName
+        }).catch(alert);
+    }
+
+    return localFileName;
+}
+
 
 export class UserTable extends BaseTable {
     public static entity: typeof Entity = User;
@@ -38,9 +58,10 @@ export class UserTable extends BaseTable {
         new Field({ name: "name", type: "TEXT", notNull: true }),
         new Field(
             {
-                name: "image", type: "TEXT", notNull: true,
-                dumper: convertToLocalImage,
+                name: "image", type: "TEXT",
+                dumper: optionalConvertToLocalImage,
                 loader: (image) => {
+                    if (!image) return undefined;
                     return {
                         uri: image
                     }

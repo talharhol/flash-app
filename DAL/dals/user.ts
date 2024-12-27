@@ -5,12 +5,7 @@ import { BaseDAL } from "../BaseDAL";
 
 
 export class UserDAL extends BaseDAL<User> {
-
-    public async Add(obj: User): Promise<User> {
-        return await super.Add(obj);
-    }
-
-    public List(params: { groupId?: string }): User[] {
+    public List(params: { groupId?: string } & { [ket: string]: any }): User[] {
         let query = UserTable.query();
         if (params.groupId !== undefined) {
             query = query.Join(
@@ -20,6 +15,14 @@ export class UserDAL extends BaseDAL<User> {
                 GroupMemberTable.getField("group_id")!.eq(params.groupId)
             );
         }
+        delete params.groupId;
+         Object.keys(params)
+         .filter(k => params[k] !== undefined)
+         .map(
+            k => {
+                    query.Filter(this.table.getField(k)!.eq(params[k]));
+                }
+            )
         let results = query.All<{ [key: string]: any; }>(this._dal.db!);
         return results.map(r => {
             let entity = UserTable.toEntity(r, User);
