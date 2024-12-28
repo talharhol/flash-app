@@ -61,4 +61,18 @@ export class Wall extends Entity {
     get walls(): Wall[] {
         return this.dal!.users.GetWalls({user_id: this.id});
     }
+    public static fromRemoteDoc(data: {[key: string]: any}, old?: Wall): Entity {
+        let image = {uri: data.image.commpressed};
+        if (!!old) image = old.image;
+        return new this({
+            id: data.id,
+            name: data.name,
+            gym: data.gym,
+            angle: data.angle ?? -1,
+            configuredHolds: data.configuredHolds,
+            owner: data.owner,
+            isPublic: data.isPublic,
+            image: image
+        });
+    }
 };

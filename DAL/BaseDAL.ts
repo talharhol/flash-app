@@ -110,8 +110,8 @@ export class BaseDAL<
         let docs = await getDocs(q);
         docs.forEach(
             doc => {
-                let entityObj = this.table.entity.fromRemoteDoc(doc);
-                let existingEntity = this.List({id: entityObj.id})[0];
+                let existingEntity = this.List({id: doc.id})[0];
+                let entityObj = this.table.entity.fromRemoteDoc(doc, existingEntity);
                 if (existingEntity !== undefined)
                     this.UpdateLocal(entityObj as ObjType);
                 else 

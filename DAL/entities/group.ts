@@ -90,4 +90,18 @@ export class Group extends Entity {
         }
         return this.publicWalls;
     }
+
+    public static fromRemoteDoc(data: {[key: string]: any}, old?: Wall): Entity {
+        let image = {uri: data.image.commpressed};
+        if (!!old) image = old.image;
+        return new this({
+            id: data.id,
+            name: data.name,
+            members: data.members,
+            admins: data.admins,
+            walls: data.walls,
+            problems: data.problems,
+            image: image
+        });
+    }
 };

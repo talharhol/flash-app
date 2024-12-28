@@ -135,7 +135,7 @@ class DalService {
 
     public async compressImage(uri: string): Promise<string> {
         const compressed = await ImageManipulator.manipulateAsync(uri, [], 
-            {compress: 0.0, format: ImageManipulator.SaveFormat.JPEG}
+            {compress: 0.1, format: ImageManipulator.SaveFormat.JPEG}
         );
         
         return compressed.uri;

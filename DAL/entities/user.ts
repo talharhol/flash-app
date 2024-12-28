@@ -5,7 +5,7 @@ export type UserProps = EntityProps & {name: string, image?: ImageSourcePropType
 
 export class User extends Entity {
     name: string;
-    private _image?: ImageSourcePropType;
+    protected _image?: ImageSourcePropType;
     constructor({ name, image, ...props }: UserProps) {
         super(props)
         this.name = name;
@@ -59,5 +59,16 @@ export class User extends Entity {
             ...super.toRemoteDoc(),
             name: this.name,
         }
+    }
+
+    public static fromRemoteDoc(data: {[key: string]: any}, old?: User): Entity {
+        let image = undefined;
+        if (!!data.image.commpressed) image = {uri: data.image.commpressed}
+        if (!!old) image = old._image ?? image;
+        return new this({
+            id: data.id,
+            name: data.name,
+            image: image
+        });
     }
 };

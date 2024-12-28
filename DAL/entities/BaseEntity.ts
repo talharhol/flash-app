@@ -99,7 +99,7 @@ export class Entity {
         }
     }
 
-    public static fromRemoteDoc(data: {[key: string]: any}): Entity {
+    public static fromRemoteDoc(data: {[key: string]: any}, old?: Entity): Entity {
         return new this(data);
     }
 
