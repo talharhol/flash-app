@@ -12,7 +12,7 @@ export class Entity {
     protected dal?: IDAL;
 
     constructor(data: EntityProps) {
-        this.id = data.id || uuid.v4() as string;
+        this.id = data.id ?? uuid.v4() as string;
         this.dal = data.dal;
     }
 
@@ -38,7 +38,7 @@ export class Entity {
     }
 
     public toRemoteDoc(): { [key: string]: any } {
-        return { "id": this.id };
+        return { "id": this.id, "isPublic": true };
     }
 
     protected async uploadImage(image: ImageResolvedAssetSource): Promise<{ commpressed: string, full: string }> {
@@ -97,6 +97,10 @@ export class Entity {
             console.log(e);
             alert("failed to push update to server");
         }
+    }
+
+    public static fromRemoteDoc(data: {[key: string]: any}): Entity {
+        return new this(data);
     }
 
 };

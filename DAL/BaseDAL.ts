@@ -1,6 +1,7 @@
 import { IDAL } from "./IDAL";
 import { BaseTable } from "./tables/BaseTable";
 import { Entity } from "./entities/BaseEntity";
+import { collection, query, where, getDocs, Timestamp } from "firebase/firestore";
 
 export class BaseDAL<
     ObjType extends Entity
@@ -36,8 +37,7 @@ export class BaseDAL<
         await this.table.delete([this.table.getField("id")!.eq(obj.id)], this._dal.db!)
         delete this._objects[obj.id];
     }
-
-    public async Update(obj: ObjType): Promise<ObjType> {
+    public async UpdateLocal(obj: ObjType): Promise<void> {
         let data = obj.toTable(this.table);
         delete data.id; // we never want to update the id
         data.updated_at = undefined // in order to update this field to the default value (Date.now)
@@ -46,7 +46,15 @@ export class BaseDAL<
                 this.table.getField("id")!.eq(obj.id)
             ], data, this._dal.db!
         )
-        if (!!this.remoteCollection) obj.updateInRemote(this.remoteCollection);
+    }
+    
+    public async UpdateRemote(obj: ObjType): Promise<void> {
+        if (!!this.remoteCollection) await obj.updateInRemote(this.remoteCollection);
+    }
+
+    public async Update(obj: ObjType): Promise<ObjType> {
+        await this.UpdateLocal(obj);
+        this.UpdateRemote(obj);
         return this._objects[obj.id] = obj;
     }
 
@@ -89,6 +97,26 @@ export class BaseDAL<
                 k => this.table.getField(k)!.eq(params[k])
             ),
             this._dal.db!
+        );
+    }
+
+    public async FetchFromRemote(since: Timestamp): Promise<void> {
+        if (!this.remoteCollection) return;
+        const q = query(
+            collection(this._dal.remoteDB, this.remoteCollection), 
+            where("updated_at", ">=", since ),
+            where("isPublic", "==", true ),
+        ); 
+        let docs = await getDocs(q);
+        docs.forEach(
+            doc => {
+                let entityObj = this.table.entity.fromRemoteDoc(doc);
+                let existingEntity = this.List({id: entityObj.id})[0];
+                if (existingEntity !== undefined)
+                    this.UpdateLocal(entityObj as ObjType);
+                else 
+                    this.AddToLocal(entityObj as ObjType);
+            }
         );
     }
 }

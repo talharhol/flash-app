@@ -37,10 +37,10 @@ export class Hold {
     svgPath: string;
     length: number;
     constructor({ id, svgPath, color, length }: { svgPath: string, id?: string; color?: string, length?: number}) {
-        this.id = id || uuid.v4() as string;
-        this.color = color || holdTypeToHoldColor[HoldTypes.route];
+        this.id = id ?? uuid.v4() as string;
+        this.color = color ?? holdTypeToHoldColor[HoldTypes.route];
         this.svgPath = svgPath;
-        this.length = length || new svgPathProperties(svgPath).getTotalLength();
+        this.length = length ?? new svgPathProperties(svgPath).getTotalLength();
     }
 };
 
@@ -52,8 +52,8 @@ export interface HoldInterface {
 }
 
 export const SortHolds = (hold1: HoldInterface, hold2: HoldInterface) => {
-    hold1.length = hold1.length || new svgPathProperties(hold1.svgPath).getTotalLength()
-    hold2.length = hold2.length || new svgPathProperties(hold2.svgPath).getTotalLength()
+    hold1.length = hold1.length ?? new svgPathProperties(hold1.svgPath).getTotalLength()
+    hold2.length = hold2.length ?? new svgPathProperties(hold2.svgPath).getTotalLength()
     if (hold1.length > hold2.length)
         return -1
     if (hold1.length === hold2.length)

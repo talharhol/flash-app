@@ -37,12 +37,15 @@ class DalService {
 
     private async loadUpdates() {
         let last = Timestamp.fromMillis(0);
+        let cur = Timestamp.now();
         while (true) {
-            // console.log("Running...");
-            // const q = query(collection(db, "wall"), where("updated_at", ">=", last )); 
-            // let docs = await getDocs(q);
-            // docs.forEach(console.log);
-            last = Timestamp.now();
+            console.log("Running...");
+            cur = Timestamp.now();
+            // await this.users.FetchFromRemote(last);
+            // await this.walls.FetchFromRemote(last);
+            // await this.problems.FetchFromRemote(last);
+            // await this.groups.FetchFromRemote(last);
+            last = cur;
             await new Promise(resolve => setTimeout(resolve, 300 * 1000)); 
           }
         

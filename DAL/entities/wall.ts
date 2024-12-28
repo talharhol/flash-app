@@ -21,7 +21,7 @@ export class Wall extends Entity {
         this.image = Image.resolveAssetSource(image);
         this.angle = angle;
         this.configuredHolds = configuredHolds || [];
-        this.isPublic = isPublic || false;
+        this.isPublic = isPublic ?? false;
         this.owner = owner
     }
 
@@ -30,9 +30,10 @@ export class Wall extends Entity {
             ...super.toRemoteDoc(),
             name: this.name,
             gym: this.gym,
-            angle: this.angle || -1,
+            angle: this.angle ?? -1,
             configuredHolds: this.configuredHolds.map(hold => { return {...hold}}),
             owner: this.owner,
+            isPublic: this.isPublic
         }
     }
 

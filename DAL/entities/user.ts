@@ -41,7 +41,7 @@ export class User extends Entity {
     }
 
     get image(): ImageSourcePropType {
-        return this._image || require("../../assets/images/climber.png")
+        return this._image ?? require("../../assets/images/climber.png")
     }
 
     protected async uploadAssets(data: { [key: string]: any }): Promise<{ [key: string]: any }> {
