@@ -109,7 +109,13 @@ class DalService {
                 id: this._remoteAuth.currentUser!.uid,
                 name: this._remoteAuth.currentUser!.email || "User"
             });
-            this.users.Add(user);
+            this.users.AddToLocal(user);
+            this.users.FetchSingleDoc(user.id).then(data => {
+                if (!data) {
+                    console.log("adding user to remote");
+                    this.users.AddToRemote(user).then(_ => console.log("added!"));
+                } 
+            });
         }
         user.setDAL(this);
         this._currentUser = user;

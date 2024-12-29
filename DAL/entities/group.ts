@@ -78,6 +78,16 @@ export class Group extends Entity {
         this.dal!.groups.UpdateRemote(this);
     }
 
+    public async AddMember(params: {user_id: string, role?: string}): Promise<void> {
+        this.members.push(params.user_id);
+        if (params.role === "admin") this.admins.push(params.user_id);
+        await this.dal!.groups.AddMember({
+            ...params,
+            group_id: this.id,
+        });
+        this.dal!.groups.UpdateRemote(this);
+    }
+
     public FilterProblems( params: ProblemFilter ): Problem[] {
         return this.dal!.problems.List({groupId: this.id, ...params})
     }
