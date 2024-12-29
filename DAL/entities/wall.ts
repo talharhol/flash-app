@@ -21,7 +21,7 @@ export class Wall extends Entity {
         this.image = Image.resolveAssetSource(image);
         this.angle = angle;
         this.configuredHolds = configuredHolds || [];
-        this.isPublic = isPublic ?? false;
+        this.isPublic = Boolean(isPublic ?? false);
         this.owner = owner
     }
 
@@ -71,8 +71,18 @@ export class Wall extends Entity {
             angle: data.angle >= 0 ? data.angle : undefined,
             configuredHolds: data.configuredHolds,
             owner: data.owner,
-            isPublic: data.isPublic,
+            isPublic: Boolean(data.isPublic),
             image: image
         });
+    };
+
+    public async fetchFullImage(): Promise<void> {
+        let remote = await this.dal!.walls.FetchSingleDoc(this.id);
+        this.image = Image.resolveAssetSource(
+            { 
+                uri: await this.dal!.convertToLocalImage({uri: remote.image.full})
+            }
+        );
+        await this.dal!.walls.Update(this);
     }
 };

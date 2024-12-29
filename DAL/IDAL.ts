@@ -18,7 +18,7 @@ export interface IDAL {
     groups: GroupDAL;
 
     currentUser: User;
-    convertToLocalImage(image: ImageSourcePropType): string;
+    convertToLocalImage(image: ImageSourcePropType, localFileName?: string): Promise<string>;
     db: SQLiteDatabase | null;
     remoteDB: Firestore;
     remoteStorage: RemoteStorage;

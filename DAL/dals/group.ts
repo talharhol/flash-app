@@ -2,6 +2,7 @@ import { Group } from "../entities/group";
 import { BaseDAL } from "../BaseDAL";
 import { GroupMemberTable, GroupProblemTable, GroupTable, GroupWallTable, WallTable } from "../tables/tables";
 import { Wall } from "../entities/wall";
+import { collection, query, where, getDocs, Timestamp, getDoc, doc } from "firebase/firestore";
 
 export class GroupDAL extends BaseDAL<Group> {
     public async AddProblem(params: { problem_id: string, group_id: string }): Promise<void> {
@@ -18,24 +19,38 @@ export class GroupDAL extends BaseDAL<Group> {
         }, this._dal.db!).catch(console.log);
     }
 
-    public List(params: { userId: string }): Group[] {
-        let groups = GroupMemberTable.getAll<{ group_id: string }>(...GroupMemberTable.filter(
-            [
-                GroupMemberTable.getField("user_id")!.eq(params.userId),
-            ],
-            [GroupMemberTable.getField("group_id")!]
-        ), this._dal.db!);
-        return groups.map(g => this.Get({ id: g.group_id }));
+    public List({userId, ...params}: { userId?: string } & { [ket: string]: any }): Group[] {
+        let query = this.table.query();
+        Object.keys(params)
+         .filter(k => params[k] !== undefined)
+         .map(
+            k => {
+                    query.Filter(this.table.getField(k)!.eq(params[k]));
+                }
+            )
+        if (userId !== undefined) {
+            query.Join(
+                GroupMemberTable, 
+                GroupMemberTable.getField("group_id")!.eq(this.table.getField("id")!)
+            ).Filter(
+                GroupMemberTable.getField("user_id")!.eq(userId)
+            )
+        }
+        let results = query.All<{ [key: string]: any; }>(this._dal.db!);
+        return results.map(r => {
+            let entity = this.table.toEntity(r);
+            entity.setDAL(this._dal);
+            return entity
+        }) as Group[];
     }
 
-    public async Add(obj: Group): Promise<Group> {
-        await super.Add(obj);
+    public async AddToLocal(obj: Group): Promise<void> {
+        await super.AddToLocal(obj);
         await Promise.all([
             this.AddMembers(obj),
             this.AddWalls(obj),
             this.AddProblems(obj),
         ]);
-        return obj;
     }
 
     private async AddWalls(obj: Group): Promise<void> {
@@ -128,8 +143,8 @@ export class GroupDAL extends BaseDAL<Group> {
         );
     }
 
-    public async Update(obj: Group): Promise<Group> {
-        await super.Update(obj);
+    public async UpdateLocal(obj: Group): Promise<void> {
+        await super.UpdateLocal(obj);
         GroupMemberTable.delete(
             [GroupMemberTable.getField("group_id")!.eq(obj.id)],
             this._dal.db!
@@ -146,6 +161,6 @@ export class GroupDAL extends BaseDAL<Group> {
             this.AddMembers(obj),
             this.AddWalls(obj),
         ]);
-        return obj;
     }
+
 }

@@ -28,8 +28,8 @@ export class User extends Entity {
         return this.dal!.users.GetWalls({user_id: this.id, role: "viewer"})
     }
 
-    public addWall(id: string) {
-        return this.dal!.users.AddWall({wall_id: id, user_id: this.id})
+    public addWall(id: string, role?: string) {
+        return this.dal!.users.AddWall({wall_id: id, user_id: this.id}, role);
     }
 
     public removeWall(id: string) {
@@ -58,6 +58,8 @@ export class User extends Entity {
         return {
             ...super.toRemoteDoc(),
             name: this.name,
+            owenedWalls: this.ownedWalls.map(w => w.id),
+            viewerWalls: this.viewerWalls.map(w => w.id),
         }
     }
 

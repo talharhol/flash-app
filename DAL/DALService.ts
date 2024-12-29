@@ -45,6 +45,7 @@ class DalService {
             await this.walls.FetchFromRemote(last);
             await this.problems.FetchFromRemote(last);
             await this.groups.FetchFromRemote(last);
+            await this.users.FetchUserData();
             last = cur;
             await new Promise(resolve => setTimeout(resolve, 300 * 1000)); 
           }
@@ -115,21 +116,25 @@ class DalService {
         return user;
     }
 
-    public convertToLocalImage(image: ImageSourcePropType): string {
-        let localFileName = FileSystem.documentDirectory + `${uuid.v4() as string}.png`;
+    public async convertToLocalImage(image: ImageSourcePropType, localFileName?: string): Promise<string> {
+        localFileName = FileSystem.documentDirectory + (localFileName ?? `${uuid.v4() as string}.png`);
         const imageSrc = Image.resolveAssetSource(image);
-        if (imageSrc.uri.startsWith("http")) {
-            FileSystem.downloadAsync(
-                imageSrc.uri,
-                localFileName
-            ).catch(alert);
-        } else {
-            FileSystem.copyAsync({
-                from: imageSrc.uri,
-                to: localFileName
-            }).catch(alert);
+        try {
+            if (imageSrc.uri.startsWith("http")) {
+                await FileSystem.downloadAsync(
+                    imageSrc.uri,
+                    localFileName
+                );
+            } else {
+                await FileSystem.copyAsync({
+                    from: imageSrc.uri,
+                    to: localFileName
+                });
+            }
         }
-        
+        catch (e) {
+            console.error("fail to save image to disk", e);
+        }
         return localFileName;
     }
 

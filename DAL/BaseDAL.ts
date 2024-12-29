@@ -1,7 +1,7 @@
 import { IDAL } from "./IDAL";
 import { BaseTable } from "./tables/BaseTable";
 import { Entity } from "./entities/BaseEntity";
-import { collection, query, where, getDocs, Timestamp } from "firebase/firestore";
+import { collection, query, where, getDocs, Timestamp, getDoc, doc } from "firebase/firestore";
 
 export class BaseDAL<
     ObjType extends Entity
@@ -100,6 +100,10 @@ export class BaseDAL<
         );
     }
 
+    public async FetchSingleDoc(id: string): Promise<{[key: string]: any}> {
+        return (await getDoc(doc(this._dal.remoteDB, this.remoteCollection!, id))).data()!;
+    }
+
     public async FetchFromRemote(since: Timestamp): Promise<void> {
         if (!this.remoteCollection) return;
         console.log(`fetching ${this.remoteCollection}`)
@@ -119,5 +123,9 @@ export class BaseDAL<
                     this.AddToLocal(entityObj as ObjType);
             }
         );
+    }
+
+    public dropCache(id: string) {
+        delete this._objects[id];
     }
 }

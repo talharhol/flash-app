@@ -16,7 +16,7 @@ export class UserDAL extends BaseDAL<User> {
             );
         }
         delete params.groupId;
-         Object.keys(params)
+        Object.keys(params)
          .filter(k => params[k] !== undefined)
          .map(
             k => {
@@ -50,7 +50,7 @@ export class UserDAL extends BaseDAL<User> {
         });
     }
 
-    public async AddWall(params: { wall_id: string, user_id: string }): Promise<void> {
+    public async AddWall(params: { wall_id: string, user_id: string }, role?: string): Promise<void> {
         let existing = await UserWallTable.getAll(
             ...UserWallTable.filter(
                 [
@@ -64,8 +64,11 @@ export class UserDAL extends BaseDAL<User> {
             await UserWallTable.insert({
                 wall_id: params.wall_id,
                 user_id: params.user_id,
-                role: "viewer"
+                role: role ?? "viewer"
             }, this._dal.db!);
+            let wall = this._dal.walls.Get({id: params.wall_id});
+            wall.fetchFullImage().catch(console.error);
+        
     }
 
     public async RemoveWall(params: { wall_id: string, user_id: string }): Promise<void> {
@@ -85,5 +88,18 @@ export class UserDAL extends BaseDAL<User> {
             ], this._dal.db!);
     }
 
-
+    public async FetchUserData(): Promise<void> {
+        console.log("fetching user data")
+        let currOwned = this._dal.currentUser.ownedWalls.map(w => w.id);
+        let currViewer = this._dal.currentUser.viewerWalls.map(w => w.id);
+        let remote = await this._dal.users.FetchSingleDoc(this._dal.currentUser.id);
+        remote.owenedWalls.map(async (wallId: string) => {
+            if (currOwned.includes(wallId)) return;
+            await this._dal.currentUser.addWall(wallId, "owner");
+        });
+        remote.viewerWalls.map(async (wallId: string) => {
+            if (currViewer.includes(wallId)) return;
+            await this._dal.currentUser.addWall(wallId);
+        });
+    }
 }
