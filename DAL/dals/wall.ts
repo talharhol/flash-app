@@ -9,10 +9,12 @@ export class WallDAL extends BaseDAL<Wall> {
         name?: string,
         gym?: string,
         userId?: string,
-        ids?: string[]
+        ids?: string[],
+        id?: string
     }): Wall[] {
         let filters = [];
         let selectedIds: string[] = [];
+        if (params.id !== undefined) selectedIds.push(params.id);
         if (params.isPublic) {
             filters.push(
                 WallTable.getField("is_public")!.eq(params.isPublic)
@@ -40,12 +42,11 @@ export class WallDAL extends BaseDAL<Wall> {
             ).map(w => w.wall_id);
             selectedIds = selectedIds.concat(walls);
         }
-        if (params.ids || params.userId) {
+        if (selectedIds.length > 0) {
             filters.push(
                 WallTable.getField("id")!.in(selectedIds)
             );
         }
-
         let results = this.table.getAll<{ [key: string]: any }>(
             ...WallTable.filter(filters), this._dal.db!
         )

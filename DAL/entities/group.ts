@@ -60,18 +60,22 @@ export class Group extends Entity {
         return members.map(u => u.name).join(', ');
     }
 
-    public AddProblem(params: {problem_id: string}) {
-        return this.dal!.groups.AddProblem({
+    public async AddProblem(params: {problem_id: string}): Promise<void> {
+        this.problems.push(params.problem_id);
+        await this.dal!.groups.AddProblem({
             problem_id: params.problem_id,
             group_id: this.id
-        })
+        });
+        this.dal!.groups.UpdateRemote(this);
     }
 
-    public AddWall(params: {wall_id: string}) {
-        return this.dal!.groups.AddWall({
+    public async AddWall(params: {wall_id: string}): Promise<void> {
+        this.walls.push(params.wall_id);
+        await this.dal!.groups.AddWall({
             wall_id: params.wall_id,
             group_id: this.id
-        })
+        });
+        this.dal!.groups.UpdateRemote(this);
     }
 
     public FilterProblems( params: ProblemFilter ): Problem[] {

@@ -5,8 +5,9 @@ import { BaseDAL } from "../BaseDAL";
 
 
 export class ProblemDAL extends BaseDAL<Problem> {
-    public List(params: { wallId?: string, groupId?: string } & ProblemFilter): Problem[] {
+    public List(params: { wallId?: string, groupId?: string, id?: string } & ProblemFilter): Problem[] {
         let filters: Filter[] = [];
+        if (params.id !== undefined) filters.push(ProblemTable.getField("id")!.eq(params.id));
         if (params.minGrade !== undefined) filters.push(ProblemTable.getField("grade")!.ge(params.minGrade));
         if (params.maxGrade !== undefined) filters.push(ProblemTable.getField("grade")!.le(params.maxGrade));
         if (params.name !== undefined) filters.push(ProblemTable.getField("name")!.like(params.name));

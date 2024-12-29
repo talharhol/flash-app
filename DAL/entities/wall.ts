@@ -61,7 +61,7 @@ export class Wall extends Entity {
     get walls(): Wall[] {
         return this.dal!.users.GetWalls({user_id: this.id});
     }
-    public static fromRemoteDoc(data: {[key: string]: any}, old?: Wall): Entity {
+    public static fromRemoteDoc(data: {[key: string]: any}, old?: Wall): Wall {
         let image = {uri: data.image.commpressed};
         if (!!old) image = old.image;
         return new this({
@@ -78,6 +78,7 @@ export class Wall extends Entity {
 
     public async fetchFullImage(): Promise<void> {
         let remote = await this.dal!.walls.FetchSingleDoc(this.id);
+        if (remote === undefined) return;
         this.image = Image.resolveAssetSource(
             { 
                 uri: await this.dal!.convertToLocalImage({uri: remote.image.full})
