@@ -220,12 +220,13 @@ export class GroupDAL extends BaseDAL<Group> {
     }
 
     public async FetchFromRemote(since: Timestamp): Promise<void> {
-        if (!this.remoteCollection) return;
+        if (!this.remoteCollection || !this._dal.isLogin) return;
         console.log(`fetching ${this.remoteCollection}`)
         const q = query(
             collection(this._dal.remoteDB, this.remoteCollection), 
             where("updated_at", ">=", since ),
             where("isPublic", "==", true ),
+            where("members", "array-contains", this._dal.currentUser.id)
         );
         let docs = await getDocs(q);
         docs.forEach(

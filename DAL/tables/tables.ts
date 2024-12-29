@@ -179,3 +179,14 @@ export class UserWallTable extends BaseTable {
         new Field({ name: "wall_id", type: "TEXT", notNull: true, fk: WallTable.getField('id') }),
     ];
 }
+
+
+export class UserConfigTable extends BaseTable {
+    public static tableName: string = "user_config";
+    public static fields: Field[] = [
+        ...BaseTable.getDefaultFields(),
+        new Field({ name: "user_id", type: "TEXT", notNull: true, fk: UserTable.getField('id') }),
+        new Field({ name: "last_pulled", type: "INTEGER", notNull: true, fk: WallTable.getField('id'), default_: () => 0 }),
+        new Field({ name: "should_fetch_user_data", type: "BOOLEAN", notNull: true, fk: WallTable.getField('id'), default_: () => false }),
+    ];
+}

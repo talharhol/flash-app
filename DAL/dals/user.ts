@@ -1,7 +1,8 @@
 import { User } from "../entities/user";
 import { Wall } from "../entities/wall";
-import { GroupMemberTable, UserTable, UserWallTable } from "../tables/tables";
+import { GroupMemberTable, UserConfigTable, UserTable, UserWallTable } from "../tables/tables";
 import { BaseDAL } from "../BaseDAL";
+import { useCallback } from "react";
 
 
 export class UserDAL extends BaseDAL<User> {
@@ -101,5 +102,45 @@ export class UserDAL extends BaseDAL<User> {
             if (currViewer.includes(wallId)) return;
             await this._dal.currentUser.addWall(wallId);
         });
+        this.shouldFetchUserData = false;
+    }
+
+    public async CreateConfig(params: {user_id: string, last_pulled?: number, should_fetch_user_data?: boolean}): Promise<void> {
+        await UserConfigTable.insert(params, this._dal.db!);
+    }
+
+    public get lastPulled(): number {
+        let conig = UserConfigTable.query()
+        .Filter(UserConfigTable.getField("user_id")!.eq(this._dal.currentUser.id))
+        .Select([UserConfigTable.getField("last_pulled")!])
+        .All<{last_pulled: number}>(this._dal.db!)[0];
+
+        if (conig) return conig.last_pulled;
+        return 0;
+    }
+
+    public get shouldFetchUserData(): boolean {
+        let conig = UserConfigTable.query()
+        .Filter(UserConfigTable.getField("user_id")!.eq(this._dal.currentUser.id))
+        .Select([UserConfigTable.getField("should_fetch_user_data")!])
+        .All<{should_fetch_user_data: boolean}>(this._dal.db!)[0];
+        if (conig) return conig.should_fetch_user_data;
+        return false;
+    }
+
+    public set shouldFetchUserData(value: boolean) {
+        UserConfigTable.update(
+            [UserConfigTable.getField("user_id")!.eq(this._dal.currentUser.id)],
+            { should_fetch_user_data: value },
+            this._dal.db!
+        ).catch(console.error);
+    }
+
+    public set lastPulled(value: number) {
+        UserConfigTable.update(
+            [UserConfigTable.getField("user_id")!.eq(this._dal.currentUser.id)],
+            { last_pulled: value },
+            this._dal.db!
+        ).catch(console.error);
     }
 }

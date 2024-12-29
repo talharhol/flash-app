@@ -22,5 +22,6 @@ export interface IDAL {
     db: SQLiteDatabase | null;
     remoteDB: Firestore;
     remoteStorage: RemoteStorage;
+    isLogin: boolean;
     compressImage(uri: string): Promise<string>;
 }

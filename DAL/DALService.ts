@@ -36,8 +36,15 @@ class DalService {
     private _currentUser?: User;
 
     private async loadUpdates() {
-        let last = Timestamp.fromMillis(0);
+        let last = Timestamp.fromMillis(this.users.lastPulled);
         let cur = Timestamp.now();
+        while (true) {
+            if (this.currentUser.name === "tmp") await new Promise(resolve => setTimeout(resolve, 500));
+            else {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                break;
+            }
+        }
         while (true) {
             console.log("Running...");
             cur = Timestamp.now();
@@ -45,8 +52,9 @@ class DalService {
             await this.walls.FetchFromRemote(last);
             await this.problems.FetchFromRemote(last);
             await this.groups.FetchFromRemote(last);
-            await this.users.FetchUserData();
+            if (this.users.shouldFetchUserData) await this.users.FetchUserData();
             last = cur;
+            this.users.lastPulled = last.toMillis();
             await new Promise(resolve => setTimeout(resolve, 300 * 1000)); 
           }
         
@@ -109,16 +117,27 @@ class DalService {
                 id: this._remoteAuth.currentUser!.uid,
                 name: this._remoteAuth.currentUser!.email || "User"
             });
-            this.users.AddToLocal(user);
-            this.users.FetchSingleDoc(user.id).then(data => {
-                if (!data) {
-                    console.log("adding user to remote");
-                    this.users.AddToRemote(user).then(_ => console.log("added!"));
-                } 
-            });
+            user.setDAL(this);
+            this._currentUser = user;
+            this.users.AddToLocal(user).then(
+                _ => {
+                    this.users.CreateConfig(
+                        {user_id: user.id, last_pulled: 0, should_fetch_user_data: true}
+                    ).then(_ => {
+                        this.users.FetchSingleDoc(user.id)
+                        .then(
+                            data => {
+                                if (!data) {
+                                    console.log("adding user to remote");
+                                    this.users.AddToRemote(user).then(_ => console.log("added!"));
+                                } else {
+                                    this.users.shouldFetchUserData = true;
+                                }
+                        })
+                    })
+                }
+            );            
         }
-        user.setDAL(this);
-        this._currentUser = user;
         return user;
     }
 

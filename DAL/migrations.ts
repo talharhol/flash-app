@@ -20,7 +20,7 @@ async function getCurrentVersion(db: SQLite.SQLiteDatabase): Promise<number> {
     let dbResult = await db.getFirstAsync<{ user_version: number }>(
         'PRAGMA user_version'
     );
-    return 0// dbResult!.user_version;
+    return dbResult!.user_version;
 }
 
 
@@ -108,6 +108,16 @@ const migrations = [
                 new Field({ name: "wall_id", type: "TEXT", notNull: true, fk: Wall.getField('id') }),
             ];
         }
+
+        class UserConfigTable extends BaseTable {
+            public static tableName: string = "user_config";
+            public static fields: Field[] = [
+                ...BaseTable.getDefaultFields(),
+                new Field({ name: "user_id", type: "TEXT", notNull: true, fk: User.getField('id') }),
+                new Field({ name: "last_pulled", type: "INTEGER", notNull: true, default_: () => 0 }),
+                new Field({ name: "should_fetch_user_data", type: "BOOLEAN", notNull: true, default_: () => false }),
+            ];
+        }
         
         await db.execAsync(`DROP TABLE IF EXISTS ${User.tableName};`)
         await db.execAsync(`DROP TABLE IF EXISTS ${Wall.tableName};`)
@@ -117,6 +127,7 @@ const migrations = [
         await db.execAsync(`DROP TABLE IF EXISTS ${GroupProblem.tableName};`)
         await db.execAsync(`DROP TABLE IF EXISTS ${GroupWall.tableName};`)
         await db.execAsync(`DROP TABLE IF EXISTS ${UserWall.tableName};`)
+        await db.execAsync(`DROP TABLE IF EXISTS ${UserConfigTable.tableName};`)
         
         await User.createTable(db);
         await Wall.createTable(db);
@@ -126,6 +137,7 @@ const migrations = [
         await GroupWall.createTable(db);
         await GroupProblem.createTable(db);
         await UserWall.createTable(db);
+        await UserConfigTable.createTable(db);
     }
     
 ];
