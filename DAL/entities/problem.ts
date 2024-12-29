@@ -41,23 +41,35 @@ export class Problem extends Entity {
     get wall(): Wall {
         return this.dal!.walls.Get({id: this.wallId})
     }
+
+    public static fromRemoteDoc(data: {[key: string]: any}, old?: Entity): Problem {
+        return new this({
+            id: data.id,
+            name: data.name,
+            wallId: data.wallId,
+            grade: data.grade,
+            holds: data.holds,
+            setter: data.setter,
+            isPublic: data.isPublic
+        })
+    }
 };
 
 export interface ProblemFilter {
-    minGrade: number;
-    maxGrade: number;
-    name: string;
-    setters: string[];
+    minGrade?: number;
+    maxGrade?: number;
+    name?: string;
+    setters?: string[];
     isPublic?: boolean
 }
 
 export function FilterProblems(filter: ProblemFilter) {
     return function filterProblem(problem: Problem) {
         return (
-            problem.grade >= filter.minGrade
-            && problem.grade <= filter.maxGrade
-            && problem.name.includes(filter.name)
-            && (filter.setters.length > 0 ? filter.setters.includes(problem.setter) : true)
+            (filter.minGrade !== undefined ? problem.grade >= filter.minGrade : true)
+            && (filter.maxGrade !== undefined ? problem.grade <= filter.maxGrade : true)
+            && (filter.name !== undefined ? problem.name.includes(filter.name) : true)
+            && (filter.setters !== undefined ? (filter.setters.length > 0 ? filter.setters.includes(problem.setter) : true) : true)
             && (filter.isPublic !== undefined ? problem.isPublic == filter.isPublic : true)
         )
     }

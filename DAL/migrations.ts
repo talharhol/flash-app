@@ -20,7 +20,7 @@ async function getCurrentVersion(db: SQLite.SQLiteDatabase): Promise<number> {
     let dbResult = await db.getFirstAsync<{ user_version: number }>(
         'PRAGMA user_version'
     );
-    return dbResult!.user_version;
+    return 0// dbResult!.user_version;
 }
 
 

@@ -129,7 +129,10 @@ export class Query {
     constructor({ table, selectedFields, filters }: { table: typeof BaseTable, selectedFields?: Field[], filters?: Filter[] }) {
         this.table = table;
         this.selectedFields = selectedFields || [];
-        this.filters = filters || [new Filter({sql: "1 = 1", value: []})];
+        if (filters === undefined || filters.length == 0) 
+            this.filters = [new Filter({sql: "1 = 1", value: []})];
+        else 
+            this.filters = filters;
         this.joins = [];
     }
 

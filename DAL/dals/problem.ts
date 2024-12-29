@@ -6,20 +6,13 @@ import { BaseDAL } from "../BaseDAL";
 
 export class ProblemDAL extends BaseDAL<Problem> {
     public List(params: { wallId?: string, groupId?: string } & ProblemFilter): Problem[] {
-        let filters: Filter[] = [
-            ProblemTable.getField("grade")!.ge(params.minGrade),
-            ProblemTable.getField("grade")!.le(params.maxGrade),
-            ProblemTable.getField("name")!.like(params.name),
-        ];
-        if (params.wallId !== undefined) filters.push(
-            ProblemTable.getField("wall_id")!.eq(params.wallId)
-        );
-        if (params.setters.length > 0) filters.push(
-            ProblemTable.getField("owner_id")!.in(params.setters)
-        );
-        if (params.isPublic !== undefined) filters.push(
-            ProblemTable.getField("is_public")!.eq(params.isPublic)
-        );
+        let filters: Filter[] = [];
+        if (params.minGrade !== undefined) filters.push(ProblemTable.getField("grade")!.ge(params.minGrade));
+        if (params.maxGrade !== undefined) filters.push(ProblemTable.getField("grade")!.le(params.maxGrade));
+        if (params.name !== undefined) filters.push(ProblemTable.getField("name")!.like(params.name));
+        if (params.wallId !== undefined) filters.push(ProblemTable.getField("wall_id")!.eq(params.wallId));
+        if (params.setters !== undefined && params.setters.length > 0) filters.push(ProblemTable.getField("owner_id")!.in(params.setters));
+        if (params.isPublic !== undefined) filters.push(ProblemTable.getField("is_public")!.eq(params.isPublic));
         let query = ProblemTable.query(filters);
         if (params.groupId !== undefined) {
             query = query.Join(

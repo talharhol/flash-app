@@ -41,10 +41,10 @@ class DalService {
         while (true) {
             console.log("Running...");
             cur = Timestamp.now();
-            // await this.users.FetchFromRemote(last);
-            // await this.walls.FetchFromRemote(last);
-            // await this.problems.FetchFromRemote(last);
-            // await this.groups.FetchFromRemote(last);
+            await this.users.FetchFromRemote(last);
+            await this.walls.FetchFromRemote(last);
+            await this.problems.FetchFromRemote(last);
+            await this.groups.FetchFromRemote(last);
             last = cur;
             await new Promise(resolve => setTimeout(resolve, 300 * 1000)); 
           }
@@ -57,7 +57,7 @@ class DalService {
             await db.execAsync("PRAGMA foreign_keys = ON").catch(console.log);
             this._db = db;                
             this.connected = true;
-            this.loadUpdates().catch(console.log);
+            this.loadUpdates().catch(console.error);
         }
         catch (e) {
             console.log(e);

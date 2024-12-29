@@ -102,6 +102,7 @@ export class BaseDAL<
 
     public async FetchFromRemote(since: Timestamp): Promise<void> {
         if (!this.remoteCollection) return;
+        console.log(`fetching ${this.remoteCollection}`)
         const q = query(
             collection(this._dal.remoteDB, this.remoteCollection), 
             where("updated_at", ">=", since ),
@@ -111,7 +112,7 @@ export class BaseDAL<
         docs.forEach(
             doc => {
                 let existingEntity = this.List({id: doc.id})[0];
-                let entityObj = this.table.entity.fromRemoteDoc(doc, existingEntity);
+                let entityObj = this.table.entity.fromRemoteDoc(doc.data(), existingEntity);
                 if (existingEntity !== undefined)
                     this.UpdateLocal(entityObj as ObjType);
                 else 
