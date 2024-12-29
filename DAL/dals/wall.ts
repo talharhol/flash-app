@@ -42,7 +42,7 @@ export class WallDAL extends BaseDAL<Wall> {
             ).map(w => w.wall_id);
             selectedIds = selectedIds.concat(walls);
         }
-        if (selectedIds.length > 0) {
+        if (selectedIds.length > 0 || params.ids !== undefined || params.userId !== undefined) {
             filters.push(
                 WallTable.getField("id")!.in(selectedIds)
             );

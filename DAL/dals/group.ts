@@ -217,7 +217,6 @@ export class GroupDAL extends BaseDAL<Group> {
             ],
             this._dal.db!
         ).catch(console.error);
-
     }
 
     public async FetchFromRemote(since: Timestamp): Promise<void> {
