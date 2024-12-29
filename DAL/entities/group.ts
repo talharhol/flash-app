@@ -2,6 +2,7 @@ import { ImageResolvedAssetSource, ImageSourcePropType, Image } from "react-nati
 import { Entity, EntityProps } from "./BaseEntity";
 import { Problem, ProblemFilter } from "./problem";
 import { Wall } from "./wall";
+import { BaseTable } from "../tables/BaseTable";
 
 export type GroupProps = EntityProps & {name: string, image: ImageSourcePropType, members?: string[], admins?: string[], walls?: string[], problems?: string[]}
 
@@ -103,5 +104,19 @@ export class Group extends Entity {
             problems: data.problems,
             image: image
         });
+    }
+
+    public toTable(table: typeof BaseTable):  { [key: string]: any } {
+        let data: { [key: string]: any } = {
+            id: this.id,
+            name: this.name,
+            image: this.image
+        };
+        Object.keys(data).map(k => {
+            // removeing all unrelated data
+            if (k.startsWith("_")) delete data[k];
+            else if (table.getField(k) === undefined) delete data[k];
+        });
+        return data
     }
 };

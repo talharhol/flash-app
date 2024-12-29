@@ -68,7 +68,7 @@ export class Wall extends Entity {
             id: data.id,
             name: data.name,
             gym: data.gym,
-            angle: data.angle ?? -1,
+            angle: data.angle >= 0 ? data.angle : undefined,
             configuredHolds: data.configuredHolds,
             owner: data.owner,
             isPublic: data.isPublic,
