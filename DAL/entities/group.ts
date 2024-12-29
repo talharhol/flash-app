@@ -107,8 +107,8 @@ export class Group extends Entity {
     }
 
     public static fromRemoteDoc(data: {[key: string]: any}, old?: Wall): Entity {
-        let image = {uri: data.image.commpressed};
-        if (!!old) image = old.image;
+        let image = {uri: data.image.full}; // we fetch only groups relevant to user -> we can download full quality rightaway
+        if (!!old) image = old.image; // do not download image again
         return new this({
             id: data.id,
             name: data.name,
