@@ -34,8 +34,9 @@ export class BaseDAL<
     }
 
     public async Remove(obj: ObjType): Promise<void> {
-        await this.table.delete([this.table.getField("id")!.eq(obj.id)], this._dal.db!)
+        await this.table.delete([this.table.getField("id")!.eq(obj.id)], this._dal.db!);
         delete this._objects[obj.id];
+        if (!!this.remoteCollection) obj.deleteInRemote(this.remoteCollection).catch(console.error);
     }
     public async UpdateLocal(obj: ObjType): Promise<void> {
         let data = obj.toTable(this.table);
@@ -115,12 +116,17 @@ export class BaseDAL<
         let docs = await getDocs(q);
         docs.forEach(
             doc => {
+                let remoteData = doc.data();
                 let existingEntity = this.List({id: doc.id})[0];
-                let entityObj = this.table.entity.fromRemoteDoc(doc.data(), existingEntity);
-                if (existingEntity !== undefined)
-                    this.UpdateLocal(entityObj as ObjType);
-                else 
-                    this.AddToLocal(entityObj as ObjType);
+                if (remoteData.is_deleted === true) {
+                    if (existingEntity) this.Remove(existingEntity);
+                } else {
+                    let entityObj = this.table.entity.fromRemoteDoc(remoteData, existingEntity);
+                    if (existingEntity !== undefined)
+                        this.UpdateLocal(entityObj as ObjType);
+                    else 
+                        this.AddToLocal(entityObj as ObjType);
+                }
             }
         );
     }

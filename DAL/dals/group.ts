@@ -231,36 +231,41 @@ export class GroupDAL extends BaseDAL<Group> {
         let docs = await getDocs(q);
         docs.forEach(
             async doc => {
+                let remoteData = doc.data();
                 let existingEntity = this.List({id: doc.id})[0];
-                let entityObj = this.table.entity.fromRemoteDoc(doc.data(), existingEntity) as Group;
-                await Promise.all(
-                    entityObj.walls.map(
-                        async wall_id => {
-                            let walls = this._dal.walls.List({id: wall_id});
-                            if (walls.length === 0) {
-                                await this._dal.walls.AddToLocal(
-                                    Wall.fromRemoteDoc(await this._dal.walls.FetchSingleDoc(wall_id)) 
-                                )
-                            }                                 
-                        }
-                    )
-                );
-                await Promise.all(
-                    entityObj.problems.map(
-                        async pid => {
-                            let problems = this._dal.problems.List({id: pid});
-                            if (problems.length === 0) {
-                                await this._dal.problems.AddToLocal(
-                                    Problem.fromRemoteDoc(await this._dal.problems.FetchSingleDoc(pid)) 
-                                )
+                if (remoteData.is_deleted === true) {
+                    if (existingEntity) this.Remove(existingEntity);
+                } else {
+                    let entityObj = this.table.entity.fromRemoteDoc(remoteData, existingEntity) as Group;
+                    await Promise.all(
+                        entityObj.walls.map(
+                            async wall_id => {
+                                let walls = this._dal.walls.List({id: wall_id});
+                                if (walls.length === 0) {
+                                    await this._dal.walls.AddToLocal(
+                                        Wall.fromRemoteDoc(await this._dal.walls.FetchSingleDoc(wall_id)) 
+                                    )
+                                }                                 
                             }
-                        }
-                    )
-                );
-                if (existingEntity !== undefined)
-                    await this.UpdateLocal(entityObj as Group);
-                else 
-                    await this.AddToLocal(entityObj as Group);
+                        )
+                    );
+                    await Promise.all(
+                        entityObj.problems.map(
+                            async pid => {
+                                let problems = this._dal.problems.List({id: pid});
+                                if (problems.length === 0) {
+                                    await this._dal.problems.AddToLocal(
+                                        Problem.fromRemoteDoc(await this._dal.problems.FetchSingleDoc(pid)) 
+                                    )
+                                }
+                            }
+                        )
+                    );
+                    if (existingEntity !== undefined)
+                        await this.UpdateLocal(entityObj as Group);
+                    else 
+                        await this.AddToLocal(entityObj as Group);
+                }
             }
         );
     }

@@ -81,6 +81,23 @@ export class Entity {
         }
     }
 
+    public async deleteInRemote(collectionName: string): Promise<void> {
+        let dal = this.getDAL();
+        try {
+            await updateDoc(
+                doc(dal.remoteDB, collectionName, this.id), 
+                {
+                    "updated_at": serverTimestamp(),
+                    "is_deleted": true
+                }
+            );
+        }
+        catch (e) {
+            console.log(e);
+            alert("failed to push update to server");
+        }
+    }
+
     public async updateInRemote(collectionName: string): Promise<void> {
         let dal = this.getDAL();
         try {

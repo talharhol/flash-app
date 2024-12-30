@@ -26,7 +26,8 @@ const MyWallsScreen: React.FC = () => {
         setWallToRemove(null);
     };
     const DeleteWall = (wall: Wall) => {
-        dal.walls.Delete({id: wall.id}).then(() => {
+        dal.walls.Remove(wall)
+        .then(() => {
             setViewWalls(dal.currentUser.viewerWalls);
             setOwnedWalls(dal.currentUser.ownedWalls);
         }).catch(console.log);
