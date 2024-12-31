@@ -46,15 +46,19 @@ class DalService {
             }
         }
         while (true) {
-            console.log("Running...");
-            cur = Timestamp.now();
-            await this.users.FetchFromRemote(last);
-            await this.walls.FetchFromRemote(last);
-            await this.problems.FetchFromRemote(last);
-            await this.groups.FetchFromRemote(last);
-            if (this.users.shouldFetchUserData) await this.users.FetchUserData();
-            last = cur;
-            this.users.lastPulled = last.toMillis();
+            try {
+                console.log("Running...");
+                cur = Timestamp.now();
+                await this.users.FetchFromRemote(last).catch(console.error);
+                await this.walls.FetchFromRemote(last).catch(console.error);
+                await this.problems.FetchFromRemote(last).catch(console.error);
+                await this.groups.FetchFromRemote(last).catch(console.error);
+                if (this.users.shouldFetchUserData) await this.users.FetchUserData().catch(console.error);
+                last = cur;
+                this.users.lastPulled = last.toMillis();
+            } catch (e) {
+                console.error(e);
+            }
             await new Promise(resolve => setTimeout(resolve, 300 * 1000)); 
           }
         

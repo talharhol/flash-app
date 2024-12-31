@@ -116,16 +116,20 @@ export class BaseDAL<
         let docs = await getDocs(q);
         docs.forEach(
             doc => {
-                let remoteData = doc.data();
-                let existingEntity = this.List({id: doc.id})[0];
-                if (remoteData.is_deleted === true) {
-                    if (existingEntity) this.Remove(existingEntity);
-                } else {
-                    let entityObj = this.table.entity.fromRemoteDoc(remoteData, existingEntity);
-                    if (existingEntity !== undefined)
-                        this.UpdateLocal(entityObj as ObjType);
-                    else 
-                        this.AddToLocal(entityObj as ObjType);
+                try {
+                    let remoteData = doc.data();
+                    let existingEntity = this.List({id: doc.id})[0];
+                    if (remoteData.is_deleted === true) {
+                        if (existingEntity) this.Remove(existingEntity).catch(console.error);
+                    } else {
+                        let entityObj = this.table.entity.fromRemoteDoc(remoteData, existingEntity);
+                        if (existingEntity !== undefined)
+                            this.UpdateLocal(entityObj as ObjType).catch(console.error);
+                        else 
+                            this.AddToLocal(entityObj as ObjType).catch(console.error);
+                    }
+                } catch (e) {
+                    console.error(e);
                 }
             }
         );
