@@ -1,19 +1,19 @@
 import { ThemedText } from "@/components/general/ThemedText";
 import React, { useState } from "react";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
+import { Button, Image, StyleSheet, Text, TextInput, View } from "react-native";
 import BasicModal from "./BasicModal";
 import BasicButton from "../Buttom";
 import { ColorPallet } from "@/constants/Colors";
 import { useDal } from "@/DAL/DALService";
 
 
-const LoginModal: React.FC<React.ComponentProps<typeof BasicModal>> 
-= ({ closeModal }) => {
+const LoginModal: React.FC<React.ComponentProps<typeof BasicModal>>
+  = ({ closeModal }) => {
     const dal = useDal();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isSignUp, setIsSignUp] = useState(false);
-  
+
     const handleAuth = async () => {
       try {
         if (isSignUp) {
@@ -27,57 +27,75 @@ const LoginModal: React.FC<React.ComponentProps<typeof BasicModal>>
         console.log(error);
       }
     };
-  
+
     return (
 
-        <BasicModal closeModal={closeModal}  style={styles.container}>
-<View style={styles.container}>
-        <Text style={styles.title}>{isSignUp ? "Sign Up" : "Login"}</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        <Button title={isSignUp ? "Sign Up" : "Login"} onPress={handleAuth} />
-        <Button
-          title={`Switch to ${isSignUp ? "Login" : "Sign Up"}`}
-          onPress={() => setIsSignUp(!isSignUp)}
-          color="gray"
-        />
-      </View>        
+      <BasicModal closeModal={closeModal} style={{ width: "100%", height: "100%"}}>
+        <View style={styles.container}>
+          <Image style={styles.loggo} source={require("../../../assets/images/loggo.png")}/>
+          <Text style={styles.loggoText}>Flash app</Text>
+          <Text style={styles.title}>{isSignUp ? "Sign Up" : "Login"}</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          <Button title={isSignUp ? "Sign Up" : "Login"} onPress={handleAuth} />
+          <Button
+            title={`Switch to ${isSignUp ? "Login" : "Sign Up"}`}
+            onPress={() => setIsSignUp(!isSignUp)}
+            color="#555"
+          />
+        </View>
       </BasicModal>
     );
-};
+  };
 
 export default LoginModal;
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: "center",
-      padding: 20,
-    },
-    title: {
-      fontSize: 24,
-      fontWeight: "bold",
-      textAlign: "center",
-      marginBottom: 20,
-    },
-    input: {
-      borderWidth: 1,
-      borderColor: "#ccc",
-      padding: 10,
-      borderRadius: 5,
-      marginBottom: 15,
-    },
-  });
+  loggo: {
+    height: 100,
+    width: 100,
+    alignSelf: "center"
+  },
+  container: {
+    flex: 1,
+    width: "100%",
+    justifyContent: "center",
+    padding: 20,
+    backgroundColor: "grey"
+  },
+  loggoText: {
+    fontSize: 22,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 40,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 15,
+  },
+  button: {
+    marginBottom: 20
+  }
+});

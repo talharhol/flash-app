@@ -49,7 +49,7 @@ export default function RootLayout() {
       <Suspense fallback={<View style={{ flex: 1, backgroundColor: "red" }} />}>
         <SQLiteProvider databaseName="flashLocalDB.db" onInit={runMigrations} useSuspense>
           <DalContext.Provider value={dalService}>
-            { !isLogin && <LoginModal closeModal={() => setIsLogin(true)}/> }
+            { !isLogin && <LoginModal closeModal={() => setIsLogin(dalService.isLogin)}/> }
             <NotifierWrapper>
               <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
                 <Stack>

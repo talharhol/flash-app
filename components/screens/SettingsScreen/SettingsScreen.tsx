@@ -3,15 +3,17 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import ThemedView from '@/components/general/ThemedView';
-import React from 'react';
+import React, { useState } from 'react';
 import PreviewItem from '@/components/general/PreviewItem';
 import { useRouter } from 'expo-router';
 import { BaseButton } from 'react-native-gesture-handler';
 import { useDal } from '@/DAL/DALService';
+import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
 
 const SettingsScreen: React.FC = () => {
     const router = useRouter();
     const dal = useDal();
+    const [logoutModal, setLogoutModal] = useState(false);
     return (
         <ParallaxScrollView
             headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -20,6 +22,13 @@ const SettingsScreen: React.FC = () => {
                     <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Settings</ThemedText>
                 </ThemedView>
             }>
+            {
+                logoutModal && 
+                <ActionValidationModal 
+                text='Log out? you can allway login again :)'
+                approveAction={() => dal.signout()}
+                closeModal={() => setLogoutModal(false)} />
+            }
             <TouchableOpacity onPress={() => alert()}>
                 <PreviewItem
                     image={dal.currentUser.image}
@@ -32,6 +41,11 @@ const SettingsScreen: React.FC = () => {
                 </BaseButton>
                 <BaseButton onPress={() => router.push("/CreateGroup")} style={styles.actionButton}>
                     <ThemedText type='subtitle'>New Group</ThemedText>
+                </BaseButton>
+            </View>
+            <View style={{ flexDirection: "row", width: "100%", justifyContent: "space-between" }}>
+                <BaseButton onPress={() => setLogoutModal(true)} style={styles.actionButton}>
+                    <ThemedText type='subtitle'>Log Out</ThemedText>
                 </BaseButton>
             </View>
 
