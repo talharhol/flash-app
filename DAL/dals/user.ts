@@ -2,7 +2,6 @@ import { User } from "../entities/user";
 import { Wall } from "../entities/wall";
 import { GroupMemberTable, UserConfigTable, UserTable, UserWallTable } from "../tables/tables";
 import { BaseDAL } from "../BaseDAL";
-import { useCallback } from "react";
 
 
 export class UserDAL extends BaseDAL<User> {
@@ -94,15 +93,16 @@ export class UserDAL extends BaseDAL<User> {
         let currOwned = this._dal.currentUser.ownedWalls.map(w => w.id);
         let currViewer = this._dal.currentUser.viewerWalls.map(w => w.id);
         let remote = await this._dal.users.FetchSingleDoc(this._dal.currentUser.id);
-        remote.owenedWalls.map(async (wallId: string) => {
+        await Promise.all(remote.owenedWalls.map(async (wallId: string) => {
             if (currOwned.includes(wallId)) return;
-            await this._dal.currentUser.addWall(wallId, "owner");
-        });
-        remote.viewerWalls.map(async (wallId: string) => {
+            await this._dal.currentUser.addWall(wallId, "owner").catch(e => console.error(`failed adding wall ${wallId} to user`, e));
+        }));
+        await Promise.all(remote.viewerWalls.map(async (wallId: string) => {
             if (currViewer.includes(wallId)) return;
-            await this._dal.currentUser.addWall(wallId);
-        });
+            await this._dal.currentUser.addWall(wallId).catch(e => console.error(`failed adding wall ${wallId} to user`, e));
+        }));
         this.shouldFetchUserData = false;
+        this.UpdateRemote(this._dal.currentUser);
     }
 
     public async CreateConfig(params: {user_id: string, last_pulled?: number, should_fetch_user_data?: boolean}): Promise<void> {

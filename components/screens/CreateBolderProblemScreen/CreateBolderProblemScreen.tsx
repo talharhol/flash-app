@@ -1,5 +1,4 @@
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Button,
   StatusBar,
@@ -12,7 +11,7 @@ import BolderProblem from "@/components/general/BolderProblem";
 import BasicButton from "@/components/general/Buttom";
 import { Notifier, Easing } from "react-native-notifier";
 import WithCancelNotification from "@/components/general/notifications/WithCancelNotification";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,7 +20,7 @@ import { Problem } from "@/DAL/entities/problem";
 import { useDal } from "@/DAL/DALService";
 
 
-const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
+const CreateBolderProblemScreen: React.FC = () => {
   const router = useRouter();
   const dal = useDal();
   const wall = dal.walls.Get({ id: useLocalSearchParams().id as string });
@@ -31,6 +30,19 @@ const CreateBolderProblemScreen: React.FC<NativeStackScreenProps<any>> = () => {
   const [isPublishModal, setIsPublishModal] = useState<boolean>(false);
   const [drawingHoldType, setDrawingHoldType] = useState<HoldType>(new HoldType(HoldTypes.route));
   const [holds, setHolds] = useState<HoldInterface[]>([]);
+
+  useFocusEffect(
+      useCallback(
+          () => {
+              setIsDrawingHold(false);
+              setEditedHold(null);
+              setIsPublishModal(false);
+              setDrawingHoldType(new HoldType(HoldTypes.route))
+              setHolds([]);
+          }, []
+      )
+  );
+
   const startDrawingHold = () => {
     Notifier.showNotification({
       duration: 3000,

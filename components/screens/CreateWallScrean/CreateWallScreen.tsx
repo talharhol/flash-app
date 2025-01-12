@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
     Button,
     Image,
@@ -16,7 +16,7 @@ import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import Toggle from "react-native-toggle-element";
 import BasicButton from "@/components/general/Buttom";
 import { Wall } from "@/DAL/entities/wall";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useDal } from "@/DAL/DALService";
 
@@ -29,6 +29,17 @@ const CreateWallScreen: React.FC = ({ }) => {
     const [isPublic, setIsPublic] = useState(false);
     const [wallName, setWallName] = useState('');
     const [gymName, setGymName] = useState('');
+    useFocusEffect(
+        useCallback(
+            () => {
+                setSelectedImage('');
+                setSelectImageModal(true);
+                setIsPublic(false);
+                setWallName('');
+                setGymName('');
+            }, []
+        )
+    );
     const createWall = () => {
         if (!selectedImage) {
             alert("missing image");

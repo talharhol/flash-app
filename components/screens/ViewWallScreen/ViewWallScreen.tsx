@@ -1,16 +1,15 @@
-import { StyleSheet, Touchable, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import ThemedView from "@/components/general/ThemedView";
-import React, { useState } from 'react';
+import React, { useReducer, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import BolderProblemPreview from '../../general/BolderProblemPreview';
 import { Ionicons } from '@expo/vector-icons';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import DisplayBolderProblemModal from '../../general/modals/DisplayBolderProblemModal';
 import FilterProblemssModal from '@/components/general/modals/FilterBoldersModal';
-import { FilterProblems, Problem, ProblemFilter } from '@/DAL/entities/problem';
+import { Problem, ProblemFilter } from '@/DAL/entities/problem';
 import { useDal } from '@/DAL/DALService';
 
 const ViewWallScreen: React.FC = () => {
@@ -19,23 +18,17 @@ const ViewWallScreen: React.FC = () => {
     const wall = dal.walls.Get({ id: useLocalSearchParams().id as string });
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(null);
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
-    const [filters, _setFilters] = useState<ProblemFilter>({
+    const [_, updateGUI] = useReducer(i => i + 1, 0);
+    const [filters, setFilters] = useState<ProblemFilter>({
         minGrade: 1,
         maxGrade: 15,
         name: "",
         setters: [],
         isPublic: true
     });
-    const [problems, setProblems] = useState(dal.problems.List({ wallId: wall.id, ...filters}));
-    const setFilters = (f: ProblemFilter) => {
-        _setFilters(f);
-        setProblems(dal.problems.List({ wallId: wall.id, ...f }));
-    }
 
     const deleteProblem = (problem: Problem) => {
-        dal.problems.Remove(problem).then(() => {
-            setProblems(dal.problems.List({ wallId: wall.id, ...filters }));
-        });
+        dal.problems.Remove(problem).then(updateGUI);
     }
 
     return (
@@ -68,11 +61,10 @@ const ViewWallScreen: React.FC = () => {
                     </ThemedView>
                 }>
                 {
-                    problems.map(problem =>
+                    dal.problems.List({ wallId: wall.id, ...filters }).map(problem =>
                             <BolderProblemPreview
                                 key={problem.id}
                                 onPress={() => setDisplayedProblem(problem.id)}
-                                style={{ alignSelf: "center" }}
                                 wall={wall}
                                 problem={problem}
                                 deleteProblem={deleteProblem}

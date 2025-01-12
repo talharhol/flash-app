@@ -19,6 +19,7 @@ export class BaseDAL<
 
     public async AddToLocal(obj: ObjType): Promise<void> {
         await this.table.insert(obj.toTable(this.table), this._dal.db!).catch(console.log);
+        this._dal.updateScreen();
     }
 
     public async AddToRemote(obj: ObjType): Promise<void> {
@@ -33,11 +34,22 @@ export class BaseDAL<
         return obj;
     }
 
-    public async Remove(obj: ObjType): Promise<void> {
+
+    public async RemoveLocal(obj: ObjType): Promise<void> {
         await this.table.delete([this.table.getField("id")!.eq(obj.id)], this._dal.db!);
         delete this._objects[obj.id];
-        if (!!this.remoteCollection) obj.deleteInRemote(this.remoteCollection).catch(console.error);
+        this._dal.updateScreen();
     }
+    public async RemoveRemote(obj: ObjType): Promise<void> {
+        if (!!this.remoteCollection) await obj.deleteInRemote(this.remoteCollection);
+
+    }
+    public async Remove(obj: ObjType): Promise<void> {
+        await this.RemoveLocal(obj);
+        this.RemoveRemote(obj).catch(console.error);
+    }
+
+
     public async UpdateLocal(obj: ObjType): Promise<void> {
         let data = obj.toTable(this.table);
         delete data.id; // we never want to update the id
@@ -46,7 +58,8 @@ export class BaseDAL<
             [
                 this.table.getField("id")!.eq(obj.id)
             ], data, this._dal.db!
-        )
+        );
+        this._dal.updateScreen();
     }
     
     public async UpdateRemote(obj: ObjType): Promise<void> {
@@ -88,17 +101,6 @@ export class BaseDAL<
             entity.setDAL(this._dal);
             return entity
         }) as ObjType[];
-    }
-
-    public async Delete(params: { [key: string]: any }): Promise<void> {
-        await this.table.delete(
-            Object.keys(params)
-            .filter( k => this.table.getField(k) !== undefined )
-            .map(
-                k => this.table.getField(k)!.eq(params[k])
-            ),
-            this._dal.db!
-        );
     }
 
     public async FetchSingleDoc(id: string): Promise<{[key: string]: any}> {

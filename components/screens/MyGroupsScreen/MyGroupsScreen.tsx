@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import ThemedView from '@/components/general/ThemedView';
-import React, { useState } from 'react';
+import React, { useReducer, useState } from 'react';
 import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
 import { Group } from '@/DAL/entities/group';
 import { useRouter } from 'expo-router';
@@ -15,23 +15,19 @@ import { Ionicons } from '@expo/vector-icons';
 
 const MyGroupsScreen: React.FC = () => {
     const router = useRouter();
-    const dal = useDal();
+    const [_, updateGUI] = useReducer(i => i + 1, 0);
+    const dal = useDal(updateGUI);
     const [groupToRemove, setGroupToRemove] = useState<Group | null>(null);
     const [groupManagment, setGroupManagment] = useState<ManagmentModalProps | null>(null)
     const RemoveGroup = (group: Group) => {
-        dal.currentUser.removeGroup(group.id).then(
-            () => setGroups(dal.currentUser.groups)
-        );;
+        dal.currentUser.removeGroup(group.id).then(updateGUI);;
         setGroupToRemove(null);
     };
     const [groupToDelete, setGroupToDelete] = useState<Group | null>(null);
     const DeleteGroup = (group: Group) => {
-        dal.groups.Remove(group).then(
-            () => setGroups(dal.currentUser.groups)
-        );
+        dal.groups.Remove(group).then(updateGUI);
         setGroupToRemove(null);
     };
-    const [groups, setGroups] = useState<Group[]>(dal.currentUser.groups);
     return (
         <ParallaxScrollView
             headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -66,7 +62,7 @@ const MyGroupsScreen: React.FC = () => {
                 />
             }
             {
-                groups.map(group =>
+                dal.currentUser.groups.map(group =>
                     <SwipablePreviewItem
                         key={group.id}
                         onPress={() => router.push({ pathname: "/ViewGroupScreen", params: { id: group.id } })}

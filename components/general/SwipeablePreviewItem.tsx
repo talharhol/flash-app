@@ -1,36 +1,36 @@
 import { View } from "react-native"
 import PreviewItem from "./PreviewItem";
-import { Ionicons } from "@expo/vector-icons";
-import { SwipeRow } from "react-native-swipe-list-view";
-import React, { createRef, useState } from "react";
+import React from "react";
+import Swipeable from 'react-native-gesture-handler/Swipeable';
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+
+
+function RightAction(hiddenComponent?: () => React.JSX.Element) {
+    return (
+        <View style={{ height: 120, width: "100%", borderRadius: 8, backgroundColor: "#ccc", flexDirection: "row" }}>
+            <View style={{ position: "absolute", right: 0, width: 120, height: 120 }}>
+                {hiddenComponent?.()}
+            </View>
+        </View>
+    )
+}
 
 const SwipablePreviewItem: React.FC<React.ComponentProps<typeof PreviewItem> & {
     hiddenComponent?: () => React.JSX.Element;
     onPress?: () => void;
 }> = ({ hiddenComponent, onPress, ...props }) => {
-    const swipeRow = createRef<SwipeRow<View>>();
-    const [isOpen, setIsOpen]= useState(false);
-    const OnPressWrapper = () => {
-        if (isOpen) swipeRow.current?.closeRow();
-        else onPress?.();
-    };
     return (
-        <SwipeRow ref={swipeRow} rightOpenValue={- 120} onRowPress={OnPressWrapper} onRowOpen={() => setIsOpen(true)} onRowClose={() => setIsOpen(false)}>
-            <View style={{ height: 120, borderRadius: 8, backgroundColor: "blue", flexDirection: "row" }}>
-                <View style={{ position: "absolute", right: 0, width: 120, height: 120 }}>
-                    {hiddenComponent?.()}
-                </View>
-            </View>
-            <View>
+        <Swipeable
+            renderRightActions={() => RightAction(hiddenComponent)}
+        >
+            <TouchableWithoutFeedback onPress={onPress}>
                 <PreviewItem
                     {...props}
                     style={{ height: 120, borderRadius: 8 }}
+                    onImagePress={onPress}
                 />
-                <View style={{ position: 'absolute', right: 0, height: 120, justifyContent: "center" }}>
-                    <Ionicons size={20} style={{ paddingLeft: 10, paddingBottom: 10, paddingTop: 10 }} name='arrow-back' onPress={() => isOpen ? swipeRow.current?.closeRow() : swipeRow.current?.manuallySwipeRow(-120)} />
-                </View>
-            </View>
-        </SwipeRow>
+            </TouchableWithoutFeedback>
+        </Swipeable>
     )
 }
 

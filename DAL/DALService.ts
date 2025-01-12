@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import * as SQLite from 'expo-sqlite';
 
 import { User } from "./entities/user";
@@ -17,9 +17,10 @@ import { auth, app, db } from "../firebaseConfig"
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
 import { RemoteStorage } from "./remoteStorage";
 import { collection, query, where, getDocs, Timestamp } from "firebase/firestore";
+import { EventEmitter } from 'events';
 
 
-class DalService {
+class DalService extends EventEmitter {
     private static _instance: DalService;
 
     private _db: SQLite.SQLiteDatabase | null = null;
@@ -59,29 +60,30 @@ class DalService {
             } catch (e) {
                 console.error(e);
             }
-            await new Promise(resolve => setTimeout(resolve, 300 * 1000)); 
-          }
-        
+            await new Promise(resolve => setTimeout(resolve, 300 * 1000));
+        }
+
     }
 
     public async connect() {
         try {
             let db = await SQLite.openDatabaseAsync('flashLocalDB.db');
             await db.execAsync("PRAGMA foreign_keys = ON").catch(console.log);
-            this._db = db;                
+            this._db = db;
             this.connected = true;
             this.loadUpdates().catch(console.error);
         }
         catch (e) {
             console.log(e);
         }
-        
+
     }
 
     constructor() {
         if (!!DalService._instance) {
             return DalService._instance;
         }
+        super();
         this._userDal = new UserDAL(this, UserTable, "user");
         this._wallDal = new WallDAL(this, WallTable, "wall");
         this._problemDal = new ProblemDAL(this, ProblemTable, "problem");
@@ -110,12 +112,12 @@ class DalService {
     public get currentUser() {
         if (this._currentUser) return this._currentUser;
         if (!this.isLogin) {
-            let user = new User({name: "tmp"});
+            let user = new User({ name: "tmp" });
             user.setDAL(this);
             return user;
         }
 
-        let user = this.users.List({id: this._remoteAuth.currentUser!.uid})[0];
+        let user = this.users.List({ id: this._remoteAuth.currentUser!.uid })[0];
         if (user === undefined) {
             user = new User({
                 id: this._remoteAuth.currentUser!.uid,
@@ -126,21 +128,21 @@ class DalService {
             this.users.AddToLocal(user).then(
                 _ => {
                     this.users.CreateConfig(
-                        {user_id: user.id, last_pulled: 0, should_fetch_user_data: true}
+                        { user_id: user.id, last_pulled: 0, should_fetch_user_data: true }
                     ).then(_ => {
                         this.users.FetchSingleDoc(user.id)
-                        .then(
-                            data => {
-                                if (!data) {
-                                    console.log("adding user to remote");
-                                    this.users.AddToRemote(user).then(_ => console.log("added!"));
-                                } else {
-                                    this.users.shouldFetchUserData = true;
-                                }
-                        })
+                            .then(
+                                data => {
+                                    if (!data) {
+                                        console.log("adding user to remote");
+                                        this.users.AddToRemote(user).then(_ => console.log("added!"));
+                                    } else {
+                                        this.users.shouldFetchUserData = true;
+                                    }
+                                })
                     })
                 }
-            );            
+            );
         }
         return user;
     }
@@ -168,10 +170,10 @@ class DalService {
     }
 
     public async compressImage(uri: string): Promise<string> {
-        const compressed = await ImageManipulator.manipulateAsync(uri, [], 
-            {compress: 0.1, format: ImageManipulator.SaveFormat.JPEG}
+        const compressed = await ImageManipulator.manipulateAsync(uri, [],
+            { compress: 0.1, format: ImageManipulator.SaveFormat.JPEG }
         );
-        
+
         return compressed.uri;
     }
 
@@ -210,6 +212,10 @@ class DalService {
         return this._remoteStorage!;
     }
 
+    public updateScreen() {
+        this.emit('update');
+    }
+
 }
 
 const dalService = DalService.Instance;
@@ -218,4 +224,17 @@ export default dalService;
 
 export const DalContext = createContext(dalService);
 
-export const useDal = () => useContext(DalContext);
+export const useDal = (update?: () => void) => {
+    useEffect(() => {
+        const handleUpdate = () => update?.();
+        dalService.on('update', handleUpdate); // Subscribe to updates
+
+        return () => {
+            dalService.off('update', handleUpdate); // Cleanup subscription
+        };
+    }, []);
+
+    return dalService;
+
+    return useContext(DalContext);
+} 

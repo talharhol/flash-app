@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useReducer, useState } from 'react';
 import { Wall } from '@/DAL/entities/wall';
 import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
 import ThemedView from '@/components/general/ThemedView';
@@ -12,7 +12,10 @@ import SwipablePreviewItem from '@/components/general/SwipeablePreviewItem';
 import { useDal } from '@/DAL/DALService';
 
 const MyWallsScreen: React.FC = () => {
-    const dal = useDal();
+    const dal = useDal(() => {
+        setOwnedWalls(dal.currentUser.ownedWalls);
+        setViewWalls(dal.currentUser.viewerWalls);
+    });
     const router = useRouter();
     const [wallToRemove, setWallToRemove] = useState<Wall | null>(null);
     const [wallToDelete, setWallToDelete] = useState<Wall | null>(null);

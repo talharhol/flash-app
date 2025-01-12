@@ -133,6 +133,7 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
                         transparant
                         onHoldClick={onConfiguredHoldClick}
                         zoomableViewRef={zoomableViewRef}
+                        disabeMovment={disableMovment}
                       />
                     ))
                   }
@@ -143,6 +144,7 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
                         hold={hold}
                         onHoldClick={onHoldClick}
                         zoomableViewRef={zoomableViewRef}
+                        disabeMovment={disableMovment}
                       />
                     ))
                   }

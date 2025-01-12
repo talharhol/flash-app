@@ -237,15 +237,18 @@ export class GroupDAL extends BaseDAL<Group> {
                     if (remoteData.is_deleted === true) {
                         if (existingEntity) this.Remove(existingEntity).catch(console.error);
                     } else {
-                        let entityObj = this.table.entity.fromRemoteDoc(remoteData, existingEntity) as Group;
+                        let entityObj = Group.fromRemoteDoc(remoteData, existingEntity);
                         await Promise.all(
                             entityObj.walls.map(
                                 async wall_id => {
                                     let walls = this._dal.walls.List({id: wall_id});
                                     if (walls.length === 0) {
-                                        await this._dal.walls.AddToLocal(
-                                            Wall.fromRemoteDoc(await this._dal.walls.FetchSingleDoc(wall_id)) 
-                                        )
+                                        let remoteWall = await this._dal.walls.FetchSingleDoc(wall_id);
+                                        if (remoteWall.is_deleted) {
+                                            entityObj.walls = entityObj.walls.filter(v => v !== wall_id)
+                                        } else {
+                                            await this._dal.walls.AddToLocal(Wall.fromRemoteDoc(remoteWall))
+                                        }
                                     }                                 
                                 }
                             )
@@ -255,9 +258,12 @@ export class GroupDAL extends BaseDAL<Group> {
                                 async pid => {
                                     let problems = this._dal.problems.List({id: pid});
                                     if (problems.length === 0) {
-                                        await this._dal.problems.AddToLocal(
-                                            Problem.fromRemoteDoc(await this._dal.problems.FetchSingleDoc(pid)) 
-                                        )
+                                        let remoteProblem = await this._dal.problems.FetchSingleDoc(pid);
+                                        if (remoteProblem.is_deleted) {
+                                            entityObj.problems = entityObj.problems.filter(v => v !== pid)
+                                        } else {
+                                            await this._dal.problems.AddToLocal(Problem.fromRemoteDoc(remoteProblem))
+                                        }
                                     }
                                 }
                             )

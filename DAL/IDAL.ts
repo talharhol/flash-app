@@ -10,8 +10,9 @@ import { UserDAL } from "./dals/user";
 import { WallDAL } from "./dals/wall";
 import { Firestore } from "firebase/firestore";
 import { RemoteStorage } from "./remoteStorage";
+import { EventEmitter } from 'events';
 
-export interface IDAL {
+export interface IDAL extends EventEmitter {
     walls: WallDAL;
     users: UserDAL;
     problems: ProblemDAL;
@@ -24,4 +25,5 @@ export interface IDAL {
     remoteStorage: RemoteStorage;
     isLogin: boolean;
     compressImage(uri: string): Promise<string>;
-}
+    updateScreen(): void;
+} 

@@ -3,8 +3,8 @@ import { StyleSheet, View } from 'react-native';
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import ThemedView from "@/components/general/ThemedView";
-import React, { useState } from 'react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useCallback, useState } from 'react';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import PreviewItem from '@/components/general/PreviewItem';
@@ -17,6 +17,15 @@ const SelectWallScreen: React.FC = () => {
     const dal = useDal();
     const group = dal.groups.Get({ id: useLocalSearchParams().id as string });
     const [selectImageModal, setSelectImageModal] = useState(false);
+
+    useFocusEffect(
+        useCallback(
+            () => {
+                setSelectImageModal(false);
+            }, []
+        )
+    );
+
     const CreateAnonimusWall: (uri: string) => void = (uri) => {
         let wall = new Wall({
             name: "Anonimus",

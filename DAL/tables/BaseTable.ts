@@ -236,7 +236,7 @@ export class BaseTable {
         return db.runAsync(
             `INSERT INTO ${this.tableName} (${values.map(v => v[0]).join(', ')}) VALUES (${new Array(values.length).fill('?').join(", ")});`,
             values.map(v => v[1])
-        ).catch(console.log);
+        );
     }
 
     public static toEntity<EntityType extends Entity>(data: { [key: string]: any }, entityConstructor?: new (data: any) => EntityType): EntityType {

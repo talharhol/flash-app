@@ -10,7 +10,9 @@ const SVGHold: React.FC<{
   transparant?: boolean
   onHoldClick?: (id: string) => void,
   zoomableViewRef?: React.RefObject<React.ElementRef<typeof Zoomable>>,
-}> = ({ hold, onHoldClick, zoomableViewRef, transparant }) => {
+  disabeMovment?: boolean
+}> = ({ hold, onHoldClick, zoomableViewRef, transparant, disabeMovment }) => {
+  const shouldSetResponder = !disabeMovment;
   const [firstPos, setFirstPos] = useState<{ x: number, y: number } | null>(null);
   const [firstPosPage, setFirstPosPage] = useState<{ x: number, y: number } | null>(null);
   const zoom = useContext(zoomSize);
@@ -23,8 +25,8 @@ const SVGHold: React.FC<{
       strokeWidth={2 * svgZoom / (Math.max(1, zoom / 4))}
       strokeLinejoin='round'
       strokeLinecap='round'
-      onStartShouldSetResponder={() => true}
-      onMoveShouldSetResponder={() => true}
+      onStartShouldSetResponder={() => shouldSetResponder}
+      onMoveShouldSetResponder={() => shouldSetResponder}
       onResponderMove={e => {
         if (firstPos === null) {
           setFirstPos({ x: e.nativeEvent.locationX, y: e.nativeEvent.locationY });

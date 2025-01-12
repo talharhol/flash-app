@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
     Image,
     Text,
@@ -10,7 +10,7 @@ import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
 import SelectImageModal from "@/components/general/modals/SelectImageModal";
 import BasicButton from "@/components/general/Buttom";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Group } from "@/DAL/entities/group";
 import MultiSelect from "react-native-multiple-select";
@@ -39,13 +39,28 @@ const ConfigGroupScreen: React.FC = ({ }) => {
     const router = useRouter();
     const dal = useDal();
     const group = useLocalSearchParams().id !== undefined ? dal.groups.Get({ id: useLocalSearchParams().id as string }) : undefined;
+    const usersMultiSelect = useRef<MultiSelect>()
+
     const [selectedImage, setSelectedImage] = useState<string>(group?.image.uri || '');
     const [selectImageModal, setSelectImageModal] = useState(group === undefined);
     const [selectWallModal, setSelectWallModal] = useState(false);
     const [groupName, setGroupName] = useState(group ? group.name : '');
     const [selectedUsers, setSelectedUsers] = useState<string[]>(group ? group.members.filter(u => u !== dal.currentUser.id) : []);
     const [selectedWalls, setSelectedWalls] = useState<string[]>(group ? group.PublicWalls.map(w=>w.id) : []);
-    const usersMultiSelect = useRef<MultiSelect>()
+    
+    useFocusEffect(
+        useCallback(
+            () => {
+                setSelectedImage(group?.image.uri || '');
+                setSelectImageModal(group === undefined);
+                setSelectWallModal(false);
+                setGroupName(group ? group.name : '');
+                setSelectedUsers(group ? group.members.filter(u => u !== dal.currentUser.id) : []);
+                setSelectedWalls(group ? group.PublicWalls.map(w=>w.id) : []);
+            }, []
+        )
+    );
+    
     const createGroup = () => {
         if (!selectedImage) {
             alert("missing image");
@@ -73,7 +88,8 @@ const ConfigGroupScreen: React.FC = ({ }) => {
                 () => router.push({ pathname: "/MyGroupsScreen" })
             ).catch(console.log);
     };
-    const SaveWallImage: (uri: string) => void = (uri) => {
+
+    const SaveGroupImage: (uri: string) => void = (uri) => {
         setSelectedImage(uri);
     };
 
@@ -92,7 +108,7 @@ const ConfigGroupScreen: React.FC = ({ }) => {
                 selectImageModal &&
                 <SelectImageModal
                     closeModal={() => setSelectImageModal(false)}
-                    getImage={SaveWallImage}
+                    getImage={SaveGroupImage}
                     text='Choose source' />
             }
             {

@@ -1,14 +1,10 @@
-import { ThemedText } from "@/components/general/ThemedText";
 import React, { useState } from "react";
 import { Button, Image, StyleSheet, Text, TextInput, View } from "react-native";
-import BasicModal from "./BasicModal";
-import BasicButton from "../Buttom";
-import { ColorPallet } from "@/constants/Colors";
 import { useDal } from "@/DAL/DALService";
 
 
-const LoginModal: React.FC<React.ComponentProps<typeof BasicModal>>
-  = ({ closeModal }) => {
+const LoginView: React.FC
+  = () => {
     const dal = useDal();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -29,10 +25,8 @@ const LoginModal: React.FC<React.ComponentProps<typeof BasicModal>>
     };
 
     return (
-
-      <BasicModal closeModal={closeModal} style={{ width: "100%", height: "100%"}}>
         <View style={styles.container}>
-          <Image style={styles.loggo} source={require("../../../assets/images/loggo.png")}/>
+          <Image style={styles.loggo} source={require("../../assets/images/loggo.png")}/>
           <Text style={styles.loggoText}>Flash app</Text>
           <Text style={styles.title}>{isSignUp ? "Sign Up" : "Login"}</Text>
           <TextInput
@@ -57,11 +51,10 @@ const LoginModal: React.FC<React.ComponentProps<typeof BasicModal>>
             color="#555"
           />
         </View>
-      </BasicModal>
     );
   };
 
-export default LoginModal;
+export default LoginView;
 
 const styles = StyleSheet.create({
   loggo: {
@@ -72,6 +65,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: "100%",
+    height: "100%",
     justifyContent: "center",
     padding: 20,
     backgroundColor: "grey"

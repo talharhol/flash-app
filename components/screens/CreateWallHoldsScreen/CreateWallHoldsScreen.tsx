@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
     Button,
     Platform,
@@ -6,12 +6,12 @@ import {
     StyleSheet,
     View,
 } from "react-native";
-import { Hold, HoldInterface, HoldType, HoldTypes } from "../../../DAL/hold";
+import { Hold, HoldInterface, HoldType, HoldTypes, holdTypeToHoldColor } from "../../../DAL/hold";
 import BolderProblem from "@/components/general/BolderProblem";
 import { Notifier, Easing } from "react-native-notifier";
 import WithCancelNotification from "@/components/general/notifications/WithCancelNotification";
 import ActionValidationModal from "@/components/general/modals/ActionValidationModal";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
@@ -23,7 +23,16 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
     const wall = dal.walls.Get({ id: useLocalSearchParams().id as string });
     const [isDrawingHold, setIsDrawingHold] = useState(false);
     const [editedHold, setEditedHold] = useState<string | null>(null);
-    const [holds, setHolds] = useState<HoldInterface[]>(wall?.configuredHolds.map((h) => ({ id: h.id, svgPath: h.svgPath, color: new HoldType(HoldTypes.route).color })));
+    const [holds, setHolds] = useState<HoldInterface[]>(wall?.configuredHolds.map((h) => ({ ...h, color: holdTypeToHoldColor[HoldTypes.route] })));
+    useFocusEffect(
+        useCallback(
+            () => {
+                setIsDrawingHold(false);
+                setEditedHold(null);
+                setHolds(wall.configuredHolds.map(h => ({ ...h, color: holdTypeToHoldColor[HoldTypes.route] })));
+            }, []
+        )
+    );
     const startDrawingHold = () => {
         Notifier.showNotification({
             duration: 3000,
