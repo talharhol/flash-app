@@ -66,7 +66,7 @@ export class Group extends Entity {
             problem_id: params.problem_id,
             group_id: this.id
         });
-        this.dal!.groups.UpdateRemote(this);
+        this.dal!.groups.UpdateRemote(this).catch(console.error);
     }
 
     public async AddWall(params: {wall_id: string}): Promise<void> {
@@ -75,7 +75,7 @@ export class Group extends Entity {
             wall_id: params.wall_id,
             group_id: this.id
         });
-        this.dal!.groups.UpdateRemote(this);
+        this.dal!.groups.UpdateRemote(this).catch(console.error);
     }
 
     public async AddMember(params: {user_id: string, role?: string}): Promise<void> {
@@ -85,7 +85,7 @@ export class Group extends Entity {
             ...params,
             group_id: this.id,
         });
-        this.dal!.groups.UpdateRemote(this);
+        this.dal!.groups.UpdateRemote(this).catch(console.error);
     }
 
     public FilterProblems( params: ProblemFilter ): Problem[] {

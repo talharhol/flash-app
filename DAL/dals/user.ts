@@ -68,7 +68,6 @@ export class UserDAL extends BaseDAL<User> {
             }, this._dal.db!);
             let wall = this._dal.walls.Get({id: params.wall_id});
             wall.fetchFullImage().catch(console.error);
-        
     }
 
     public async RemoveWall(params: { wall_id: string, user_id: string }): Promise<void> {
