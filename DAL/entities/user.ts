@@ -28,19 +28,22 @@ export class User extends Entity {
         return this.dal!.users.GetWalls({user_id: this.id, role: "viewer"})
     }
 
-    public async addWall(id: string, role?: string) {
+    public async addWall(id: string, role?: string, updateRemote?: boolean) {
+        updateRemote = updateRemote ?? true;
         await this.dal!.users.AddWall({wall_id: id, user_id: this.id}, role);
-        this.dal!.users.UpdateRemote(this).catch(console.error);
+        if (updateRemote) this.dal!.users.UpdateRemote(this).catch(console.error);
     }
 
-    public async removeWall(id: string) {
+    public async removeWall(id: string, updateRemote?: boolean) {
+        updateRemote = updateRemote ?? true;
         await this.dal!.users.RemoveWall({wall_id: id, user_id: this.id});
-        this.dal!.users.UpdateRemote(this).catch(console.error);
+        if (updateRemote) this.dal!.users.UpdateRemote(this).catch(console.error);
     }
 
-    public async removeGroup(id: string) {
+    public async removeGroup(id: string, updateRemote?: boolean) {
+        updateRemote = updateRemote ?? true;
         await this.dal!.users.RemoveGroup({group_id: id, user_id: this.id});
-        this.dal!.users.UpdateRemote(this).catch(console.error);
+        if (updateRemote) this.dal!.users.UpdateRemote(this).catch(console.error);
     }
 
     get image(): ImageSourcePropType {
