@@ -3,10 +3,10 @@ import { StyleSheet, View } from 'react-native';
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import ThemedView from '@/components/general/ThemedView';
-import React, { useReducer, useState } from 'react';
+import React, { useCallback, useReducer, useState } from 'react';
 import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
 import { Group } from '@/DAL/entities/group';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import SwipablePreviewItem from '@/components/general/SwipeablePreviewItem';
 import BasicButton from '@/components/general/Buttom';
 import { useDal } from '@/DAL/DALService';
@@ -15,17 +15,23 @@ import { Ionicons } from '@expo/vector-icons';
 
 const MyGroupsScreen: React.FC = () => {
     const router = useRouter();
-    const [_, updateGUI] = useReducer(i => i + 1, 0);
-    const dal = useDal(updateGUI);
+    const dal = useDal(() => setGroups(dal.currentUser.groups));
+    useFocusEffect(
+        useCallback(
+            () => setGroups(dal.currentUser.groups), []
+        )
+    );
+    const [groups, setGroups] = useState(dal.currentUser.groups);
+
     const [groupToRemove, setGroupToRemove] = useState<Group | null>(null);
     const [groupManagment, setGroupManagment] = useState<ManagmentModalProps | null>(null)
     const RemoveGroup = (group: Group) => {
-        dal.currentUser.removeGroup(group.id).then(updateGUI);;
+        dal.currentUser.removeGroup(group.id);
         setGroupToRemove(null);
     };
     const [groupToDelete, setGroupToDelete] = useState<Group | null>(null);
     const DeleteGroup = (group: Group) => {
-        dal.groups.Remove(group).then(updateGUI);
+        dal.groups.Remove(group);
         setGroupToRemove(null);
     };
     return (
@@ -62,7 +68,7 @@ const MyGroupsScreen: React.FC = () => {
                 />
             }
             {
-                dal.currentUser.groups.map(group =>
+                groups.map(group =>
                     <SwipablePreviewItem
                         key={group.id}
                         onPress={() => router.push({ pathname: "/ViewGroupScreen", params: { id: group.id } })}

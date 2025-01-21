@@ -11,7 +11,7 @@ const SelectImageModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     const pickImageAsync = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             allowsMultipleSelection: false,
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: 'images',
             allowsEditing: true,
             quality: 1,
         });

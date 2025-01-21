@@ -19,6 +19,7 @@ import { Wall } from "@/DAL/entities/wall";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useDal } from "@/DAL/DALService";
+import SwitchSelector from "react-native-switch-selector";
 
 
 const CreateWallScreen: React.FC = ({ }) => {
@@ -101,12 +102,14 @@ const CreateWallScreen: React.FC = ({ }) => {
             </View>
             <TextInput value={wallName} onChangeText={setWallName} placeholder="Wall's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: "grey", padding: 10 }} />
             <TextInput value={gymName} onChangeText={setGymName} placeholder="Gym's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: "grey", padding: 10 }} />
-            <View style={{ alignSelf: "center" }}>
-                <Toggle
-                    leftTitle="private"
-                    rightTitle="public"
-                    value={isPublic}
-                    onPress={(val) => setIsPublic(val!)}
+            <View style={{ alignSelf: "center", height: 50, width: "50%" }}>
+                <SwitchSelector 
+                    initial={0}
+                    onPress={(value: boolean) => setIsPublic(value)}
+                    options={[
+                        { label: "Private", value: false },
+                        { label: "Public", value: true }
+                    ]}
                 />
             </View>
             <BasicButton onPress={createWall} style={{ alignSelf: "center", margin: 30 }} text="Create" color="green" />
