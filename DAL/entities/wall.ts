@@ -49,11 +49,6 @@ export class Wall extends Entity {
         return this.isPublic || isBelongsToGroup
     }
 
-    public async addToRemote(collectionName: string): Promise<void> {
-        if (!this.shouldPushToRemote()) return;
-        return super.addToRemote(collectionName);
-    }
-
     get fullName() {
         return `${this.name}@${this.gym}`;
     }

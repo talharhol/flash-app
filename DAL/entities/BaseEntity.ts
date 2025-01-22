@@ -63,7 +63,12 @@ export class Entity {
         return data
     }
 
+    public shouldPushToRemote(): boolean {
+        return true;
+    }
+
     public async addToRemote(collectionName: string): Promise<void> {
+        if (!this.shouldPushToRemote()) return;
         let dal = this.getDAL();
         try {
             let remoteDoc = await this.uploadAssets(this.toRemoteDoc());
@@ -82,6 +87,7 @@ export class Entity {
     }
 
     public async deleteInRemote(collectionName: string): Promise<void> {
+        if (!this.shouldPushToRemote()) return;
         let dal = this.getDAL();
         try {
             await updateDoc(
@@ -99,6 +105,7 @@ export class Entity {
     }
 
     public async updateInRemote(collectionName: string): Promise<void> {
+        if (!this.shouldPushToRemote()) return;
         let dal = this.getDAL();
         try {
             let remoteDoc = this.toRemoteDoc();

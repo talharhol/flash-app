@@ -44,6 +44,7 @@ const CreateBolderProblemScreen: React.FC = () => {
   );
 
   const startDrawingHold = () => {
+    setIsDrawingHold(true);
     Notifier.showNotification({
       duration: 3000,
       showAnimationDuration: 300,
@@ -55,7 +56,6 @@ const CreateBolderProblemScreen: React.FC = () => {
         onCancel: () => { setIsDrawingHold(false); Notifier.hideNotification(); },
       })
     });
-    setIsDrawingHold(true);
   };
   const onDrawHoldFinish = (hold: HoldInterface) => {
     setHolds(holds => holds.concat([hold]));
@@ -135,6 +135,7 @@ const CreateBolderProblemScreen: React.FC = () => {
           editedHold && <EditHoldModal closeModal={setEditedHold.bind(this, null)} editHold={editHold.bind(this, editedHold)} />
         }
         <BolderProblem
+          key={wall.id}
           wallImage={wall.image}
           configuredHolds={wall.configuredHolds}
           existingHolds={holds}

@@ -33,10 +33,9 @@ export class Problem extends Entity {
         }
     }
 
-    public async addToRemote(collectionName: string): Promise<void> {
-        if (!this.wall.shouldPushToRemote()) return;
-        return super.addToRemote(collectionName);
-    } 
+    public shouldPushToRemote(): boolean {
+        return this.wall.shouldPushToRemote();
+    }
 
     get wall(): Wall {
         return this.dal!.walls.Get({id: this.wallId})
