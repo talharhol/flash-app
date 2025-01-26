@@ -18,8 +18,13 @@ export class BaseDAL<
     }
 
     public async AddToLocal(obj: ObjType): Promise<void> {
-        await this.table.insert(obj.toTable(this.table), this._dal.db!).catch(console.log);
-        this._dal.updateScreen();
+        try {
+            await this.table.insert(obj.toTable(this.table), this._dal.db!);
+            this._dal.updateScreen();
+        } catch (e) {
+            console.error(`failed adding object to table ${this.table.tableName}`, e);
+            throw `failed adding object to table ${this.table.tableName}`
+        };
     }
 
     public async AddToRemote(obj: ObjType): Promise<void> {
@@ -61,7 +66,7 @@ export class BaseDAL<
         );
         this._dal.updateScreen();
     }
-    
+
     public async UpdateRemote(obj: ObjType): Promise<void> {
         if (!!this.remoteCollection) await obj.updateInRemote(this.remoteCollection);
     }
@@ -103,7 +108,7 @@ export class BaseDAL<
         }) as ObjType[];
     }
 
-    public async FetchSingleDoc(id: string): Promise<{[key: string]: any}> {
+    public async FetchSingleDoc(id: string): Promise<{ [key: string]: any }> {
         return (await getDoc(doc(this._dal.remoteDB, this.remoteCollection!, id))).data()!;
     }
 
@@ -111,23 +116,23 @@ export class BaseDAL<
         if (!this.remoteCollection) return;
         console.log(`fetching ${this.remoteCollection}`)
         const q = query(
-            collection(this._dal.remoteDB, this.remoteCollection), 
-            where("updated_at", ">=", since ),
-            where("isPublic", "==", true ),
-        ); 
+            collection(this._dal.remoteDB, this.remoteCollection),
+            where("updated_at", ">=", since),
+            where("isPublic", "==", true),
+        );
         let docs = await getDocs(q);
         docs.forEach(
             doc => {
                 try {
                     let remoteData = doc.data();
-                    let existingEntity = this.List({id: doc.id})[0];
+                    let existingEntity = this.List({ id: doc.id })[0];
                     if (remoteData.is_deleted === true) {
                         if (existingEntity) this.Remove(existingEntity).catch(console.error);
                     } else {
                         let entityObj = this.table.entity.fromRemoteDoc(remoteData, existingEntity);
                         if (existingEntity !== undefined)
                             this.UpdateLocal(entityObj as ObjType).catch(console.error);
-                        else 
+                        else
                             this.AddToLocal(entityObj as ObjType).catch(console.error);
                     }
                 } catch (e) {

@@ -11,7 +11,7 @@ export class GroupDAL extends BaseDAL<Group> {
         await GroupProblemTable.insert({
             problem_id: params.problem_id,
             group_id: params.group_id
-        }, this._dal.db!).catch(console.log);
+        }, this._dal.db!).catch(e => console.error(`failed adding problem ${params.problem_id}`, e));
     }
 
     public async AddWall(params: { wall_id: string, group_id: string }): Promise<void> {
@@ -19,7 +19,7 @@ export class GroupDAL extends BaseDAL<Group> {
         await GroupWallTable.insert({
             wall_id: params.wall_id,
             group_id: params.group_id
-        }, this._dal.db!).catch(console.error);
+        }, this._dal.db!).catch(e => console.error(`failed adding wall ${params}`, e));
     }
 
     public List({userId, ...params}: { userId?: string } & { [ket: string]: any }): Group[] {
@@ -244,7 +244,7 @@ export class GroupDAL extends BaseDAL<Group> {
                                     let walls = this._dal.walls.List({id: wall_id});
                                     if (walls.length === 0) {
                                         let remoteWall = await this._dal.walls.FetchSingleDoc(wall_id);
-                                        if (remoteWall.is_deleted) {
+                                        if (remoteWall === undefined || remoteWall.is_deleted) {
                                             entityObj.walls = entityObj.walls.filter(v => v !== wall_id)
                                         } else {
                                             await this._dal.walls.AddToLocal(Wall.fromRemoteDoc(remoteWall))
@@ -259,10 +259,15 @@ export class GroupDAL extends BaseDAL<Group> {
                                     let problems = this._dal.problems.List({id: pid});
                                     if (problems.length === 0) {
                                         let remoteProblem = await this._dal.problems.FetchSingleDoc(pid);
-                                        if (remoteProblem.is_deleted) {
+                                        if (remoteProblem === undefined || remoteProblem.is_deleted) {
                                             entityObj.problems = entityObj.problems.filter(v => v !== pid)
                                         } else {
-                                            await this._dal.problems.AddToLocal(Problem.fromRemoteDoc(remoteProblem))
+                                            try {
+                                                await this._dal.problems.AddToLocal(Problem.fromRemoteDoc(remoteProblem));
+                                            } catch {
+                                                console.log(`failed adding problem ${pid}, removing`);
+                                                entityObj.problems = entityObj.problems.filter(v => v !== pid);
+                                            }
                                         }
                                     }
                                 }
