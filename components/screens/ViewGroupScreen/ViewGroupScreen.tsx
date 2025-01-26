@@ -30,54 +30,49 @@ const ViewGroupScreen: React.FC = () => {
     }
 
     return (
-        <View style={{ height: "100%" }}>
-
-
-
-            <ParallaxScrollView
-                headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-                headerImage={
-                    <ThemedView style={styles.headerContainer}>
-                        <Ionicons
-                            onPress={() => router.push({ pathname: "/SelectWallScreen", params: { id: group.id } })}
-                            name='add-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 10, padding: 5 }} />
-                        <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{group.name}</ThemedText>
-                        <Ionicons
-                            onPress={() => setFilterProblemsModal(true)}
-                            name='filter' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 10, padding: 5 }} />
-                    </ThemedView>
-                }>
-                {
-                    displayedProblem &&
-                    <DisplayBolderProblemModal
-                        problem={dal.problems.Get({ id: displayedProblem })}
-                        closeModal={setDisplayedProblem.bind(this, null)} />
-                }
-                {
-                    filterProblemsModal &&
-                    <FilterProblemssModal
-                        closeModal={() => setFilterProblemsModal(false)}
-                        initialFilters={filters}
-                        onFiltersChange={setFilters}
-                        groupId={group.id}
-                    />
-                }
-                {
-                    group.FilterProblems(filters).map(problem => {
-                        return (
-                            <BolderProblemPreview
-                                key={problem.id}
-                                onPress={() => setDisplayedProblem(problem.id)}
-                                wall={dal.walls.Get({ id: problem.wallId })}
-                                problem={problem}
-                                deleteProblem={deleteProblem}
-                            />
-                        )
-                    }
+        <ParallaxScrollView
+            headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+            headerImage={
+                <ThemedView style={styles.headerContainer}>
+                    <Ionicons
+                        onPress={() => router.push({ pathname: "/SelectWallScreen", params: { id: group.id } })}
+                        name='add-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 10, padding: 5 }} />
+                    <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{group.name}</ThemedText>
+                    <Ionicons
+                        onPress={() => setFilterProblemsModal(true)}
+                        name='filter' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 10, padding: 5 }} />
+                </ThemedView>
+            }>
+            {
+                displayedProblem &&
+                <DisplayBolderProblemModal
+                    problem={dal.problems.Get({ id: displayedProblem })}
+                    closeModal={setDisplayedProblem.bind(this, null)} />
+            }
+            {
+                filterProblemsModal &&
+                <FilterProblemssModal
+                    closeModal={() => setFilterProblemsModal(false)}
+                    initialFilters={filters}
+                    onFiltersChange={setFilters}
+                    groupId={group.id}
+                />
+            }
+            {
+                group.FilterProblems(filters).map(problem => {
+                    return (
+                        <BolderProblemPreview
+                            key={problem.id}
+                            onPress={() => setDisplayedProblem(problem.id)}
+                            wall={dal.walls.Get({ id: problem.wallId })}
+                            problem={problem}
+                            deleteProblem={deleteProblem}
+                        />
                     )
                 }
-            </ParallaxScrollView>
-        </View>
+                )
+            }
+        </ParallaxScrollView>
     );
 }
 

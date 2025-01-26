@@ -32,50 +32,45 @@ const ViewWallScreen: React.FC = () => {
     }
 
     return (
-        <View style={{ height: "100%" }}>
-
-
-
-            <ParallaxScrollView
-                headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-                headerImage={
-                    <ThemedView style={styles.headerContainer}>
-                        <Ionicons
-                            onPress={() => router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id } })}
-                            name='add-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 10, padding: 5 }} />
-                        <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{wall.name}@{wall.gym}</ThemedText>
-                        <Ionicons
-                            onPress={() => setFilterProblemsModal(true)}
-                            name='filter' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 10, padding: 5 }} />
-                    </ThemedView>
-                }>
-                {
-                    filterProblemsModal &&
-                    <FilterProblemssModal
-                        closeModal={() => setFilterProblemsModal(false)}
-                        initialFilters={filters}
-                        onFiltersChange={setFilters}
+        <ParallaxScrollView
+            headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+            headerImage={
+                <ThemedView style={styles.headerContainer}>
+                    <Ionicons
+                        onPress={() => router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id } })}
+                        name='add-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 10, padding: 5 }} />
+                    <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{wall.name}@{wall.gym}</ThemedText>
+                    <Ionicons
+                        onPress={() => setFilterProblemsModal(true)}
+                        name='filter' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 10, padding: 5 }} />
+                </ThemedView>
+            }>
+            {
+                filterProblemsModal &&
+                <FilterProblemssModal
+                    closeModal={() => setFilterProblemsModal(false)}
+                    initialFilters={filters}
+                    onFiltersChange={setFilters}
+                />
+            }
+            {
+                displayedProblem &&
+                <DisplayBolderProblemModal
+                    problem={dal.problems.Get({ id: displayedProblem })}
+                    closeModal={setDisplayedProblem.bind(this, null)} />
+            }
+            {
+                dal.problems.List({ wallId: wall.id, ...filters }).map(problem =>
+                    <BolderProblemPreview
+                        key={problem.id}
+                        onPress={() => setDisplayedProblem(problem.id)}
+                        wall={wall}
+                        problem={problem}
+                        deleteProblem={deleteProblem}
                     />
-                }
-                {
-                    displayedProblem &&
-                    <DisplayBolderProblemModal
-                        problem={dal.problems.Get({ id: displayedProblem })}
-                        closeModal={setDisplayedProblem.bind(this, null)} />
-                }
-                {
-                    dal.problems.List({ wallId: wall.id, ...filters }).map(problem =>
-                        <BolderProblemPreview
-                            key={problem.id}
-                            onPress={() => setDisplayedProblem(problem.id)}
-                            wall={wall}
-                            problem={problem}
-                            deleteProblem={deleteProblem}
-                        />
-                    )
-                }
-            </ParallaxScrollView>
-        </View>
+                )
+            }
+        </ParallaxScrollView>
     );
 }
 
