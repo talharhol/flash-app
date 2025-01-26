@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import {
   Button,
+  Platform,
   StatusBar,
   StyleSheet,
   View,
@@ -104,7 +105,7 @@ const CreateBolderProblemScreen: React.FC = () => {
   }
 
   return (
-    <View>
+    <View style={styles.container}>
       <ThemedView style={styles.headerContainer}>
         <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Create problem</ThemedText>
         <Ionicons
@@ -146,10 +147,10 @@ const CreateBolderProblemScreen: React.FC = () => {
           disableMovment={isDrawingHold}
           drawingHoldType={isDrawingHold ? (drawingHoldType || new HoldType(HoldTypes.route)) : null}
         />
-        <View style={styles.buttonContainer}>
+      </View>
+      <View style={styles.buttonContainer}>
           <Button title="New Hold" onPress={startDrawingHold} />
         </View>
-      </View>
     </View>
   );
 };
@@ -163,17 +164,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     width: "100%",
     flexDirection: "row",
-    paddingTop: StatusBar.currentHeight
+    paddingTop: Platform.OS === 'ios' ? 50 : 0
   },
   problemImage: {
     resizeMode: "center"
   },
   buttonContainer: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    marginTop: "auto",
-    marginBottom: "auto"
+    position: 'absolute',
+    bottom: 0,
+    width: "100%"
   },
   zoomedContainer: {
     maxHeight: "75%",
@@ -233,8 +232,7 @@ const styles = StyleSheet.create({
   },
   container: {
     width: "100%",
-    // marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-    flex: 1,
+    height: "100%",
   },
   problemHeader: {
     height: 50 + (StatusBar.currentHeight ?? 0),

@@ -32,21 +32,7 @@ const ViewGroupScreen: React.FC = () => {
     return (
         <View style={{ height: "100%" }}>
 
-            {
-                displayedProblem &&
-                <DisplayBolderProblemModal
-                    problem={dal.problems.Get({ id: displayedProblem })}
-                    closeModal={setDisplayedProblem.bind(this, null)} />
-            }
-            {
-                filterProblemsModal &&
-                <FilterProblemssModal
-                    closeModal={() => setFilterProblemsModal(false)}
-                    initialFilters={filters}
-                    onFiltersChange={setFilters}
-                    groupId={group.id}
-                />
-            }
+
 
             <ParallaxScrollView
                 headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -61,6 +47,21 @@ const ViewGroupScreen: React.FC = () => {
                             name='filter' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 10, padding: 5 }} />
                     </ThemedView>
                 }>
+                {
+                    displayedProblem &&
+                    <DisplayBolderProblemModal
+                        problem={dal.problems.Get({ id: displayedProblem })}
+                        closeModal={setDisplayedProblem.bind(this, null)} />
+                }
+                {
+                    filterProblemsModal &&
+                    <FilterProblemssModal
+                        closeModal={() => setFilterProblemsModal(false)}
+                        initialFilters={filters}
+                        onFiltersChange={setFilters}
+                        groupId={group.id}
+                    />
+                }
                 {
                     group.FilterProblems(filters).map(problem => {
                         return (

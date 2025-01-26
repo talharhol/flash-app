@@ -30,7 +30,7 @@ const ResponsiveBackgroundModal: React.FC<React.ComponentProps<typeof Modal> & {
     },
     onTouchMove: React.ComponentProps<typeof View>["onTouchMove"] = ({ nativeEvent: { locationX: x, locationY: y } }) => {
         const dx = x - initialPosition.x, dy = y - initialPosition.y;
-        if (Math.abs(dx) > 6 || Math.abs(dy) > 6)
+        if (Math.abs(dx) > 10 || Math.abs(dy) > 10)
             setIsDragging(true);
         if (isDragging)
             onDrage(dx, dy);

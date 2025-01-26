@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         width: "100%",
         flexDirection: "row",
-        paddingTop: StatusBar.currentHeight
+        paddingTop: Platform.OS === 'ios' ? 50 : 0,
     },
     problemImage: {
         resizeMode: "center"

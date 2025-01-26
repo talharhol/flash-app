@@ -1,5 +1,3 @@
-export const svgZoom = 1;
-
 interface Grades {
     [key: number]: string;
 }

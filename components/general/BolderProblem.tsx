@@ -15,7 +15,6 @@ import Svg from "react-native-svg";
 import Zoomable from "./Zoomable";
 import DrawHold from "./DrawHold";
 import SVGHold from "./SvgHold";
-import { svgZoom } from "@/constants/consts";
 import { captureRef } from "react-native-view-shot";
 import * as MediaLibrary from 'expo-media-library';
 
@@ -123,7 +122,7 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
               }
               <View style={{ position: "absolute", zIndex: 1 }}>
                 <Svg
-                  viewBox={`0 0 ${imageWidth * svgZoom / (scale || 1)} ${imageHeight * svgZoom / (scale || 1)}`}
+                  viewBox={`0 0 1000 ${1000 / (imageWidth / imageHeight)}`}
                   style={[{ position: "relative", width: imageWidth, height: imageHeight }]}>
                   {
                     configuredHolds?.sort(SortHolds).map(hold => (

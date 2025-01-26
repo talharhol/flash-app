@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import { StyleSheet, useColorScheme } from 'react-native';
+import { Platform, StyleSheet, useColorScheme } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedRef,
@@ -29,7 +29,7 @@ const ParallaxScrollView: React.FC<React.ComponentProps<typeof ThemedView> & {
   padding,
   gap
 }) => {
-    const colorScheme = useColorScheme() ?? 'light';
+    const colorScheme = 'dark';
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
     const scrollOffset = useScrollViewOffset(scrollRef);
 
@@ -76,6 +76,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
+    paddingTop: Platform.OS === "ios" ? 50 : 0,
     height: 100,
     alignItems: 'center',
     justifyContent: 'center',
