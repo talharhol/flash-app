@@ -64,8 +64,8 @@ export class User extends Entity {
         return {
             ...super.toRemoteDoc(),
             name: this.name,
-            owenedWalls: this.ownedWalls.map(w => w.id),
-            viewerWalls: this.viewerWalls.map(w => w.id),
+            owenedWalls: this.ownedWalls.filter(w => w.shouldPushToRemote()).map(w => w.id),
+            viewerWalls: this.viewerWalls.filter(w => w.shouldPushToRemote()).map(w => w.id),
         }
     }
 
