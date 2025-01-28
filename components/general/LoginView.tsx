@@ -88,8 +88,5 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginBottom: 15,
-  },
-  button: {
-    marginBottom: 20
   }
 });

@@ -64,15 +64,6 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: "black"
     },
-    titleContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    stepContainer: {
-        gap: 8,
-        marginBottom: 8,
-    },
     header: {
         alignItems: 'center',
         backgroundColor: 'transparent',
