@@ -13,7 +13,7 @@ const BasicButton: React.FC<React.ComponentProps<typeof TouchableOpacity> & {
     return (
         <TouchableOpacity
             {...props}
-            style={[styles.addHoldButton, selected ? {backgroundColor: color} : { borderColor: color }, props.style]}
+            style={[styles.addHoldButton, selected ? {backgroundColor: color, borderColor: "transparent"} : { borderColor: color }, props.style]}
         >
             <Text style={[styles.addHoldText, selected ? {color: "black"} : { color: color }]}>
                 {text}

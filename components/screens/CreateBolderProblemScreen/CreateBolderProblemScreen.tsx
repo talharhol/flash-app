@@ -133,7 +133,11 @@ const CreateBolderProblemScreen: React.FC = () => {
           }
         </View>
         {
-          editedHold && <EditHoldModal closeModal={setEditedHold.bind(this, null)} editHold={editHold.bind(this, editedHold)} />
+          editedHold && 
+          <EditHoldModal 
+          closeModal={() => setEditedHold(null)} 
+          selectedHold={holds.filter(v => v.id === editedHold)[0]}
+          editHold={(holdType, isDeleted) => editHold(editedHold, holdType, isDeleted)} />
         }
         <BolderProblem
           key={wall.id}

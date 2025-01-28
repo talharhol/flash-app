@@ -25,15 +25,15 @@ const MyWallsScreen: React.FC = () => {
                 setViewWalls(dal.currentUser.viewerWalls);
                 setOwnedWalls(dal.currentUser.ownedWalls);
             }
-        ) 
+        )
         setWallToRemove(null);
     };
     const DeleteWall = (wall: Wall) => {
         dal.walls.Remove(wall)
-        .then(() => {
-            setViewWalls(dal.currentUser.viewerWalls);
-            setOwnedWalls(dal.currentUser.ownedWalls);
-        }).catch(console.log);
+            .then(() => {
+                setViewWalls(dal.currentUser.viewerWalls);
+                setOwnedWalls(dal.currentUser.ownedWalls);
+            }).catch(console.log);
         setWallToDelete(null);
     };
     const [viewWalls, setViewWalls] = useState(dal.currentUser.viewerWalls);
@@ -63,23 +63,19 @@ const MyWallsScreen: React.FC = () => {
                                         color="red"
                                         style={{ width: 100 }}
                                     />
-                                    <BasicButton
-                                        onPress={() => router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } })}
-                                        text='Edit'
-                                        color="red"
-                                        style={{ width: 100 }}
-                                    />
                                 </View>
                             )
                         }}
                     />
                 )
             }
-            {ownedWalls.length > 0 &&
+            {
+                ownedWalls.length > 0 &&
                 <View style={{ alignItems: "center" }}>
                     <ThemedText type='subtitle'>Owned walls</ThemedText>
                     <View style={{ height: 2, borderRadius: 1, width: "100%", backgroundColor: "gray" }} />
-                </View>}
+                </View>
+            }
             {
                 ownedWalls.map(wall =>
                     <SwipablePreviewItem key={wall.id} image={wall.image}
@@ -90,14 +86,14 @@ const MyWallsScreen: React.FC = () => {
                             return (
                                 <View style={{ height: "100%", flexDirection: "column", alignItems: 'center', justifyContent: "space-evenly" }}>
                                     <BasicButton
-                                        text='Delete'
-                                        onPress={setWallToDelete.bind(this, wall)}
-                                        color="red"
+                                        onPress={() => router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } })}
+                                        text='Edit Holds'
+                                        color="blue"
                                         style={{ width: 100 }}
                                     />
                                     <BasicButton
-                                        onPress={() => router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } })}
-                                        text='Edit'
+                                        text='Delete'
+                                        onPress={setWallToDelete.bind(this, wall)}
                                         color="red"
                                         style={{ width: 100 }}
                                     />

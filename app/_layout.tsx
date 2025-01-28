@@ -46,7 +46,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView>
-      <Suspense fallback={<View style={{ flex: 1, backgroundColor: "red" }} />}>
+      <Suspense fallback={<View style={{ flex: 1, backgroundColor: "grey" }} />}>
         <SQLiteProvider databaseName="flashLocalDB.db" onInit={runMigrations} useSuspense>
           <DalContext.Provider value={dalService}>
             <NotifierWrapper>

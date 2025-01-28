@@ -19,7 +19,7 @@ import React from 'react';
 function RightAction(h: number, w: number, problemRef: React.RefObject<BolderProblemComponent>, problem: Problem, dal: IDAL, deleteProblem?: (problem: Problem) => void) {
 
     return (
-        <View style={{ height: h, width: w, backgroundColor: "red" }}>
+        <View style={{ height: h, width: w, backgroundColor: "grey" }}>
                  <Ionicons
                      onPress={async () => {
                          Sharing.shareAsync(await problemRef.current?.getProblemUrl()!);
