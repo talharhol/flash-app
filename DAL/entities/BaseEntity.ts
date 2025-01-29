@@ -31,13 +31,16 @@ export class Entity {
 
     public toTable(table: typeof BaseTable):  { [key: string]: any } {
         let data = Object.assign<{}, { [key: string]: any }>({}, this);
-        delete data.dal
-        delete data.setDAL
-        delete data.getDAL
+        delete data.dal;
+        delete data.setDAL;
+        delete data.getDAL;
+        delete data.createdAt;
+        delete data.updatedAt;
+
         Object.keys(data).map(k => {
             // removeing all unrelated data
             if (k.startsWith("_")) delete data[k];
-            else if (table.getField(k, false) === undefined) delete data[k];
+            else if (table.getField(k) === undefined) delete data[k];
         });
         return data
     }
