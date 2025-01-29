@@ -220,13 +220,13 @@ export class BaseTable {
     public static entity: typeof Entity;
 
 
-    public static getField(name: string): Field | undefined {
+    public static getField(name: string, log?: boolean): Field | undefined {
         let field = this.fields.filter(f => f.matchName(name));
         if (field.length > 0) {
             field[0].setTable(this);
             return field[0];
         }
-        console.log(`table ${this.tableName} has no column ${name}`);
+        (log ?? true) && console.error(`table ${this.tableName} has no column ${name}`);
     }
 
     public static insert(data: { [key: string]: any }, db: SQLite.SQLiteDatabase): Promise<any> {

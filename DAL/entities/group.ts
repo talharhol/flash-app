@@ -126,11 +126,6 @@ export class Group extends Entity {
             name: this.name,
             image: this.image
         };
-        Object.keys(data).map(k => {
-            // removeing all unrelated data
-            if (k.startsWith("_")) delete data[k];
-            else if (table.getField(k) === undefined) delete data[k];
-        });
         return data
     }
 };

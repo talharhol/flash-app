@@ -37,7 +37,7 @@ export class Entity {
         Object.keys(data).map(k => {
             // removeing all unrelated data
             if (k.startsWith("_")) delete data[k];
-            else if (table.getField(k) === undefined) delete data[k];
+            else if (table.getField(k, false) === undefined) delete data[k];
         });
         return data
     }
