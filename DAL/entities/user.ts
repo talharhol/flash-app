@@ -1,14 +1,14 @@
 import { ImageSourcePropType, Image } from "react-native";
 import { Entity, EntityProps } from "./BaseEntity";
 
-export type UserProps = EntityProps & {name: string, image?: ImageSourcePropType }
+export type UserProps = EntityProps & {name?: string, image?: ImageSourcePropType }
 
 export class User extends Entity {
     name: string;
     protected _image?: ImageSourcePropType;
     constructor({ name, image, ...props }: UserProps) {
         super(props)
-        this.name = name;
+        this.name = name ?? `u${Date.now() % 1e8}${Math.floor(1000 + Math.random() * 8999)}`;
         this._image = image;
     }
 

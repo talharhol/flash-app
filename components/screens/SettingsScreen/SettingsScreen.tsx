@@ -9,11 +9,14 @@ import { useRouter } from 'expo-router';
 import { BaseButton } from 'react-native-gesture-handler';
 import { useDal } from '@/DAL/DALService';
 import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
+import EditUserModal from './EditUserModal';
 
 const SettingsScreen: React.FC = () => {
     const router = useRouter();
-    const dal = useDal();
+    const dal = useDal(() => setUser(dal.currentUser));
     const [logoutModal, setLogoutModal] = useState(false);
+    const [editModal, setEditModal] = useState(false);
+    const [user, setUser] = useState(dal.currentUser);
     return (
         <ParallaxScrollView
             headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -23,16 +26,25 @@ const SettingsScreen: React.FC = () => {
                 </ThemedView>
             }>
             {
-                logoutModal && 
-                <ActionValidationModal 
-                text='Log out? you can allway login again :)'
-                approveAction={() => dal.signout()}
-                closeModal={() => setLogoutModal(false)} />
+                logoutModal &&
+                <ActionValidationModal
+                    text='Log out? you can allway login again :)'
+                    approveAction={() => dal.signout()}
+                    closeModal={() => setLogoutModal(false)} />
             }
-            <TouchableOpacity onPress={() => alert()}>
+            {
+                editModal &&
+                <EditUserModal
+                    closeModal={() => setEditModal(false)} user={dal.currentUser} editUser={u => {
+                        dal.users.Update(u);
+                        setEditModal(false);
+                    }} />
+            }
+            <TouchableOpacity onPress={() => setEditModal(true)}>
                 <PreviewItem
-                    image={dal.currentUser.image}
-                    title="Edit profile"
+                    image={user.image}
+                    title={user.name}
+                    subTitle='click to edit'
                 />
             </TouchableOpacity>
             <View style={{ flexDirection: "row", width: "100%", justifyContent: "space-between" }}>
@@ -58,7 +70,7 @@ const styles = StyleSheet.create({
         gap: 16,
         marginRight: 8,
         marginLeft: 8,
-        flex: 1, 
+        flex: 1,
         height: 50,
         borderRadius: 8,
         backgroundColor: "gray",

@@ -120,8 +120,7 @@ class DalService extends EventEmitter {
         let user = this.users.List({ id: this._remoteAuth.currentUser!.uid })[0];
         if (user === undefined) {
             user = new User({
-                id: this._remoteAuth.currentUser!.uid,
-                name: this._remoteAuth.currentUser!.email || "User"
+                id: this._remoteAuth.currentUser!.uid
             });
             user.setDAL(this);
             this._currentUser = user;
