@@ -88,6 +88,7 @@ const SelectWallScreen: React.FC = () => {
                 {
                     group.walls.map(id => dal.walls.Get({ id }))
                         .filter(w => !w.isPublic)
+                        .sort((a, b) => b.createdAt - a.createdAt)
                         .map(wall => (
                             <TouchableOpacity
                                 key={wall.id}

@@ -5,15 +5,20 @@ import { collection, serverTimestamp, updateDoc, setDoc, doc } from "firebase/fi
 import { ImageResolvedAssetSource } from "react-native";
 
 
-export type EntityProps = {[key: string]: any} & { id?: string, dal?: IDAL };
+export type EntityProps = {[key: string]: any} & { id?: string, dal?: IDAL, created_at?: number, updated_at?: number };
 
 export class Entity {
     id: string;
     protected dal?: IDAL;
+    createdAt: number;
+    updatedAt: number;
+
 
     constructor(data: EntityProps) {
         this.id = data.id ?? uuid.v4() as string;
         this.dal = data.dal;
+        this.updatedAt = data.updated_at ?? Date.now();
+        this.createdAt = data.created_at ?? Date.now();
     }
 
     setDAL = (dal: IDAL) => {
