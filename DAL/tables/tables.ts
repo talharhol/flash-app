@@ -186,7 +186,8 @@ export class UserConfigTable extends BaseTable {
     public static fields: Field[] = [
         ...BaseTable.getDefaultFields(),
         new Field({ name: "user_id", type: "TEXT", notNull: true, fk: UserTable.getField('id') }),
-        new Field({ name: "last_pulled", type: "INTEGER", notNull: true, fk: WallTable.getField('id'), default_: () => 0 }),
-        new Field({ name: "should_fetch_user_data", type: "BOOLEAN", notNull: true, fk: WallTable.getField('id'), default_: () => false }),
+        new Field({ name: "last_pulled", type: "INTEGER", notNull: true, default_: () => 0 }),
+        new Field({ name: "should_fetch_user_data", type: "BOOLEAN", notNull: true, default_: () => false }),
+        new Field({ name: "login_counter", type: "INTEGER", notNull: true, default_: () => 0 }),
     ];
 }

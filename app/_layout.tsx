@@ -4,7 +4,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { Suspense, useEffect, useState } from 'react';
 import 'react-native-reanimated';
-import { SQLiteProvider} from 'expo-sqlite';
+import { SQLiteProvider } from 'expo-sqlite';
 
 
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -14,16 +14,24 @@ import dalService, { DalContext } from '@/DAL/DALService';
 import { View } from 'react-native';
 import { runMigrations } from '@/DAL/migrations';
 import LoginView from '@/components/general/LoginView';
+import DonationView from '@/components/general/DonationView';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [isLogin, setIsLogin] = useState(true);
+  const [shouldRequestDonation, setShouldRequestDonation] = useState(false);
   useEffect(() => {
     // Listen for authentication state changes
     const unsubscribe = dalService.onAuthStateChanged((authUser) => {
-      setIsLogin(!!authUser);
+      let isLoggedIn = !!authUser;
+      setIsLogin(isLoggedIn);
+      console.log("HERE", isLoggedIn);
+      if (!isLoggedIn) return;
+      let loginCount = dalService.currentUser.loginCount + 1;
+      dalService.currentUser.loginCount = loginCount;
+      if (loginCount % 50 === 0) setShouldRequestDonation(true);
     });
 
     // Clean up the listener
@@ -51,10 +59,14 @@ export default function RootLayout() {
           <DalContext.Provider value={dalService}>
             <NotifierWrapper>
               <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-                {isLogin ?
-                  <Stack>
-                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                  </Stack> : <LoginView />
+                {
+                  !isLogin ?
+                    <LoginView /> :
+                    shouldRequestDonation ?
+                      <DonationView close={() => setShouldRequestDonation(false)} /> :
+                      <Stack>
+                        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                      </Stack>
                 }
               </ThemeProvider>
             </NotifierWrapper>

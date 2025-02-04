@@ -1,7 +1,7 @@
 import { ImageSourcePropType, Image } from "react-native";
 import { Entity, EntityProps } from "./BaseEntity";
 
-export type UserProps = EntityProps & {name?: string, image?: ImageSourcePropType }
+export type UserProps = EntityProps & { name?: string, image?: ImageSourcePropType }
 
 export class User extends Entity {
     name: string;
@@ -13,36 +13,36 @@ export class User extends Entity {
     }
 
     public get groups() {
-        return this.dal!.groups.List({userId: this.id})
+        return this.dal!.groups.List({ userId: this.id })
     }
-    
+
     public get walls() {
-        return this.dal!.walls.List({userId: this.id})
+        return this.dal!.walls.List({ userId: this.id })
     }
 
     public get ownedWalls() {
-        return this.dal!.users.GetWalls({user_id: this.id, role: "owner"})
+        return this.dal!.users.GetWalls({ user_id: this.id, role: "owner" })
     }
 
     public get viewerWalls() {
-        return this.dal!.users.GetWalls({user_id: this.id, role: "viewer"})
+        return this.dal!.users.GetWalls({ user_id: this.id, role: "viewer" })
     }
 
     public async addWall(id: string, role?: string, updateRemote?: boolean) {
         updateRemote = updateRemote ?? true;
-        await this.dal!.users.AddWall({wall_id: id, user_id: this.id}, role);
+        await this.dal!.users.AddWall({ wall_id: id, user_id: this.id }, role);
         if (updateRemote) this.dal!.users.UpdateRemote(this).catch(console.error);
     }
 
     public async removeWall(id: string, updateRemote?: boolean) {
         updateRemote = updateRemote ?? true;
-        await this.dal!.users.RemoveWall({wall_id: id, user_id: this.id});
+        await this.dal!.users.RemoveWall({ wall_id: id, user_id: this.id });
         if (updateRemote) this.dal!.users.UpdateRemote(this).catch(console.error);
     }
 
     public async removeGroup(id: string, updateRemote?: boolean) {
         updateRemote = updateRemote ?? true;
-        await this.dal!.users.RemoveGroup({group_id: id, user_id: this.id});
+        await this.dal!.users.RemoveGroup({ group_id: id, user_id: this.id });
         if (updateRemote) this.dal!.users.UpdateRemote(this).catch(console.error);
     }
 
@@ -53,14 +53,14 @@ export class User extends Entity {
     protected async uploadAssets(data: { [key: string]: any }): Promise<{ [key: string]: any }> {
         let image = {};
         if (!!this._image) image = await this.uploadImage(Image.resolveAssetSource(this._image));
-        
+
         return {
             ...data,
             image: image,
         };
     }
 
-    public toRemoteDoc(): { [key: string]: any} {
+    public toRemoteDoc(): { [key: string]: any } {
         return {
             ...super.toRemoteDoc(),
             name: this.name,
@@ -69,9 +69,9 @@ export class User extends Entity {
         }
     }
 
-    public static fromRemoteDoc(data: {[key: string]: any}, old?: User): Entity {
+    public static fromRemoteDoc(data: { [key: string]: any }, old?: User): Entity {
         let image = undefined;
-        if (!!data.image.commpressed) image = {uri: data.image.commpressed}
+        if (!!data.image.commpressed) image = { uri: data.image.commpressed }
         if (!!old) image = old._image ?? image;
         return new this({
             id: data.id,
@@ -79,4 +79,29 @@ export class User extends Entity {
             image: image
         });
     }
+
+    public get lastPulled(): number {
+        return this.getDAL().users.getLastPulled(this);
+    }
+
+    public set lastPulled(value: number) {
+        this.getDAL().users.setLastPulled(this, value).catch(console.error);
+    }
+
+    public get shouldFetchUserData(): boolean {
+        return this.getDAL().users.getShouldFetchUserData(this);
+    }
+
+    public set shouldFetchUserData(value: boolean) {
+        this.getDAL().users.setShouldFetchUserData(this, value).catch(console.error);
+    }
+
+    public get loginCount(): number {
+        return this.getDAL().users.getLoginCount(this);
+    }
+
+    public set loginCount(value: number) {
+        this.getDAL().users.setLoginCount(this, value).catch(console.error);
+    }
+    
 };

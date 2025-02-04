@@ -100,17 +100,17 @@ export class UserDAL extends BaseDAL<User> {
             if (currViewer.includes(wallId)) return;
             await this._dal.currentUser.addWall(wallId, "viewer", false).catch(e => console.error(`failed adding wall ${wallId} to user`, e));
         }));
-        this.shouldFetchUserData = false;
+        this._dal.currentUser.shouldFetchUserData = false;
         this.UpdateRemote(this._dal.currentUser);
     }
 
-    public async CreateConfig(params: {user_id: string, last_pulled?: number, should_fetch_user_data?: boolean}): Promise<void> {
+    public async CreateConfig(params: {user_id: string, last_pulled?: number, should_fetch_user_data?: boolean, login_counter?: number}): Promise<void> {
         await UserConfigTable.insert(params, this._dal.db!);
     }
 
-    public get lastPulled(): number {
+    public getLastPulled(user: User): number {
         let conig = UserConfigTable.query()
-        .Filter(UserConfigTable.getField("user_id")!.eq(this._dal.currentUser.id))
+        .Filter(UserConfigTable.getField("user_id")!.eq(user.id))
         .Select([UserConfigTable.getField("last_pulled")!])
         .All<{last_pulled: number}>(this._dal.db!)[0];
 
@@ -118,28 +118,46 @@ export class UserDAL extends BaseDAL<User> {
         return 0;
     }
 
-    public get shouldFetchUserData(): boolean {
+    public async setLastPulled(user: User, value: number): Promise<void> {
+        await UserConfigTable.update(
+            [UserConfigTable.getField("user_id")!.eq(user.id)],
+            { last_pulled: value },
+            this._dal.db!
+        );
+    }
+
+    public getShouldFetchUserData(user: User): boolean {
         let conig = UserConfigTable.query()
-        .Filter(UserConfigTable.getField("user_id")!.eq(this._dal.currentUser.id))
+        .Filter(UserConfigTable.getField("user_id")!.eq(user.id))
         .Select([UserConfigTable.getField("should_fetch_user_data")!])
         .All<{should_fetch_user_data: boolean}>(this._dal.db!)[0];
         if (conig) return conig.should_fetch_user_data;
         return false;
     }
 
-    public set shouldFetchUserData(value: boolean) {
-        UserConfigTable.update(
-            [UserConfigTable.getField("user_id")!.eq(this._dal.currentUser.id)],
+    public async setShouldFetchUserData(user: User, value: boolean): Promise<void> {
+        await UserConfigTable.update(
+            [UserConfigTable.getField("user_id")!.eq(user.id)],
             { should_fetch_user_data: value },
             this._dal.db!
-        ).catch(console.error);
+        );
     }
 
-    public set lastPulled(value: number) {
-        UserConfigTable.update(
-            [UserConfigTable.getField("user_id")!.eq(this._dal.currentUser.id)],
-            { last_pulled: value },
+    public getLoginCount(user: User): number {
+        let conig = UserConfigTable.query()
+        .Filter(UserConfigTable.getField("user_id")!.eq(user.id))
+        .Select([UserConfigTable.getField("login_counter")!])
+        .All<{login_counter: number}>(this._dal.db!)[0];
+
+        if (conig) return conig.login_counter;
+        return 0;
+    }
+
+    public async setLoginCount(user: User, value: number): Promise<void> {
+        await UserConfigTable.update(
+            [UserConfigTable.getField("user_id")!.eq(user.id)],
+            { login_counter: value },
             this._dal.db!
-        ).catch(console.error);
+        );
     }
 }

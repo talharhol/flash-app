@@ -16,7 +16,7 @@ import { Auth, NextOrObserver, User as AuthUser } from "firebase/auth";
 import { auth, app, db } from "../firebaseConfig"
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
 import { RemoteStorage } from "./remoteStorage";
-import { collection, query, where, getDocs, Timestamp } from "firebase/firestore";
+import { Timestamp } from "firebase/firestore";
 import { EventEmitter } from 'events';
 
 
@@ -37,7 +37,7 @@ class DalService extends EventEmitter {
     private _currentUser?: User;
 
     private async loadUpdates() {
-        let last = Timestamp.fromMillis(this.users.lastPulled);
+        let last = Timestamp.fromMillis(this.currentUser.lastPulled);
         let cur = Timestamp.now();
         while (true) {
             if (this.currentUser.name === "tmp") await new Promise(resolve => setTimeout(resolve, 500));
@@ -54,9 +54,9 @@ class DalService extends EventEmitter {
                 await this.walls.FetchFromRemote(last).catch(console.error);
                 await this.problems.FetchFromRemote(last).catch(console.error);
                 await this.groups.FetchFromRemote(last).catch(console.error);
-                if (this.users.shouldFetchUserData) await this.users.FetchUserData().catch(console.error);
+                if (this.currentUser.shouldFetchUserData) await this.users.FetchUserData().catch(console.error);
                 last = cur;
-                this.users.lastPulled = last.toMillis();
+                this.currentUser.lastPulled = last.toMillis();
             } catch (e) {
                 console.error(e);
             }
@@ -127,7 +127,7 @@ class DalService extends EventEmitter {
             this.users.AddToLocal(user).then(
                 _ => {
                     this.users.CreateConfig(
-                        { user_id: user.id, last_pulled: 0, should_fetch_user_data: true }
+                        { user_id: user.id }
                     ).then(_ => {
                         this.users.FetchSingleDoc(user.id)
                             .then(
@@ -136,7 +136,7 @@ class DalService extends EventEmitter {
                                         console.log("adding user to remote");
                                         this.users.AddToRemote(user).then(_ => console.log("added!"));
                                     } else {
-                                        this.users.shouldFetchUserData = true;
+                                        this.currentUser.shouldFetchUserData = true;
                                     }
                                 })
                     })
