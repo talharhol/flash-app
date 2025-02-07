@@ -3,11 +3,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import BasicModal from "./BasicModal";
 import BasicButton from "../Buttom";
-import { Picker } from "@react-native-picker/picker";
 import MultiSelect from "react-native-multiple-select";
 import { ProblemFilter } from "@/DAL/entities/problem";
 import { grades } from "@/constants/consts";
 import { useDal } from "@/DAL/DALService";
+import { RangeSlider } from "../RangeSlider";
 
 
 const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
@@ -50,48 +50,15 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                 alignItems: "center",
             }, props.style]} >
             <ThemedText lightColor="black" darkColor="black" type="subtitle">Filter Problems</ThemedText>
+
             <View style={{ flex: 1, height: 500, width: "100%", padding: 10, justifyContent: "space-around" }}>
-                <View style={styles.filterContainer}>
-                    <Text>Min grade</Text>
-                    <Picker
-                        style={{ paddingLeft: 20, height: 30, width: "90%", borderColor: "black", overflow: "hidden", borderWidth: 2, borderRadius: 8, marginTop: -20, marginBottom: 20 }}
-                        selectedValue={minGrade}
-                        onValueChange={(itemValue, itemIndex) => {
-                            setMinGrade(itemValue);
-                        }
-                        }>
-                        {
-                            Object.keys(grades).map((key) => (
-                                <Picker.Item
-                                    key={key}
-                                    label={grades[parseInt(key)]}
-                                    value={parseInt(key)}
-                                />
-                            ))
-                        }
-                    </Picker>
-                </View>
-                <View style={styles.filterContainer}>
-                    <Text>Max grade</Text>
-                    <Picker
-                        style={{ paddingLeft: 20, height: 30, width: "90%", borderColor: "black", overflow: "hidden", borderWidth: 2, borderRadius: 8, marginTop: -20, marginBottom: 20 }}
-                        selectedValue={maxGrade}
-                        onValueChange={(itemValue, itemIndex) => {
-                            setMaxGrade(itemValue);
-                        }
-                        }>
-                        {
-                            Object.keys(grades).map((key) => (
-                                <Picker.Item
-                                    style={{ height: 20 }}
-                                    key={key}
-                                    label={grades[parseInt(key)]}
-                                    value={parseInt(key)}
-                                />
-                            ))
-                        }
-                    </Picker>
-                </View>
+                <RangeSlider
+                    maxValue={Math.max(...Object.keys(grades).map(Number))}
+                    minValue={Math.min(...Object.keys(grades).map(Number))}
+                    valueToLable={v => grades[v]}
+                    onMaxValueChange={setMaxGrade}
+                    onMinValueChange={setMinGrade}
+                />
                 <View style={styles.filterContainer}>
                     <Text>Problem's name</Text>
                     <TextInput
@@ -110,7 +77,7 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                             fixedHeight
                             hideTags
                             ref={(component) => { usersMultiSelect.current = component || undefined }}
-                            items={dal.users.List({groupId})}
+                            items={dal.users.List({ groupId })}
                             uniqueKey="id"
                             onSelectedItemsChange={(v) => {
                                 setSetters(v);

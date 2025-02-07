@@ -27,7 +27,6 @@ export default function RootLayout() {
     const unsubscribe = dalService.onAuthStateChanged((authUser) => {
       let isLoggedIn = !!authUser;
       setIsLogin(isLoggedIn);
-      console.log("HERE", isLoggedIn);
       if (!isLoggedIn) return;
       let loginCount = dalService.currentUser.loginCount + 1;
       dalService.currentUser.loginCount = loginCount;
