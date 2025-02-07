@@ -16,6 +16,7 @@ import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
 import { useDal } from "@/DAL/DALService";
+import BasicButton from "@/components/general/Buttom";
 
 
 const CreateWallHoldsScreen: React.FC = ({ }) => {
@@ -87,7 +88,7 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
                 drawingHoldType={isDrawingHold ? new HoldType(HoldTypes.route) : null}
             />
             <View style={styles.buttonContainer}>
-                <Button title="New Hold" onPress={startDrawingHold} />
+                <BasicButton text="New Hold" color="#0056B3" selected onPress={startDrawingHold} />
             </View>
         </View>
     );
@@ -99,21 +100,22 @@ const styles = StyleSheet.create({
     headerContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'transparent',
+        backgroundColor: '#1D3D47',
         width: "100%",
         flexDirection: "row",
         paddingTop: Platform.OS === 'ios' ? 50 : 0,
+        height: 100,
     },
     buttonContainer: {
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-evenly",
         marginTop: "auto",
-        marginBottom: "auto"
+        marginBottom: "auto",
+        
     },
     container: {
         width: "100%",
-        marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
         flex: 1,
     },
 });

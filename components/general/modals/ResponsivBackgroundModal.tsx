@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import {
     Modal,
-    Platform,
-    StatusBar,
     StyleSheet,
     View,
 } from "react-native";
@@ -65,12 +63,13 @@ const ResponsiveBackgroundModal: React.FC<React.ComponentProps<typeof Modal> & {
 const styles = StyleSheet.create({
     modal: {
         width: "80%",
-        height: 50,
+        height: 80,
         backgroundColor: "#E8E8E8",
         borderRadius: 20,
-        opacity: 0.4,
-        justifyContent: "center",
+        opacity: 0.6,
         alignItems: "stretch",
+        position: "absolute",
+        top: 100
     },
     modalContainer: {
         width: "100%",

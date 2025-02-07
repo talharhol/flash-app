@@ -92,6 +92,7 @@ export class UserDAL extends BaseDAL<User> {
         let currOwned = this._dal.currentUser.ownedWalls.map(w => w.id);
         let currViewer = this._dal.currentUser.viewerWalls.map(w => w.id);
         let remote = await this._dal.users.FetchSingleDoc(this._dal.currentUser.id);
+        this._dal.currentUser.name = remote.name;
         await Promise.all(remote.owenedWalls.map(async (wallId: string) => {
             if (currOwned.includes(wallId)) return;
             await this._dal.currentUser.addWall(wallId, "owner", false).catch(e => console.error(`failed adding wall ${wallId} to user`, e));
@@ -101,7 +102,7 @@ export class UserDAL extends BaseDAL<User> {
             await this._dal.currentUser.addWall(wallId, "viewer", false).catch(e => console.error(`failed adding wall ${wallId} to user`, e));
         }));
         this._dal.currentUser.shouldFetchUserData = false;
-        this.UpdateRemote(this._dal.currentUser);
+        this.Update(this._dal.currentUser);
     }
 
     public async CreateConfig(params: {user_id: string, last_pulled?: number, should_fetch_user_data?: boolean, login_counter?: number}): Promise<void> {

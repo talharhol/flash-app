@@ -62,7 +62,8 @@ const styles = StyleSheet.create({
         margin: 5,
         borderRadius: 8,
         borderWidth: 2,
-        borderColor: "black"
+        borderColor: "#555",
+        backgroundColor: "#777"
     },
     header: {
         alignItems: 'center',

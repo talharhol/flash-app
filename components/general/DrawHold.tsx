@@ -3,7 +3,7 @@ import { View, useWindowDimensions } from "react-native";
 import Svg, { Path } from 'react-native-svg';
 import { imageSize, zoomSize } from './SizeContext';
 import { HoldType } from '@/DAL/hold';
-import SetRadiusModal from '../screens/CreateBolderProblemScreen/SelectRadiusModal';
+import SetRadiusModal from './SelectRadiusModal';
 
 
 /*
@@ -22,7 +22,6 @@ const DrawHold: React.FC<{
     const [currentPaths, setCurrentPath] = useState<{ x: number, y: number; }[]>([]);
     const [centerShift, setCenterShift] = useState({ x: 0, y: 0 });
     const [showRadiusModal, setShowRadiusModal] = useState(false);
-    const screenDimension = useWindowDimensions();
     const defaultRadius = 1000 / 25 ;
     const [isDrawing, setIsDrawing] = useState(false);
     const [holdRadius, setHoldRedius] = useState(defaultRadius);

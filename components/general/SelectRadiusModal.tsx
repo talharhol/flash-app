@@ -1,7 +1,9 @@
 import React, { useContext } from "react";
 import { Slider } from '@miblanchard/react-native-slider';
-import { zoomSize } from "../../general/SizeContext";
 import ResponsiveBackgroundModal from "@/components/general/modals/ResponsivBackgroundModal";
+import { zoomSize } from "./SizeContext";
+import { Text, View } from "react-native";
+import { ThemedText } from "./ThemedText";
 
 const SetRadiusModal: React.FC<{
     closeModal: () => void;
@@ -20,11 +22,12 @@ const SetRadiusModal: React.FC<{
 
     return (
         <ResponsiveBackgroundModal onDrage={onDragg} onDrageEnd={onDraggEnd} closeModal={closeModal}>
-            <Slider
-                value={radius}
-                maximumValue={300}
-                onValueChange={v => { setRadius(v[0]) }}
-            />
+                <ThemedText style={{alignSelf: "center"}} darkColor="black" type="defaultSemiBold"> change radius </ThemedText>
+                <Slider
+                    value={radius}
+                    maximumValue={300}
+                    onValueChange={v => { setRadius(v[0]) }}
+                />
         </ResponsiveBackgroundModal>
     );
 };
