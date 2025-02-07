@@ -125,6 +125,7 @@ export class Query {
     private selectedFields: Field[];
     private filters: Filter[];
     private joins: { table: typeof BaseTable, on: Filter, joinType: string }[];
+    private distinct: boolean;
 
     constructor({ table, selectedFields, filters }: { table: typeof BaseTable, selectedFields?: Field[], filters?: Filter[] }) {
         this.table = table;
@@ -134,6 +135,7 @@ export class Query {
         else 
             this.filters = filters;
         this.joins = [];
+        this.distinct = false;
     }
 
     public Filter(filter: Filter): Query {
@@ -155,6 +157,11 @@ export class Query {
         return this;
     }
 
+    public Distinct(): Query {
+        this.distinct = true;
+        return this;
+    }
+
     public ToSQL(): [string, any[]] {
         if (this.selectedFields.length == 0) {
             this.table.fields.map(f => {
@@ -167,12 +174,12 @@ export class Query {
         let filtersValues = this.filters.map(f => f.value);
         let join = "";
         this.joins.forEach(j => {
-            join += `${j.joinType} ${j.table.tableName} ON ${j.on.sql}`
+            join += ` ${j.joinType} ${j.table.tableName} ON ${j.on.sql}`
         });
         let joinValues = this.joins.map(j => j.on.value);
         return [
             `
-SELECT ${select} 
+SELECT${this.distinct ? ' DISTINCT' : ''} ${select} 
 FROM ${this.table.tableName}
 ${join}
 WHERE ${filters}

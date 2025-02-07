@@ -13,14 +13,15 @@ import { RangeSlider } from "../RangeSlider";
 const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     initialFilters: ProblemFilter;
     groupId?: string;
+    wallId?: string;
     onFiltersChange: (filters: ProblemFilter) => void;
-}> = ({ initialFilters, groupId, onFiltersChange, ...props }) => {
+}> = ({ initialFilters, groupId, wallId, onFiltersChange, ...props }) => {
     const dal = useDal();
     const [minGrade, setMinGrade] = useState(initialFilters.minGrade);
     const [maxGrade, setMaxGrade] = useState(initialFilters.maxGrade);
     const [name, setName] = useState(initialFilters.name);
     const [setters, setSetters] = useState<string[]>([]);
-    useEffect(() => setSetters(initialFilters.setters), [])
+    useEffect(() => setSetters(initialFilters.setters ?? []), []); // in order to load selected setters
     const usersMultiSelect = useRef<MultiSelect>()
     const Submit = () => {
         onFiltersChange(
@@ -55,6 +56,8 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                 <RangeSlider
                     maxValue={Math.max(...Object.keys(grades).map(Number))}
                     minValue={Math.min(...Object.keys(grades).map(Number))}
+                    maxInitialValue={maxGrade}
+                    minInitialValue={minGrade}
                     valueToLable={v => grades[v]}
                     onMaxValueChange={setMaxGrade}
                     onMinValueChange={setMinGrade}
@@ -77,7 +80,7 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                             fixedHeight
                             hideTags
                             ref={(component) => { usersMultiSelect.current = component || undefined }}
-                            items={dal.users.List({ groupId })}
+                            items={dal.users.List({ groupId, wallId })}
                             uniqueKey="id"
                             onSelectedItemsChange={(v) => {
                                 setSetters(v);
@@ -85,7 +88,6 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                             selectedItems={setters}
                             selectText="Pick setters"
                             searchInputPlaceholderText="Search Setters..."
-                            onChangeInput={(text) => console.log(text)}
                             altFontFamily="ProximaNova-Light"
                             tagRemoveIconColor="black"
                             tagBorderColor="black"
@@ -99,7 +101,6 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                             styleDropdownMenu={{ margin: 5, borderRadius: 8, overflow: "hidden" }}
                             styleSelectorContainer={{ margin: 5, borderRadius: 8, overflow: "hidden" }}
                             submitButtonText="Submit"
-
                         />
                     </View>
 

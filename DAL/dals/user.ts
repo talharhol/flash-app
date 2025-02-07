@@ -1,11 +1,11 @@
 import { User } from "../entities/user";
 import { Wall } from "../entities/wall";
-import { GroupMemberTable, UserConfigTable, UserTable, UserWallTable } from "../tables/tables";
+import { GroupMemberTable, ProblemTable, UserConfigTable, UserTable, UserWallTable, WallTable } from "../tables/tables";
 import { BaseDAL } from "../BaseDAL";
 
 
 export class UserDAL extends BaseDAL<User> {
-    public List(params: { groupId?: string } & { [ket: string]: any }): User[] {
+    public List(params: { groupId?: string, wallId?: string } & { [ket: string]: any }): User[] {
         let query = UserTable.query();
         if (params.groupId !== undefined) {
             query = query.Join(
@@ -13,9 +13,21 @@ export class UserDAL extends BaseDAL<User> {
                 GroupMemberTable.getField("user_id")!.eq(UserTable.getField("id")!)
             ).Filter(
                 GroupMemberTable.getField("group_id")!.eq(params.groupId)
-            );
+            ).Distinct();
+        }
+        if (params.wallId !== undefined) {
+            query = query.Join(
+                ProblemTable,
+                ProblemTable.getField("owner_id")!.eq(UserTable.getField("id")!)
+            ).Join(
+                WallTable, 
+                WallTable.getField("id")!.eq(ProblemTable.getField("wall_id")!)
+            ).Filter(
+                WallTable.getField("id")!.eq(params.wallId)
+            ).Distinct();
         }
         delete params.groupId;
+        delete params.wallId;
         Object.keys(params)
          .filter(k => params[k] !== undefined)
          .map(

@@ -51,6 +51,7 @@ const ViewWallScreen: React.FC = () => {
                     closeModal={() => setFilterProblemsModal(false)}
                     initialFilters={filters}
                     onFiltersChange={setFilters}
+                    wallId={wall.id}
                 />
             }
             {
