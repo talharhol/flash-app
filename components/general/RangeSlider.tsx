@@ -32,15 +32,16 @@ export const RangeSlider: React.FC<{
 
   // ----------------- Common ----------------------- //
   const [forceRender, setForceRender] = React.useState(0);
+  const [isRendered, setIsRendered] = React.useState(false);
+
   const [sliderHeight, setSliderHeight] = React.useState(0);
   const [sliderWidth, setSliderWidth] = React.useState(0);
-  const [sliderCenter, setSliderCenter] = React.useState(0);
-  const [minLable, setMinLable] = React.useState("");
-  const [maxLable, setMaxLable] = React.useState("");
-  
+  const [sliderCenter, setSliderCenter] = React.useState(0);  
   
   const initSliders = (height: number, width: number) =>
   {
+    if (isRendered) return;
+    setIsRendered(true);
     // Set sizes
     let sWidth = width - height // - height : Avoid the slider to overlap the borders
     const center = sWidth / 2;
@@ -76,7 +77,7 @@ export const RangeSlider: React.FC<{
     max_animState.initOffSet = max_initOff;
     max_animState.minBoundaryPosition = maxPos;
     max_animState.maxBoundaryPosition = maxPos + sWidth;
-
+    console.log("init sliders!");
     // Initialize sliders
     placeSlider(min_pan.x._value, min_animState, max_animState, max_setMinBoundaryPosition, true);
     placeSlider(max_pan.x._value, max_animState, min_animState, min_setMaxBoundaryPosition, false);
@@ -154,36 +155,34 @@ export const RangeSlider: React.FC<{
     initOffSet: 0,
   }).current;
 
-  const min_getPanResponder = () =>
-  {
-    return PanResponder.create(
-    {
-        onMoveShouldSetPanResponderCapture: () => true, // Same here, tell iOS that we allow dragging
-        onStartShouldSetPanResponder: () => true,
-        onPanResponderGrant: () => // When the slider starts moving
-        {
-          const clamp = Math.max(min_animState.minBoundaryPosition, Math.min(min_animState.maxBoundaryPosition, min_animState.currentVal));
-          min_animState.clampOffSet = min_animState.clampOffSet + min_pan.x._value - clamp;
-          min_pan.setOffset({x: clamp, y: 0});
-        },
-        onPanResponderMove: (e, gesture) => // When the slider moves
-        {
-          min_setEffectiveMaxBoundaryPosition(min_animState.maxBoundaryPosition);
-          placeSlider(min_pan.x._value, min_animState, max_animState, max_setMinBoundaryPosition, true);
-          Animated.event([null, { dx: min_pan.x, dy: min_pan.y }], {useNativeDriver: false})(e, {dx:gesture.dx, dy:0});
-        },
-        onPanResponderRelease: (e, gesture) => // When the slider is released
-        {
-          // Lock the slider position
-          min_animState.effectiveMaxBoundaryPosition = min_animState.currentVal;
-          min_setEffectiveMaxBoundaryPosition(min_animState.currentVal);
-          // Save slider's offset
-          min_animState.offSet = min_animState.offSet + min_pan.x._value;
-          min_pan.flattenOffset();
-        }
-    });
-  };
-  const [min_panResponder, min_setPanResponder] = React.useState(min_getPanResponder());
+  const min_panResponder = React.useRef(
+    PanResponder.create(
+      {
+          onMoveShouldSetPanResponderCapture: () => true, // Same here, tell iOS that we allow dragging
+          onStartShouldSetPanResponder: () => true,
+          onPanResponderGrant: () => // When the slider starts moving
+          {
+            const clamp = Math.max(min_animState.minBoundaryPosition, Math.min(min_animState.maxBoundaryPosition, min_animState.currentVal));
+            min_animState.clampOffSet = min_animState.clampOffSet + min_pan.x._value - clamp;
+            min_pan.setOffset({x: clamp, y: 0});
+          },
+          onPanResponderMove: (e, gesture) => // When the slider moves
+          {
+            min_setEffectiveMaxBoundaryPosition(min_animState.maxBoundaryPosition);
+            placeSlider(min_pan.x._value, min_animState, max_animState, max_setMinBoundaryPosition, true);
+            Animated.event([null, { dx: min_pan.x, dy: min_pan.y }], {useNativeDriver: false})(e, {dx:gesture.dx, dy:0});
+          },
+          onPanResponderRelease: (e, gesture) => // When the slider is released
+          {
+            // Lock the slider position
+            min_animState.effectiveMaxBoundaryPosition = min_animState.currentVal;
+            min_setEffectiveMaxBoundaryPosition(min_animState.currentVal);
+            // Save slider's offset
+            min_animState.offSet = min_animState.offSet + min_pan.x._value;
+            min_pan.flattenOffset();
+          }
+      })
+  ).current;
 
   const min_getSlider = () =>
   {
@@ -260,34 +259,32 @@ export const RangeSlider: React.FC<{
     initOffSet: 0,
   }).current;
 
-  const max_getPanResponder = () =>
-  {
-    return PanResponder.create(
-    {
-        onMoveShouldSetPanResponderCapture: () => true, // Same here, tell iOS that we allow dragging
-        onStartShouldSetPanResponder: () => true,
-        onPanResponderGrant: () =>
-        {
-          const clamp = Math.max(max_animState.minBoundaryPosition, Math.min(max_animState.maxBoundaryPosition, max_animState.currentVal));
-          max_animState.clampOffSet = max_animState.clampOffSet + max_pan.x._value - clamp;
-          max_pan.setOffset({x: clamp, y: 0 });
-        },
-        onPanResponderMove: (e, gesture) =>
-        {
-          max_setEffectiveMinBoundaryPosition(max_animState.minBoundaryPosition);
-          placeSlider(max_pan.x._value, max_animState, min_animState, min_setMaxBoundaryPosition, false);
-          Animated.event([null, { dx: max_pan.x, dy: max_pan.y }], { useNativeDriver: false})(e, {dx:gesture.dx, dy:0});
-        },
-        onPanResponderRelease: (evt, gestureState) =>
-        {
-          max_animState.effectiveMinBoundaryPosition = max_animState.currentVal;
-          max_setEffectiveMinBoundaryPosition(max_animState.currentVal);
-          max_animState.offSet = max_animState.offSet + max_pan.x._value;
-          max_pan.flattenOffset();
-        }
-    });
-  };
-  const [max_panResponder, max_setPanResponder] = React.useState(max_getPanResponder());
+  const max_panResponder = React.useRef(
+    PanResponder.create(
+      {
+          onMoveShouldSetPanResponderCapture: () => true, // Same here, tell iOS that we allow dragging
+          onStartShouldSetPanResponder: () => true,
+          onPanResponderGrant: () =>
+          {
+            const clamp = Math.max(max_animState.minBoundaryPosition, Math.min(max_animState.maxBoundaryPosition, max_animState.currentVal));
+            max_animState.clampOffSet = max_animState.clampOffSet + max_pan.x._value - clamp;
+            max_pan.setOffset({x: clamp, y: 0 });
+          },
+          onPanResponderMove: (e, gesture) =>
+          {
+            max_setEffectiveMinBoundaryPosition(max_animState.minBoundaryPosition);
+            placeSlider(max_pan.x._value, max_animState, min_animState, min_setMaxBoundaryPosition, false);
+            Animated.event([null, { dx: max_pan.x, dy: max_pan.y }], { useNativeDriver: false})(e, {dx:gesture.dx, dy:0});
+          },
+          onPanResponderRelease: (evt, gestureState) =>
+          {
+            max_animState.effectiveMinBoundaryPosition = max_animState.currentVal;
+            max_setEffectiveMinBoundaryPosition(max_animState.currentVal);
+            max_animState.offSet = max_animState.offSet + max_pan.x._value;
+            max_pan.flattenOffset();
+          }
+      })
+  ).current;
 
   const max_getSlider = () =>
   {
