@@ -94,6 +94,7 @@ class DalService extends EventEmitter {
         this._groupDal = new GroupDAL(this, GroupTable, "group");
         this._remoteStorage = new RemoteStorage(app);
         this.setMaxListeners(100); // support up to 100 screens
+        this.onAuthStateChanged(() => this.updateScreen());
         DalService._instance = this;
     }
 

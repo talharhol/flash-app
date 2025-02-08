@@ -12,8 +12,8 @@ const SVGHold: React.FC<{
   disabeMovment?: boolean
 }> = ({ hold, onHoldClick, zoomableViewRef, transparant, disabeMovment }) => {
   const shouldSetResponder = !disabeMovment;
-  const [firstPos, setFirstPos] = useState<{ x: number, y: number }>({x: 0, y: 0});
-  const [firstPosPage, setFirstPosPage] = useState<{ x: number, y: number }>({x: 0, y: 0});
+  const [firstPos, setFirstPos] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
+  const [firstPosPage, setFirstPosPage] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
   const zoom = useContext(zoomSize);
   return (
     <Path
@@ -31,12 +31,15 @@ const SVGHold: React.FC<{
         setFirstPosPage({ x: e.nativeEvent.pageX, y: e.nativeEvent.pageY });
       }}
       onResponderMove={e => {
+        if (firstPos.x === 0 && firstPos.y === 0) return; // sometimes happens before onResponderStart finished
         zoomableViewRef?.current?.moveBy(firstPos.x - e.nativeEvent.locationX, firstPos.y - e.nativeEvent.locationY);
       }}
       onResponderRelease={(e) => {
         if (Math.abs(e.nativeEvent.pageX - firstPosPage.x) < 4 && Math.abs(e.nativeEvent.pageY - firstPosPage.y) < 4) {
           onHoldClick?.(hold.id);
         }
+        setFirstPos({ x: 0, y: 0 });
+        setFirstPosPage({ x: 0, y: 0 });
       }}
     />
   )
