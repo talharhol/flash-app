@@ -6,7 +6,7 @@ import ThemedView from "@/components/general/ThemedView";
 import React, { useReducer, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import BolderProblemPreview from '../../general/BolderProblemPreview';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import DisplayBolderProblemModal from '../../general/modals/DisplayBolderProblemModal';
 import FilterProblemssModal from '@/components/general/modals/FilterBoldersModal';
 import { Problem, ProblemFilter } from '@/DAL/entities/problem';
@@ -36,13 +36,13 @@ const ViewWallScreen: React.FC = () => {
             headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
             headerImage={
                 <ThemedView style={styles.headerContainer}>
-                    <Ionicons
+                    <MaterialCommunityIcons
                         onPress={() => router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id } })}
-                        name='add-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 10, padding: 5 }} />
+                        name='plus-thick' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 10, padding: 5 }} />
                     <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{wall.name}@{wall.gym}</ThemedText>
-                    <Ionicons
+                    <MaterialCommunityIcons
                         onPress={() => setFilterProblemsModal(true)}
-                        name='filter' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 10, padding: 5 }} />
+                        name='filter-plus' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 10, padding: 5 }} />
                 </ThemedView>
             }>
             {

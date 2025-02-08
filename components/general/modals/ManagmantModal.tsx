@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import BasicModal from "./BasicModal";
-import BasicButton from "../Buttom";
+import BasicButton from "../Button";
 
 export interface ManagmentModalProps {
     edit?: () => void;

@@ -2,7 +2,7 @@ import { ThemedText } from "@/components/general/ThemedText";
 import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import BasicModal from "./BasicModal";
-import BasicButton from "../Buttom";
+import BasicButton from "../Button";
 import MultiSelect from "react-native-multiple-select";
 import { ProblemFilter } from "@/DAL/entities/problem";
 import { grades } from "@/constants/consts";

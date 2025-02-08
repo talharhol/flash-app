@@ -18,7 +18,7 @@ export const RangeSlider: React.FC<{
     onMinValueChange?: (value: number) => void,
 }> = (props) =>
 {
-  const icon = "ticket-percent-outline";
+  const icon = "arm-flex-outline";
   const minBoundary = props.minValue ?? 0;
   const maxBoundary = props.maxValue ?? 99;
   const min_initVal = props.minInitialValue ?? minBoundary;

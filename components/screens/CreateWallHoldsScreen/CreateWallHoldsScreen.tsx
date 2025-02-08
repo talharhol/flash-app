@@ -16,20 +16,21 @@ import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
 import { useDal } from "@/DAL/DALService";
-import BasicButton from "@/components/general/Buttom";
+import BasicButton from "@/components/general/Button";
 
 
 const CreateWallHoldsScreen: React.FC = ({ }) => {
     const dal = useDal();
     const wall = dal.walls.Get({ id: useLocalSearchParams().id as string });
     const [isDrawingHold, setIsDrawingHold] = useState(false);
-    const [editedHold, setEditedHold] = useState<string | null>(null);
+    const [isExitRequest, setIsExitRequest] = useState(false);
+    const [holdToDelete, setHoldToDelete] = useState<string | null>(null);
     const [holds, setHolds] = useState<HoldInterface[]>(wall?.configuredHolds.map((h) => ({ ...h, color: holdTypeToHoldColor[HoldTypes.route] })));
     useFocusEffect(
         useCallback(
             () => {
                 setIsDrawingHold(false);
-                setEditedHold(null);
+                setHoldToDelete(null);
                 setHolds(wall.configuredHolds.map(h => ({ ...h, color: holdTypeToHoldColor[HoldTypes.route] })));
             }, []
         )
@@ -54,7 +55,7 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
     };
     const editHold = (id: string) => {
         setHolds(holds.filter(h => h.id !== id));
-        setEditedHold(null);
+        setHoldToDelete(null);
     };
     const SaveHolds = () => {
         wall.configuredHolds = holds;
@@ -66,23 +67,30 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
         <View style={[styles.container]}>
             <ThemedView style={styles.headerContainer}>
                 <Ionicons
-                    onPress={() => router.push("/")}
-                    name='close-circle-outline' size={35} color={'#A1CEDC'} style={{ right: 0, padding: 10 }} />
+                    onPress={() => setIsExitRequest(true)}
+                    name='close-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 0, padding: 10 }} />
                 <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Config Holds</ThemedText>
                 <Ionicons
                     onPress={SaveHolds}
-                    name='checkmark-circle-outline' size={35} color={'#A1CEDC'} style={{ right: 0, padding: 10 }} />
+                    name='checkmark-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 0, padding: 10 }} />
             </ThemedView>
             {
-                editedHold && <ActionValidationModal
+                holdToDelete && <ActionValidationModal
                     text="Delete this hold?"
-                    closeModal={setEditedHold.bind(this, null)}
-                    approveAction={editHold.bind(this, editedHold)} />
+                    closeModal={setHoldToDelete.bind(this, null)}
+                    approveAction={editHold.bind(this, holdToDelete)} />
+            }
+            {
+                isExitRequest && <ActionValidationModal
+                    text="Are you sure?"
+                    subText="changes might not be saved"
+                    closeModal={() => setIsExitRequest(false)}
+                    approveAction={() => router.push("/")} />
             }
             <BolderProblem
                 wallImage={wall.image}
                 existingHolds={isDrawingHold ? [] : holds}
-                onHoldClick={setEditedHold}
+                onHoldClick={setHoldToDelete}
                 onDrawHoldFinish={onDrawHoldFinish}
                 onDrawHoldCancel={() => setIsDrawingHold(false)}
                 drawingHoldType={isDrawingHold ? new HoldType(HoldTypes.route) : null}
@@ -112,7 +120,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-evenly",
         marginTop: "auto",
         marginBottom: "auto",
-        
+
     },
     container: {
         width: "100%",

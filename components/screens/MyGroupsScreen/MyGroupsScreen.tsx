@@ -8,7 +8,7 @@ import ActionValidationModal from '@/components/general/modals/ActionValidationM
 import { Group } from '@/DAL/entities/group';
 import { useFocusEffect, useRouter } from 'expo-router';
 import SwipablePreviewItem from '@/components/general/SwipeablePreviewItem';
-import BasicButton from '@/components/general/Buttom';
+import BasicButton from '@/components/general/Button';
 import { useDal } from '@/DAL/DALService';
 import ManagmantModal, { ManagmentModalProps } from '@/components/general/modals/ManagmantModal';
 import { Ionicons } from '@expo/vector-icons';

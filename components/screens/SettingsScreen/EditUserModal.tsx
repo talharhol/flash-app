@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { TextInput, View } from "react-native";
 import { User } from "@/DAL/entities/user";
 import BasicModal from "@/components/general/modals/BasicModal";
-import BasicButton from "@/components/general/Buttom";
+import BasicButton from "@/components/general/Button";
 
 const EditUserModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     editUser: (user: User) => void;

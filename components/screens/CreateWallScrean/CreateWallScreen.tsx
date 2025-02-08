@@ -14,7 +14,7 @@ import { ThemedText } from "@/components/general/ThemedText";
 import SelectImageModal from "@/components/general/modals/SelectImageModal";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import Toggle from "react-native-toggle-element";
-import BasicButton from "@/components/general/Buttom";
+import BasicButton from "@/components/general/Button";
 import { Wall } from "@/DAL/entities/wall";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";

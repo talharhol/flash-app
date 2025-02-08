@@ -7,7 +7,7 @@ import { Wall } from '@/DAL/entities/wall';
 import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
 import ThemedView from '@/components/general/ThemedView';
 import { useRouter } from 'expo-router';
-import BasicButton from '@/components/general/Buttom';
+import BasicButton from '@/components/general/Button';
 import SwipablePreviewItem from '@/components/general/SwipeablePreviewItem';
 import { useDal } from '@/DAL/DALService';
 

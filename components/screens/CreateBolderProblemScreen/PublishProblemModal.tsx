@@ -3,7 +3,7 @@ import BasicModal from "@/components/general/modals/BasicModal";
 import { Picker } from '@react-native-picker/picker';
 import { TextInput } from "react-native";
 import { getRandomName } from "@/scripts/randomNames";
-import BasicButton from "@/components/general/Buttom";
+import BasicButton from "@/components/general/Button";
 import { grades } from "@/constants/consts";
 
 const PublishProblemModal: React.FC<React.ComponentProps<typeof BasicModal> & {

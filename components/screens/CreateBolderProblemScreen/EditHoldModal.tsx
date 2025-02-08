@@ -1,7 +1,7 @@
 import React from "react";
 import { HoldInterface, HoldType, HoldTypes } from "../../../DAL/hold";
 import BasicModal from "@/components/general/modals/BasicModal";
-import BasicButton from "@/components/general/Buttom";
+import BasicButton from "@/components/general/Button";
 
 const EditHoldModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     editHold: (holdType: HoldType | null, is_delete: boolean) => void;

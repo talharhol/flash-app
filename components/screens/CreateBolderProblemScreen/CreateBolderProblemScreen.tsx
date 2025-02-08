@@ -9,7 +9,7 @@ import {
 import { Hold, HoldInterface, HoldType, HoldTypes, holdTypeToHoldColor } from "../../../DAL/hold";
 import EditHoldModal from "./EditHoldModal";
 import BolderProblem from "@/components/general/BolderProblem";
-import BasicButton from "@/components/general/Buttom";
+import BasicButton from "@/components/general/Button";
 import { Notifier, Easing } from "react-native-notifier";
 import WithCancelNotification from "@/components/general/notifications/WithCancelNotification";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
@@ -121,7 +121,7 @@ const CreateBolderProblemScreen: React.FC = () => {
         <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Create problem</ThemedText>
         <Ionicons
           onPress={() => setIsPublishModal(true)}
-          name='checkmark-circle-outline' size={35} color={'#A1CEDC'} style={{ right: 0, padding: 10 }} />
+          name='checkmark-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 0, padding: 10 }} />
       </ThemedView>
       <View style={{ flexDirection: "row" }}>
         {

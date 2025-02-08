@@ -8,7 +8,7 @@ import PreviewItem from "@/components/general/PreviewItem";
 import ParallaxScrollView from "@/components/general/ParallaxScrollView";
 import ThemedView from "@/components/general/ThemedView";
 import { useDal } from "@/DAL/DALService";
-import BasicButton from "@/components/general/Buttom";
+import BasicButton from "@/components/general/Button";
 import { IDAL } from "@/DAL/IDAL";
 
 const SelectWallModal: React.FC<React.ComponentProps<typeof BasicModal> & {

@@ -4,7 +4,7 @@ import ThemedView from "@/components/general/ThemedView";
 import { grades } from "@/constants/consts";
 import { Problem } from "@/DAL/entities/problem";
 import { Wall } from "@/DAL/entities/wall";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
 import { Image, useWindowDimensions, View } from "react-native";
 import * as Sharing from 'expo-sharing';
@@ -20,19 +20,18 @@ function RightAction(h: number, w: number, problemRef: React.RefObject<BolderPro
 
     return (
         <View style={{ height: h, width: w, backgroundColor: "grey" }}>
-                 <Ionicons
-                     onPress={async () => {
+                <MaterialCommunityIcons name="share" onPress={async () => {
                          Sharing.shareAsync(await problemRef.current?.getProblemUrl()!);
-                     }}
-                     name="share-outline" size={50} color={"white"} style={{ position: "absolute", top: 0, right: 0, marginRight: 5 }} />
-                 <Ionicons
+                     }} size={50} color="white" style={{ position: "absolute", top: 0, right: 0, margin: 10 }} />
+
+                 <MaterialCommunityIcons
                      onPress={() => problemRef.current?.exportProblem()}
-                     name="code-download-outline" size={50} color={"white"} style={{ position: "absolute", top: 100, right: 0, marginRight: 5 }} />
+                     name="download" size={50} color={"white"} style={{ position: "absolute", bottom: 0, right: 0, margin: 10 }} />
                  {
                      problem.setter === dal.currentUser.id &&
-                     <Ionicons
+                     <MaterialCommunityIcons
                      onPress={() => deleteProblem?.(problem)}
-                     name="trash-outline" size={50} color={"white"} style={{ position: "absolute", top: 200, right: 0, marginRight: 5 }} />
+                     name="delete" size={35} color={"white"} style={{ position: "absolute", top: 0, left: 0, margin: 10 }} />
                  }
         </View>
     );

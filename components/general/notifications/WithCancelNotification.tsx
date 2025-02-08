@@ -1,6 +1,6 @@
 import { SafeAreaView, View } from "react-native";
 import { ThemedText } from "../ThemedText";
-import BasicButton from "../Buttom";
+import BasicButton from "../Button";
 
 const WithCancelNotification: React.FC<React.ComponentProps<typeof SafeAreaView> & {
     title: string;
