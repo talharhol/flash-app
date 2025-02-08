@@ -43,21 +43,23 @@ const BolderProblemPreview: React.FC<{
     wall: Wall;
     problem: Problem;
     dal: IDAL;
+    aspectRatio?: number;
     onPress?: () => void;
     deleteProblem?: (problem: Problem) => void;
-}> = ({ wall, problem, dal, onPress, deleteProblem }) => {
+}> = ({ wall, problem, dal, aspectRatio, onPress, deleteProblem }) => {
     const scale = 0.8;
+    aspectRatio = aspectRatio ?? 1.5;
     const screenDimension = useWindowDimensions();
     const [height, setHeight] = useState(0);
     const [width, setWidth] = useState(0)
     useEffect(() => {
             Image.getSize(Image.resolveAssetSource(wall.image).uri, (w, h) => {
                 let tmpWidth = screenDimension.width * scale;
-                let tmpHeight = tmpWidth * 1.5;
-                if (h / w <= 1.5) {
+                let tmpHeight = tmpWidth * aspectRatio;
+                if (h / w <= aspectRatio) {
                   tmpHeight = tmpWidth / (w || 1) * h;
                 } else {
-                  tmpHeight = tmpWidth * 1.5;
+                  tmpHeight = tmpWidth * aspectRatio;
                 }
                 setHeight(tmpHeight);
                 setWidth(tmpWidth);

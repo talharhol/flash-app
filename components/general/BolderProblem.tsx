@@ -27,6 +27,7 @@ interface BolderProblemProps extends ViewProps {
   scale?: number
   fullScreen?: boolean;
   bindToImage?: boolean;
+  aspectRatio?: number;
   onDrawHoldFinish?: (hold: HoldInterface) => void;
   onDrawHoldCancel?: () => void;
   onConfiguredHoldClick?: (hold_id: string) => void;
@@ -41,9 +42,10 @@ export interface BolderProblemComponent {
 
 const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
   (
-    { wallImage, configuredHolds, existingHolds, drawingHoldType, disableMovment, scale, fullScreen, bindToImage, onDrawHoldFinish, onDrawHoldCancel, onConfiguredHoldClick, onHoldClick, ...props }
+    { wallImage, configuredHolds, existingHolds, drawingHoldType, disableMovment, scale, fullScreen, bindToImage, aspectRatio, onDrawHoldFinish, onDrawHoldCancel, onConfiguredHoldClick, onHoldClick, ...props }
     , ref
   ) => {
+    aspectRatio = aspectRatio ?? 1.5;
     const screenDimension = useWindowDimensions();
     const [imageHeight, setImageHeight] = useState(0);
     const [imageWidth, setImageWidth] = useState(screenDimension.width * (scale || 1));
@@ -54,11 +56,11 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
     useEffect(() => {
       Image.getSize(Image.resolveAssetSource(wallImage).uri, (width, height) => {
         let tmpWidth = screenDimension.width * (scale ? scale : 1);
-        let tmpHeight = tmpWidth * 1.5;
-        if (height / width <= 1.5) {
+        let tmpHeight = tmpWidth * aspectRatio;
+        if (height / width <= aspectRatio) {
           tmpHeight = tmpWidth / (width || 1) * height;
         } else {
-          tmpHeight = tmpWidth * 1.5;
+          tmpHeight = tmpWidth * aspectRatio;
           tmpWidth = tmpHeight / (height / width);
         }
         setImageHeight(tmpHeight);
@@ -97,7 +99,7 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
     const getHeight = () => {
       if (fullScreen) return screenDimension.height;
       if (bindToImage) return imageHeight;
-      return screenDimension.width * 1.5 * (scale || 1);
+      return screenDimension.width * aspectRatio * (scale || 1);
     }
     const getWidth = () => {
       if (fullScreen) return screenDimension.width;

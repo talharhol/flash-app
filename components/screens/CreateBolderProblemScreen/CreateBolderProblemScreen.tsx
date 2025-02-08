@@ -31,17 +31,18 @@ const CreateBolderProblemScreen: React.FC = () => {
   const [isPublishModal, setIsPublishModal] = useState<boolean>(false);
   const [drawingHoldType, setDrawingHoldType] = useState<HoldType>(new HoldType(HoldTypes.route));
   const [holds, setHolds] = useState<HoldInterface[]>([]);
+  const [aspectRatio, setAspectRatio] = useState(1.5);
 
   useFocusEffect(
-      useCallback(
-          () => {
-              setIsDrawingHold(false);
-              setEditedHold(null);
-              setIsPublishModal(false);
-              setDrawingHoldType(new HoldType(HoldTypes.route))
-              setHolds([]);
-          }, []
-      )
+    useCallback(
+      () => {
+        setIsDrawingHold(false);
+        setEditedHold(null);
+        setIsPublishModal(false);
+        setDrawingHoldType(new HoldType(HoldTypes.route))
+        setHolds([]);
+      }, []
+    )
   );
 
   const startDrawingHold = () => {
@@ -106,41 +107,55 @@ const CreateBolderProblemScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      {
+        isPublishModal && <PublishProblemModal publishProblem={publishProblem} closeModal={() => setIsPublishModal(false)} />
+      }
+      {
+        editedHold &&
+        <EditHoldModal
+          closeModal={() => setEditedHold(null)}
+          selectedHold={holds.filter(v => v.id === editedHold)[0]}
+          editHold={(holdType, isDeleted) => editHold(editedHold, holdType, isDeleted)} />
+      }
       <ThemedView style={styles.headerContainer}>
         <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Create problem</ThemedText>
         <Ionicons
           onPress={() => setIsPublishModal(true)}
           name='checkmark-circle-outline' size={35} color={'#A1CEDC'} style={{ right: 0, padding: 10 }} />
       </ThemedView>
-      <View>
+      <View style={{ flexDirection: "row" }}>
         {
-          isPublishModal && <PublishProblemModal publishProblem={publishProblem} closeModal={() => setIsPublishModal(false)} />
+          Object.values(HoldTypes).filter(x => typeof x === "number").map(type => new HoldType(type as HoldTypes)).map(hold => {
+            return (
+              <BasicButton
+                style={{ width: "20%" }}
+                selected={drawingHoldType.type === hold.type}
+                text={hold.title}
+                color={hold.color}
+                onPress={() => setDrawingHoldType(hold)}
+                key={hold.type}
+              />
+            );
+          })
         }
-        <View style={{ flexDirection: "row" }}>
-          {
-            Object.values(HoldTypes).filter(x => typeof x === "number").map(type => new HoldType(type as HoldTypes)).map(hold => {
-              return (
-                <BasicButton
-                  style={{ width: "25%" }}
-                  selected={drawingHoldType.type === hold.type}
-                  text={hold.title}
-                  color={hold.color}
-                  onPress={() => setDrawingHoldType(hold)}
-                  key={hold.type}
-                />
-              );
-            })
-          }
-        </View>
-        {
-          editedHold && 
-          <EditHoldModal 
-          closeModal={() => setEditedHold(null)} 
-          selectedHold={holds.filter(v => v.id === editedHold)[0]}
-          editHold={(holdType, isDeleted) => editHold(editedHold, holdType, isDeleted)} />
-        }
+        <BasicButton
+          style={{ width: "20%" }}
+          text="Draw"
+          color="grey"
+          onPress={startDrawingHold}
+          key="New"
+        />
+      </View>
+      <View
+        onLayout={(event) => {
+          const { height, width } = event.nativeEvent.layout;
+          setAspectRatio(height / width);
+        }}
+
+        style={{ flex: 1, width: "100%", backgroundColor: "red" }}>
         <BolderProblem
           key={wall.id}
+          aspectRatio={aspectRatio}
           wallImage={wall.image}
           configuredHolds={wall.configuredHolds}
           existingHolds={holds}
@@ -152,9 +167,6 @@ const CreateBolderProblemScreen: React.FC = () => {
           drawingHoldType={isDrawingHold ? (drawingHoldType || new HoldType(HoldTypes.route)) : null}
         />
       </View>
-      <View style={styles.buttonContainer}>
-          <Button title="New Hold" onPress={startDrawingHold} />
-        </View>
     </View>
   );
 };
@@ -165,15 +177,11 @@ const styles = StyleSheet.create({
   headerContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'transparent',
+    backgroundColor: '#1D3D47',
     width: "100%",
     flexDirection: "row",
-    paddingTop: Platform.OS === 'ios' ? 50 : 0
-  },
-  buttonContainer: {
-    position: 'absolute',
-    bottom: 0,
-    width: "100%"
+    paddingTop: Platform.OS === 'ios' ? 50 : 0,
+    height: 100,
   },
   container: {
     width: "100%",
