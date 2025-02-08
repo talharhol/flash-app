@@ -48,6 +48,7 @@ const ViewWallScreen: React.FC = () => {
             {
                 filterProblemsModal &&
                 <FilterProblemssModal
+                    dal={dal}
                     closeModal={() => setFilterProblemsModal(false)}
                     initialFilters={filters}
                     onFiltersChange={setFilters}
@@ -64,6 +65,7 @@ const ViewWallScreen: React.FC = () => {
                 dal.problems.List({ wallId: wall.id, ...filters }).map(problem =>
                     <BolderProblemPreview
                         key={problem.id}
+                        dal={dal}
                         onPress={() => setDisplayedProblem(problem.id)}
                         wall={wall}
                         problem={problem}

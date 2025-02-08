@@ -9,13 +9,14 @@ import ParallaxScrollView from "@/components/general/ParallaxScrollView";
 import ThemedView from "@/components/general/ThemedView";
 import { useDal } from "@/DAL/DALService";
 import BasicButton from "@/components/general/Buttom";
+import { IDAL } from "@/DAL/IDAL";
 
 const SelectWallModal: React.FC<React.ComponentProps<typeof BasicModal> & {
+    dal: IDAL;
     onSelect: (id: string) => void;
     onRemove?: (id: string) => void;
     selectedWalls: string[];
-}> = ({ onSelect, onRemove, selectedWalls, ...props }) => {
-    const dal = useDal();
+}> = ({ dal, onSelect, onRemove, selectedWalls, ...props }) => {
     const [filterWallName, setFilterWallName] = useState<string>('');
     const [filterGymName, setFilterGymName] = useState<string>(''); const [name, setName] = useState<string>('');
     return (

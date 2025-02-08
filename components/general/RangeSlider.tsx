@@ -77,7 +77,6 @@ export const RangeSlider: React.FC<{
     max_animState.initOffSet = max_initOff;
     max_animState.minBoundaryPosition = maxPos;
     max_animState.maxBoundaryPosition = maxPos + sWidth;
-    console.log("init sliders!");
     // Initialize sliders
     placeSlider(min_pan.x._value, min_animState, max_animState, max_setMinBoundaryPosition, true);
     placeSlider(max_pan.x._value, max_animState, min_animState, min_setMaxBoundaryPosition, false);

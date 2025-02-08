@@ -114,6 +114,7 @@ const ConfigGroupScreen: React.FC = ({ }) => {
             {
                 selectWallModal &&
                 <SelectWallModal
+                    dal={dal}
                     selectedWalls={selectedWalls}
                     onSelect={(id: string) => setSelectedWalls(selectedWalls.concat([id]))}
                     onRemove={(id) => setSelectedWalls(selectedWalls.filter(w => w !== id))}

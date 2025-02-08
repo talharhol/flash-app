@@ -36,9 +36,7 @@ class DalService extends EventEmitter {
 
     private _currentUser?: User;
 
-    private async loadUpdates() {
-        let last = Timestamp.fromMillis(this.currentUser.lastPulled);
-        let cur = Timestamp.now();
+    public async waitForLogin() {
         while (true) {
             if (this.currentUser.name === "tmp") await new Promise(resolve => setTimeout(resolve, 500));
             else {
@@ -46,6 +44,12 @@ class DalService extends EventEmitter {
                 break;
             }
         }
+    }
+
+    private async loadUpdates() {
+        await this.waitForLogin();
+        let last = Timestamp.fromMillis(this.currentUser.lastPulled);
+        let cur = Timestamp.now();
         while (true) {
             try {
                 console.log("Running...");
@@ -89,6 +93,7 @@ class DalService extends EventEmitter {
         this._problemDal = new ProblemDAL(this, ProblemTable, "problem");
         this._groupDal = new GroupDAL(this, GroupTable, "group");
         this._remoteStorage = new RemoteStorage(app);
+        this.setMaxListeners(100); // support up to 100 screens
         DalService._instance = this;
     }
 
@@ -181,10 +186,8 @@ class DalService extends EventEmitter {
     }
 
     public async signout() {
-        if (this.isLogin) {
-            await this._remoteAuth.signOut()
-        }
-
+        if (this.isLogin) await this._remoteAuth.signOut();
+        this._currentUser = undefined;
     }
 
     public async signup(email: string, password: string) {

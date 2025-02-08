@@ -47,11 +47,12 @@ const ViewGroupScreen: React.FC = () => {
                 displayedProblem &&
                 <DisplayBolderProblemModal
                     problem={dal.problems.Get({ id: displayedProblem })}
-                    closeModal={setDisplayedProblem.bind(this, null)} />
+                    closeModal={() => setDisplayedProblem(null)} />
             }
             {
                 filterProblemsModal &&
                 <FilterProblemssModal
+                    dal={dal}
                     closeModal={() => setFilterProblemsModal(false)}
                     initialFilters={filters}
                     onFiltersChange={setFilters}
@@ -63,6 +64,7 @@ const ViewGroupScreen: React.FC = () => {
                     return (
                         <BolderProblemPreview
                             key={problem.id}
+                            dal={dal}
                             onPress={() => setDisplayedProblem(problem.id)}
                             wall={dal.walls.Get({ id: problem.wallId })}
                             problem={problem}

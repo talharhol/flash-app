@@ -8,15 +8,16 @@ import { ProblemFilter } from "@/DAL/entities/problem";
 import { grades } from "@/constants/consts";
 import { useDal } from "@/DAL/DALService";
 import { RangeSlider } from "../RangeSlider";
+import { IDAL } from "@/DAL/IDAL";
 
 
 const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     initialFilters: ProblemFilter;
+    dal: IDAL;
     groupId?: string;
     wallId?: string;
     onFiltersChange: (filters: ProblemFilter) => void;
-}> = ({ initialFilters, groupId, wallId, onFiltersChange, ...props }) => {
-    const dal = useDal();
+}> = ({ initialFilters, dal, groupId, wallId, onFiltersChange, ...props }) => {
     const [minGrade, setMinGrade] = useState(initialFilters.minGrade);
     const [maxGrade, setMaxGrade] = useState(initialFilters.maxGrade);
     const [name, setName] = useState(initialFilters.name);

@@ -42,10 +42,10 @@ function RightAction(h: number, w: number, problemRef: React.RefObject<BolderPro
 const BolderProblemPreview: React.FC<{
     wall: Wall;
     problem: Problem;
+    dal: IDAL;
     onPress?: () => void;
     deleteProblem?: (problem: Problem) => void;
-}> = ({ wall, problem, onPress, deleteProblem }) => {
-    const dal = useDal();
+}> = ({ wall, problem, dal, onPress, deleteProblem }) => {
     const scale = 0.8;
     const screenDimension = useWindowDimensions();
     const [height, setHeight] = useState(0);
