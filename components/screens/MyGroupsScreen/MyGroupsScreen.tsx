@@ -22,7 +22,6 @@ const MyGroupsScreen: React.FC = () => {
         )
     );
     const [groups, setGroups] = useState(dal.currentUser.groups);
-
     const [groupToRemove, setGroupToRemove] = useState<Group | null>(null);
     const [groupManagment, setGroupManagment] = useState<ManagmentModalProps | null>(null)
     const RemoveGroup = (group: Group) => {

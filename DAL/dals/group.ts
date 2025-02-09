@@ -23,12 +23,12 @@ export class GroupDAL extends BaseDAL<Group> {
     }
 
     public List({userId, ...params}: { userId?: string } & { [ket: string]: any }): Group[] {
-        let query = this.table.query();
+        let query = GroupTable.query();
         Object.keys(params)
          .filter(k => params[k] !== undefined)
          .map(
             k => {
-                    query.Filter(this.table.getField(k)!.eq(params[k]));
+                    query.Filter(GroupTable.getField(k)!.eq(params[k]));
                 }
             )
         if (userId !== undefined) {
@@ -41,9 +41,7 @@ export class GroupDAL extends BaseDAL<Group> {
         }
         let results = query.All<{ [key: string]: any; }>(this._dal.db!);
         return results.map(r => {
-            let entity = this.table.toEntity(r);
-            entity.setDAL(this._dal);
-            return entity
+            return this.Get({id: r.id})
         }) as Group[];
     }
 

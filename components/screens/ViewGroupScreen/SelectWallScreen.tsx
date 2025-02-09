@@ -5,7 +5,7 @@ import { ThemedText } from '@/components/general/ThemedText';
 import ThemedView from "@/components/general/ThemedView";
 import React, { useCallback, useState } from 'react';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import PreviewItem from '@/components/general/PreviewItem';
 import SelectImageModal from '@/components/general/modals/SelectImageModal';
@@ -49,9 +49,9 @@ const SelectWallScreen: React.FC = () => {
                 headerImage={
                     <ThemedView style={styles.headerContainer}>
                         <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Select Wall</ThemedText>
-                        <Ionicons
+                        <MaterialCommunityIcons
                             onPress={() => setSelectImageModal(true)}
-                            name='add-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 0, padding: 5 }} />
+                            name='plus-thick' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 10, padding: 5 }} />
                     </ThemedView>
                 }>
                 {
