@@ -13,7 +13,7 @@ const EditUserModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     return (
         <BasicModal {...props}>
             <View style={{ width: "100%", alignItems: "center" }}>
-                <ThemedText darkColor="black" type="defaultSemiBold">edit username</ThemedText>
+                <ThemedText type="defaultSemiBold">edit username</ThemedText>
                 <TextInput value={userName} onChangeText={setUserName} style={{ fontSize: 16, height: 40, width: "80%", borderRadius: 8, borderWidth: 2, backgroundColor: "grey", padding: 10 }} />
             </View>
             <View style={{ flexDirection: "row" }}>

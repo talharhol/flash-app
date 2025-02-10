@@ -9,6 +9,7 @@ import ThemedView from '@/components/general/ThemedView';
 import { TextInput } from 'react-native-gesture-handler';
 import { useDal } from '@/DAL/DALService';
 import { useRouter } from 'expo-router';
+import { Colors } from '@/constants/Colors';
 
 const SearchScreen: React.FC = () => {
     const dal = useDal();
@@ -62,8 +63,8 @@ const styles = StyleSheet.create({
         margin: 5,
         borderRadius: 8,
         borderWidth: 2,
-        borderColor: "#555",
-        backgroundColor: "#777"
+        // borderColor: "#555",
+        backgroundColor: Colors.backgroundLite
     },
     header: {
         alignItems: 'center',

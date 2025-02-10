@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button, Image, Linking, StyleSheet, Text, TextInput, View } from "react-native";
 import { useDal } from "@/DAL/DALService";
+import { ThemedText } from "./ThemedText";
 
 
 const DonationView: React.FC<{
@@ -11,8 +12,8 @@ const DonationView: React.FC<{
     return (
       <View style={styles.container}>
         <Image style={styles.loggo} source={require("../../assets/images/loggo.png")} />
-        <Text style={styles.loggoText}>Flash app</Text>
-        <Text style={styles.title}>Please donate</Text>
+        <ThemedText type="subtitle" style={styles.loggoText}>Flash app</ThemedText>
+        <ThemedText type="title" style={styles.title}>Please donate</ThemedText>
         <Button onPress={() => Linking.openURL("https://buymeacoffee.com/flashapp")} title="I want to donate" />
         <Button onPress={close} title="Close" />
       </View>
@@ -36,15 +37,10 @@ const styles = StyleSheet.create({
     backgroundColor: "grey"
   },
   loggoText: {
-    fontSize: 22,
-    fontWeight: "bold",
     textAlign: "center",
     marginBottom: 40,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
     marginBottom: 20,
   },
   input: {

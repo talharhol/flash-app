@@ -17,6 +17,7 @@ import DrawHold from "./DrawHold";
 import SVGHold from "./SvgHold";
 import { captureRef } from "react-native-view-shot";
 import * as MediaLibrary from 'expo-media-library';
+import { Colors } from "@/constants/Colors";
 
 interface BolderProblemProps extends ViewProps {
   wallImage: ImageSourcePropType;
@@ -45,8 +46,8 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
     { wallImage, configuredHolds, existingHolds, drawingHoldType, disableMovment, scale, fullScreen, bindToImage, aspectRatio, onDrawHoldFinish, onDrawHoldCancel, onConfiguredHoldClick, onHoldClick, ...props }
     , ref
   ) => {
-    aspectRatio = aspectRatio ?? 1.5;
     const screenDimension = useWindowDimensions();
+    aspectRatio = aspectRatio ?? (fullScreen ? screenDimension.height / screenDimension.width : 1.5);
     const [imageHeight, setImageHeight] = useState(0);
     const [imageWidth, setImageWidth] = useState(screenDimension.width * (scale || 1));
     const onCreatedHold = (path: string) => {
@@ -108,7 +109,7 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
 
 
     return (
-      <View {...props} style={[styles.zoomedContainer, { height: getHeight(), width: getWidth(), alignContent: "center", justifyContent: "center", alignItems: "center" }, props.style]}>
+      <View {...props} style={[styles.zoomedContainer, { height: getHeight(), width: getWidth(), alignContent: "center", justifyContent: "center", alignItems: "center", backgroundColor: Colors.backgroundDark, borderRadius: 8 }, props.style]}>
         <imageSize.Provider value={{ width: imageWidth, height: imageHeight }}>
           <Zoomable
             ref={zoomableViewRef}

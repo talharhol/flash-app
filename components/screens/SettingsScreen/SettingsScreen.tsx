@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
@@ -10,6 +10,7 @@ import { BaseButton } from 'react-native-gesture-handler';
 import { useDal } from '@/DAL/DALService';
 import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
 import EditUserModal from './EditUserModal';
+import { Colors } from '@/constants/Colors';
 
 const SettingsScreen: React.FC = () => {
     const router = useRouter();
@@ -18,13 +19,10 @@ const SettingsScreen: React.FC = () => {
     const [editModal, setEditModal] = useState(false);
     const [user, setUser] = useState(dal.currentUser);
     return (
-        <ParallaxScrollView
-            headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-            headerImage={
-                <ThemedView style={styles.title}>
-                    <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Settings</ThemedText>
-                </ThemedView>
-            }>
+        <View style={{ flex: 1, backgroundColor: Colors.backgroundLite }}>
+            <View style={styles.title}>
+                <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Settings</ThemedText>
+            </View>
             {
                 logoutModal &&
                 <ActionValidationModal
@@ -40,28 +38,29 @@ const SettingsScreen: React.FC = () => {
                         setEditModal(false);
                     }} />
             }
-            <TouchableOpacity onPress={() => setEditModal(true)}>
-                <PreviewItem
-                    image={user.image}
-                    title={user.name}
-                    subTitle='click to edit'
-                />
-            </TouchableOpacity>
-            <View style={{ flexDirection: "row", width: "100%", justifyContent: "space-between" }}>
-                <BaseButton onPress={() => router.push("/CreateWall")} style={styles.actionButton}>
-                    <ThemedText type='subtitle'>New Wall</ThemedText>
-                </BaseButton>
-                <BaseButton onPress={() => router.push("/CreateGroup")} style={styles.actionButton}>
-                    <ThemedText type='subtitle'>New Group</ThemedText>
-                </BaseButton>
+            <View style={{ flex: 1, padding: "8%", gap: 16 }}>
+                <TouchableOpacity onPress={() => setEditModal(true)}>
+                    <PreviewItem
+                        image={user.image}
+                        title={user.name}
+                        descriprion='click to edit'
+                    />
+                </TouchableOpacity>
+                <View style={{ flexDirection: "row", width: "100%", justifyContent: "space-between" }}>
+                    <BaseButton onPress={() => router.push("/CreateWall")} style={styles.actionButton}>
+                        <ThemedText type='subtitle2'>New Wall</ThemedText>
+                    </BaseButton>
+                    <BaseButton onPress={() => router.push("/CreateGroup")} style={styles.actionButton}>
+                        <ThemedText type='subtitle2'>New Group</ThemedText>
+                    </BaseButton>
+                </View>
+                <View style={{ flexDirection: "row", bottom: "4%", position: "absolute", alignSelf: "center"}}>
+                    <BaseButton onPress={() => setLogoutModal(true)} style={[styles.actionButton]}>
+                        <ThemedText type='subtitle2'>Log Out</ThemedText>
+                    </BaseButton>
+                </View>
             </View>
-            <View style={{ flexDirection: "row", width: "100%", justifyContent: "space-between" }}>
-                <BaseButton onPress={() => setLogoutModal(true)} style={styles.actionButton}>
-                    <ThemedText type='subtitle'>Log Out</ThemedText>
-                </BaseButton>
-            </View>
-
-        </ParallaxScrollView>
+        </View>
     );
 }
 
@@ -73,13 +72,16 @@ const styles = StyleSheet.create({
         flex: 1,
         height: 50,
         borderRadius: 8,
-        backgroundColor: "gray",
+        backgroundColor: Colors.backgroundDark,
         justifyContent: "center",
         alignItems: "center"
     },
     title: {
+        height: 100,
+        paddingTop: Platform.OS === 'ios' ? 50 : 0,
         alignItems: 'center',
-        backgroundColor: 'transparent',
+        justifyContent: 'center',
+        backgroundColor: Colors.backgroundDark,
     },
 });
 

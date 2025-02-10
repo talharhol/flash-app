@@ -22,7 +22,7 @@ const SetRadiusModal: React.FC<{
 
     return (
         <ResponsiveBackgroundModal onDrage={onDragg} onDrageEnd={onDraggEnd} closeModal={closeModal}>
-                <ThemedText style={{alignSelf: "center"}} darkColor="black" type="defaultSemiBold"> change radius </ThemedText>
+                <ThemedText style={{alignSelf: "center"}} type="defaultSemiBold"> change radius </ThemedText>
                 <Slider
                     value={radius}
                     maximumValue={300}

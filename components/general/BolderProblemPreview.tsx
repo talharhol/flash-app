@@ -14,12 +14,13 @@ import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { IDAL } from "@/DAL/IDAL";
 
 import React from 'react';
+import { Colors } from "@/constants/Colors";
 
 
 function RightAction(h: number, w: number, problemRef: React.RefObject<BolderProblemComponent>, problem: Problem, dal: IDAL, deleteProblem?: (problem: Problem) => void) {
 
     return (
-        <View style={{ height: h, width: w, backgroundColor: "grey" }}>
+        <View style={{ height: h, width: w, backgroundColor: Colors.backgroundExtraDark, borderRadius: 8 }}>
                 <MaterialCommunityIcons name="share" onPress={async () => {
                          Sharing.shareAsync(await problemRef.current?.getProblemUrl()!);
                      }} size={50} color="white" style={{ position: "absolute", top: 0, right: 0, margin: 10 }} />
@@ -73,7 +74,7 @@ const BolderProblemPreview: React.FC<{
             renderRightActions={() => RightAction(height, width, problemRef, problem, dal, deleteProblem)}
         >
             <TouchableWithoutFeedback onPress={onPress}>
-                    <ThemedView style={{ backgroundColor: "rgba(50, 50, 50, 0.4)", flexDirection: "row", justifyContent: 'space-between', position: "absolute", width: "100%", paddingLeft: 5, paddingRight: 5, zIndex: 1 }}>
+                    <ThemedView style={{ backgroundColor: "rgba(50, 50, 50, 0.4)", flexDirection: "row", justifyContent: 'space-between', position: "absolute", width: "100%", paddingLeft: 5, paddingRight: 5, zIndex: 1, borderTopRightRadius: 8, borderTopLeftRadius: 8 }}>
                         <ThemedText>{problem.name}</ThemedText>
                         <ThemedText>{grades[problem.grade]}</ThemedText>
                     </ThemedView>

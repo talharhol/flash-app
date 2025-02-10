@@ -19,6 +19,7 @@ import { Ionicons } from "@expo/vector-icons";
 import PublishProblemModal from "./PublishProblemModal";
 import { Problem } from "@/DAL/entities/problem";
 import { useDal } from "@/DAL/DALService";
+import { Colors } from "@/constants/Colors";
 
 
 const CreateBolderProblemScreen: React.FC = () => {
@@ -121,9 +122,9 @@ const CreateBolderProblemScreen: React.FC = () => {
         <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Create problem</ThemedText>
         <Ionicons
           onPress={() => setIsPublishModal(true)}
-          name='checkmark-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 0, padding: 10 }} />
+          name='checkmark-circle-outline' size={35} color={Colors.backgroundLite} style={{ position: "absolute", right: 0, padding: 10 }} />
       </ThemedView>
-      <View style={{ flexDirection: "row" }}>
+      <View style={{ flexDirection: "row", backgroundColor: Colors.backgroundDark }}>
         {
           Object.values(HoldTypes).filter(x => typeof x === "number").map(type => new HoldType(type as HoldTypes)).map(hold => {
             return (
@@ -152,7 +153,7 @@ const CreateBolderProblemScreen: React.FC = () => {
           setAspectRatio(height / width);
         }}
 
-        style={{ flex: 1, width: "100%", backgroundColor: "red" }}>
+        style={{ flex: 1, width: "100%", backgroundColor: Colors.backgroundDark }}>
         <BolderProblem
           key={wall.id}
           aspectRatio={aspectRatio}
@@ -177,7 +178,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1D3D47',
+    backgroundColor: Colors.backgroundExtraDark,
     width: "100%",
     flexDirection: "row",
     paddingTop: Platform.OS === 'ios' ? 50 : 0,

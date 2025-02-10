@@ -40,7 +40,7 @@ const SelectImageModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     };
     return (
         <BasicModal closeModal={closeModal}>
-            <ThemedText lightColor="black" darkColor="black" type="subtitle">{text}</ThemedText>
+            <ThemedText type="subtitle">{text}</ThemedText>
             <Ionicons name='camera' size={80} color={'black'} onPress={tackImageAsync} />
             <Ionicons name='image' size={80} color={'#black'} onPress={pickImageAsync} />
         </BasicModal>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button, Image, StyleSheet, Text, TextInput, View } from "react-native";
 import { useDal } from "@/DAL/DALService";
+import { ThemedText } from "./ThemedText";
 
 
 const LoginView: React.FC
@@ -27,8 +28,8 @@ const LoginView: React.FC
     return (
         <View style={styles.container}>
           <Image style={styles.loggo} source={require("../../assets/images/loggo.png")}/>
-          <Text style={styles.loggoText}>Flash app</Text>
-          <Text style={styles.title}>{isSignUp ? "Sign Up" : "Login"}</Text>
+          <ThemedText type="subtitle" style={styles.loggoText}>Flash app</ThemedText>
+          <ThemedText type="title" style={styles.title}>{isSignUp ? "Sign Up" : "Login"}</ThemedText>
           <TextInput
             style={styles.input}
             placeholder="Email"
@@ -71,14 +72,10 @@ const styles = StyleSheet.create({
     backgroundColor: "grey"
   },
   loggoText: {
-    fontSize: 22,
-    fontWeight: "bold",
     textAlign: "center",
     marginBottom: 40,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "bold",
     textAlign: "center",
     marginBottom: 20,
   },

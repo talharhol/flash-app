@@ -56,7 +56,7 @@ const ParallaxScrollView: React.FC<React.ComponentProps<typeof ThemedView> & {
           <Animated.View
             style={[
               styles.header,
-              { backgroundColor: headerBackgroundColor[colorScheme] },
+              { backgroundColor: "#A89070" },
               headerAnimatedStyle,
             ]}>
             {headerImage}
@@ -74,6 +74,7 @@ export default ParallaxScrollView;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#C2B798"
   },
   header: {
     paddingTop: Platform.OS === "ios" ? 50 : 0,
@@ -87,5 +88,6 @@ const styles = StyleSheet.create({
     padding: "8%",
     gap: 16,
     overflow: 'hidden',
+    backgroundColor: "transparent"
   },
 });

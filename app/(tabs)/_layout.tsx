@@ -2,17 +2,15 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { TabBarIcon } from '@/components/general/TabBarIcon';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
 
   return (
     <Tabs
       backBehavior='history'
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: Colors.backgroundLite,
         headerShown: false,
       }}>
 
@@ -21,7 +19,7 @@ export default function TabLayout() {
         options={{
           title: 'My Walls',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color}  />
+            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
           ),
         }}
       />
@@ -56,49 +54,42 @@ export default function TabLayout() {
         name="ViewWall"
         options={{
           href: null,
-          unmountOnBlur: true
         }}
       />
       <Tabs.Screen
         name="CreateBolderProblem"
         options={{
           href: null,
-          unmountOnBlur: true
         }}
       />
       <Tabs.Screen
         name="ViewGroupScreen"
         options={{
           href: null,
-          unmountOnBlur: true
         }}
       />
       <Tabs.Screen
         name="SelectWallScreen"
         options={{
           href: null,
-          unmountOnBlur: true
         }}
       />
       <Tabs.Screen
         name="CreateWall"
         options={{
           href: null,
-          unmountOnBlur: true
         }}
       />
       <Tabs.Screen
         name="CreateWallHolds"
         options={{
           href: null,
-          unmountOnBlur: true
         }}
       />
       <Tabs.Screen
         name="CreateGroup"
         options={{
           href: null,
-          unmountOnBlur: true
         }}
       />
     </Tabs>

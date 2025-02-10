@@ -11,6 +11,7 @@ import DisplayBolderProblemModal from '../../general/modals/DisplayBolderProblem
 import FilterProblemssModal from '@/components/general/modals/FilterBoldersModal';
 import { Problem, ProblemFilter } from '@/DAL/entities/problem';
 import { useDal } from '@/DAL/DALService';
+import { Colors } from '@/constants/Colors';
 
 const ViewGroupScreen: React.FC = () => {
     const router = useRouter();
@@ -36,11 +37,11 @@ const ViewGroupScreen: React.FC = () => {
                 <ThemedView style={styles.headerContainer}>
                     <MaterialCommunityIcons
                         onPress={() => router.push({ pathname: "/SelectWallScreen", params: { id: group.id } })}
-                        name='plus-thick' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 10, padding: 5 }} />
+                        name='plus-thick' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", left: 10, padding: 5 }} />
                     <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{group.name}</ThemedText>
                     <MaterialCommunityIcons
                         onPress={() => setFilterProblemsModal(true)}
-                        name='filter-plus' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 10, padding: 5 }} />
+                        name='filter-plus' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", right: 10, padding: 5 }} />
                 </ThemedView>
             }>
             {

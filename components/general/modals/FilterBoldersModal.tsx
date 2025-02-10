@@ -9,6 +9,7 @@ import { grades } from "@/constants/consts";
 import { useDal } from "@/DAL/DALService";
 import { RangeSlider } from "../RangeSlider";
 import { IDAL } from "@/DAL/IDAL";
+import { Colors } from "@/constants/Colors";
 
 
 const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
@@ -47,11 +48,11 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                 height: 600,
                 backgroundColor: "#E8E8E8",
                 borderRadius: 20,
-                opacity: 0.8,
+                opacity: 0.97,
                 justifyContent: "space-around",
                 alignItems: "center",
             }, props.style]} >
-            <ThemedText lightColor="black" darkColor="black" type="subtitle">Filter Problems</ThemedText>
+            <ThemedText type="subtitle">Filter Problems</ThemedText>
 
             <View style={{ flex: 1, height: 500, width: "100%", padding: 10, justifyContent: "space-around" }}>
                 <RangeSlider
@@ -64,15 +65,13 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                     onMinValueChange={setMinGrade}
                 />
                 <View style={styles.filterContainer}>
-                    <Text>Problem's name</Text>
                     <TextInput
-                        style={{ borderRadius: 8, height: 40, borderWidth: 2, borderColor: "black", width: "90%", padding: 10, fontSize: 18, margin: 5 }}
-                        placeholder="name" value={name} onChangeText={(text) => {
+                        style={{ borderRadius: 8, height: 45, borderWidth: 2, borderColor: "#555", width: "90%", fontSize: 16, margin: 5 }}
+                        placeholder="Problem's name" value={name} onChangeText={(text) => {
                             setName(text)
                         }} />
                 </View>
                 <View style={styles.filterContainer}>
-                    <Text>Setters</Text>
                     <View>
                         {usersMultiSelect.current?.getSelectedItemsExt(setters)}
                     </View>
@@ -117,7 +116,7 @@ export default FilterProblemssModal;
 
 const styles = StyleSheet.create({
     filterContainer: {
-        backgroundColor: "gray",
+        // backgroundColor: Colors.backgroundLite,
         alignItems: "center",
         borderRadius: 8,
         margin: 5,

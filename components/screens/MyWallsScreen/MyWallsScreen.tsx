@@ -10,6 +10,7 @@ import { useRouter } from 'expo-router';
 import BasicButton from '@/components/general/Button';
 import SwipablePreviewItem from '@/components/general/SwipeablePreviewItem';
 import { useDal } from '@/DAL/DALService';
+import { Colors } from '@/constants/Colors';
 
 const MyWallsScreen: React.FC = () => {
     const dal = useDal(() => {
@@ -73,7 +74,7 @@ const MyWallsScreen: React.FC = () => {
                 ownedWalls.length > 0 &&
                 <View style={{ alignItems: "center" }}>
                     <ThemedText type='subtitle'>Owned walls</ThemedText>
-                    <View style={{ height: 2, borderRadius: 1, width: "100%", backgroundColor: "gray" }} />
+                    <View style={{ height: 2, borderRadius: 1, width: "100%", backgroundColor: Colors.backgroundDark }} />
                 </View>
             }
             {

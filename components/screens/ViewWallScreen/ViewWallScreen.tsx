@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
@@ -6,11 +6,12 @@ import ThemedView from "@/components/general/ThemedView";
 import React, { useReducer, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import BolderProblemPreview from '../../general/BolderProblemPreview';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import DisplayBolderProblemModal from '../../general/modals/DisplayBolderProblemModal';
 import FilterProblemssModal from '@/components/general/modals/FilterBoldersModal';
 import { Problem, ProblemFilter } from '@/DAL/entities/problem';
 import { useDal } from '@/DAL/DALService';
+import { Colors } from '@/constants/Colors';
 
 const ViewWallScreen: React.FC = () => {
     const router = useRouter();
@@ -38,11 +39,11 @@ const ViewWallScreen: React.FC = () => {
                 <ThemedView style={styles.headerContainer}>
                     <MaterialCommunityIcons
                         onPress={() => router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id } })}
-                        name='plus-thick' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 10, padding: 5 }} />
+                        name='plus-thick' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", left: 10, padding: 5 }} />
                     <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{wall.name}@{wall.gym}</ThemedText>
                     <MaterialCommunityIcons
                         onPress={() => setFilterProblemsModal(true)}
-                        name='filter-plus' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 10, padding: 5 }} />
+                        name='filter-plus' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", right: 10, padding: 5 }} />
                 </ThemedView>
             }>
             {

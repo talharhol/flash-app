@@ -1,5 +1,6 @@
 import BolderProblem from "@/components/general/BolderProblem";
 import BasicModal from "@/components/general/modals/BasicModal";
+import { Colors } from "@/constants/Colors";
 import { useDal } from "@/DAL/DALService";
 import { Problem } from "@/DAL/entities/problem";
 import { IDAL } from "@/DAL/IDAL";
@@ -19,7 +20,7 @@ const DisplayBolderProblemModal: React.FC<React.ComponentProps<typeof BasicModal
                 existingHolds={problem.holds}
             />
             <Ionicons
-                color={"gray"}
+                color={Colors.backgroundLite}
                 name="exit-outline"
                 size={50}
                 onPress={props.closeModal}
