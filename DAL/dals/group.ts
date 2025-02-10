@@ -1,10 +1,11 @@
-import { Group } from "../entities/group";
+import { Group, UpdatedData } from "../entities/group";
 import { BaseDAL } from "../BaseDAL";
 import { GroupMemberTable, GroupProblemTable, GroupTable, GroupWallTable, WallTable } from "../tables/tables";
 import { Wall } from "../entities/wall";
 import { collection, query, where, getDocs, Timestamp, getDoc, doc } from "firebase/firestore";
-import { grades } from "@/constants/consts";
 import { Problem } from "../entities/problem";
+
+
 
 export class GroupDAL extends BaseDAL<Group> {
     public async AddProblem(params: { problem_id: string, group_id: string }): Promise<void> {
@@ -148,8 +149,26 @@ export class GroupDAL extends BaseDAL<Group> {
         );
     }
 
-    public async UpdateLocal(obj: Group): Promise<void> {
+    public async UpdateLocal(obj: Group): Promise<UpdatedData> {
         await super.UpdateLocal(obj);
+        let updateData: UpdatedData = {
+            walls: {
+                added: [],
+                removed: []
+            },
+            problems: {
+                added: [],
+                removed: []
+            },
+            membes: {
+                added: [],
+                removed: []
+            },
+            admins: {
+                added: [],
+                removed: []
+            }
+        };
         let existingWalls = GroupWallTable.query().Filter(
             GroupWallTable.getField("group_id")!.eq(obj.id)
         ).Select([GroupWallTable.getField("wall_id")!])
@@ -185,7 +204,6 @@ export class GroupDAL extends BaseDAL<Group> {
                 p => this.AddProblem({problem_id: p, group_id: obj.id})
             )
         );
-        
         await GroupWallTable.delete(
             [
                 GroupWallTable.getField("group_id")!.eq(obj.id),
@@ -195,7 +213,6 @@ export class GroupDAL extends BaseDAL<Group> {
             ],
             this._dal.db!
         ).catch(console.error);
-        
         await GroupMemberTable.delete(
             [
                 GroupMemberTable.getField("group_id")!.eq(obj.id),
@@ -205,7 +222,6 @@ export class GroupDAL extends BaseDAL<Group> {
             ],
             this._dal.db!
         ).catch(console.error);
-
         await GroupProblemTable.delete(
             [
                 GroupProblemTable.getField("group_id")!.eq(obj.id),
@@ -215,6 +231,14 @@ export class GroupDAL extends BaseDAL<Group> {
             ],
             this._dal.db!
         ).catch(console.error);
+        updateData.walls.added = obj.walls.filter(w => !existingWalls.includes(w));
+        updateData.membes.added = obj.members.filter(u => !existingUsers.includes(u));
+        updateData.admins.added = updateData.membes.added.filter(obj.admins.includes);
+        updateData.problems.added =  obj.problems.filter(p => !existingProblems.includes(p));
+        updateData.walls.removed = existingWalls.filter(w => !obj.walls.includes(w));
+        updateData.membes.removed = existingUsers.filter(u => !obj.members.includes(u));
+        updateData.problems.removed = existingProblems.filter(p => !obj.problems.includes(p));
+        return updateData;
     }
 
     public async FetchFromRemote(since: Timestamp): Promise<void> {

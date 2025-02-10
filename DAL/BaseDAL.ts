@@ -55,7 +55,7 @@ export class BaseDAL<
     }
 
 
-    public async UpdateLocal(obj: ObjType): Promise<void> {
+    public async UpdateLocal(obj: ObjType): Promise<any> {
         let data = obj.toTable(this.table);
         delete data.id; // we never want to update the id
         data.updated_at = undefined // in order to update this field to the default value (Date.now)
@@ -67,13 +67,13 @@ export class BaseDAL<
         this._dal.updateScreen();
     }
 
-    public async UpdateRemote(obj: ObjType): Promise<void> {
-        if (!!this.remoteCollection) await obj.updateInRemote(this.remoteCollection);
+    public async UpdateRemote(obj: ObjType, extaData?: any): Promise<void> {
+        if (!!this.remoteCollection) await obj.updateInRemote(this.remoteCollection, extaData);
     }
 
     public async Update(obj: ObjType): Promise<ObjType> {
-        await this.UpdateLocal(obj);
-        this.UpdateRemote(obj);
+        let updatedData = await this.UpdateLocal(obj);
+        this.UpdateRemote(obj, updatedData);
         return this._objects[obj.id] = obj;
     }
 

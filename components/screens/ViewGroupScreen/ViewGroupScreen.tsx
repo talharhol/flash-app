@@ -26,8 +26,9 @@ const ViewGroupScreen: React.FC = () => {
         name: "",
         setters: []
     });
-    const deleteProblem = (problem: Problem) => {
-        dal.problems.Remove(problem).then(updateGUI);
+    const deleteProblem = async (problem: Problem) => {
+        await group.RemoveProblem({ problem_id: problem.id });
+        updateGUI();
     }
 
     return (

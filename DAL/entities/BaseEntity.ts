@@ -112,7 +112,7 @@ export class Entity {
         }
     }
 
-    public async updateInRemote(collectionName: string): Promise<void> {
+    public async updateInRemote(collectionName: string, extaData?: any): Promise<void> {
         if (!this.shouldPushToRemote()) return;
         let dal = this.getDAL();
         try {
