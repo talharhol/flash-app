@@ -122,27 +122,30 @@ const CreateBolderProblemScreen: React.FC = () => {
         <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Create problem</ThemedText>
         <Ionicons
           onPress={() => setIsPublishModal(true)}
-          name='checkmark-circle-outline' size={35} color={Colors.backgroundLite} style={{ position: "absolute", right: 0, padding: 10 }} />
+          name='checkmark-circle-outline' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", right: 0, padding: 10 }} />
       </ThemedView>
       <View style={{ flexDirection: "row", backgroundColor: Colors.backgroundDark }}>
         {
           Object.values(HoldTypes).filter(x => typeof x === "number").map(type => new HoldType(type as HoldTypes)).map(hold => {
             return (
-              <BasicButton
-                style={{ width: "20%" }}
-                selected={drawingHoldType.type === hold.type}
-                text={hold.title}
-                color={hold.color}
-                onPress={() => setDrawingHoldType(hold)}
-                key={hold.type}
-              />
+              <View style={{ width: "20%" }}>
+                <View style={{ height: "100%", width: "100%", backgroundColor: hold.color, opacity: 0.1, position: "absolute", borderRadius: 5 }} />
+                <BasicButton
+                  style={{ width: "100%" }}
+                  selected={drawingHoldType.type === hold.type}
+                  text={hold.title}
+                  color={hold.color}
+                  onPress={() => setDrawingHoldType(hold)}
+                  key={hold.type}
+                />
+              </View>
             );
           })
         }
         <BasicButton
           style={{ width: "20%" }}
           text="Draw"
-          color="grey"
+          color={Colors.backgroundExtraLite}
           onPress={startDrawingHold}
           key="New"
         />

@@ -17,6 +17,7 @@ import { ThemedText } from "@/components/general/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
 import { useDal } from "@/DAL/DALService";
 import BasicButton from "@/components/general/Button";
+import { Colors } from "@/constants/Colors";
 
 
 const CreateWallHoldsScreen: React.FC = ({ }) => {
@@ -25,6 +26,7 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
     const [isDrawingHold, setIsDrawingHold] = useState(false);
     const [isExitRequest, setIsExitRequest] = useState(false);
     const [holdToDelete, setHoldToDelete] = useState<string | null>(null);
+    const [aspectRatio, setAspectRatio] = useState(1.5);
     const [holds, setHolds] = useState<HoldInterface[]>(wall?.configuredHolds.map((h) => ({ ...h, color: holdTypeToHoldColor[HoldTypes.route] })));
     useFocusEffect(
         useCallback(
@@ -68,11 +70,11 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
             <ThemedView style={styles.headerContainer}>
                 <Ionicons
                     onPress={() => setIsExitRequest(true)}
-                    name='close-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 0, padding: 10 }} />
-                <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Config Holds</ThemedText>
+                    name='close-circle-outline' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", left: 0, padding: 10 }} />
+                <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Create Holds</ThemedText>
                 <Ionicons
                     onPress={SaveHolds}
-                    name='checkmark-circle-outline' size={35} color={'#A1CEDC'} style={{ position: "absolute", right: 0, padding: 10 }} />
+                    name='checkmark-circle-outline' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", right: 0, padding: 10 }} />
             </ThemedView>
             {
                 holdToDelete && <ActionValidationModal
@@ -87,16 +89,25 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
                     closeModal={() => setIsExitRequest(false)}
                     approveAction={() => router.push("/")} />
             }
-            <BolderProblem
-                wallImage={wall.image}
-                existingHolds={isDrawingHold ? [] : holds}
-                onHoldClick={setHoldToDelete}
-                onDrawHoldFinish={onDrawHoldFinish}
-                onDrawHoldCancel={() => setIsDrawingHold(false)}
-                drawingHoldType={isDrawingHold ? new HoldType(HoldTypes.route) : null}
-            />
+            <View
+                onLayout={(event) => {
+                    const { height, width } = event.nativeEvent.layout;
+                    setAspectRatio(height / width);
+                }}
+
+                style={{ flex: 1, width: "100%", backgroundColor: Colors.backgroundDark }}>
+                <BolderProblem
+                    wallImage={wall.image}
+                    existingHolds={isDrawingHold ? [] : holds}
+                    onHoldClick={setHoldToDelete}
+                    onDrawHoldFinish={onDrawHoldFinish}
+                    onDrawHoldCancel={() => setIsDrawingHold(false)}
+                    drawingHoldType={isDrawingHold ? new HoldType(HoldTypes.route) : null}
+                    aspectRatio={aspectRatio}
+                />
+            </View>
             <View style={styles.buttonContainer}>
-                <BasicButton text="New Hold" color="#0056B3" selected onPress={startDrawingHold} />
+                <BasicButton text="New Hold" color={Colors.backgroundExtraDark} selected onPress={startDrawingHold} />
             </View>
         </View>
     );
@@ -108,7 +119,7 @@ const styles = StyleSheet.create({
     headerContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#1D3D47',
+        backgroundColor: Colors.backgroundExtraDark,
         width: "100%",
         flexDirection: "row",
         paddingTop: Platform.OS === 'ios' ? 50 : 0,
@@ -124,6 +135,7 @@ const styles = StyleSheet.create({
     },
     container: {
         width: "100%",
+        backgroundColor: Colors.backgroundDark,
         flex: 1,
     },
 });

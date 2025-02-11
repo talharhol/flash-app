@@ -20,6 +20,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useDal } from "@/DAL/DALService";
 import SwitchSelector from "react-native-switch-selector";
+import { Colors } from "@/constants/Colors";
 
 
 const CreateWallScreen: React.FC = ({ }) => {
@@ -90,21 +91,22 @@ const CreateWallScreen: React.FC = ({ }) => {
                     text='Choose source'
                 />
             }
-            <View style={{ alignSelf: "center", height: 200, width: 200 }}>
-                <Image style={{ height: "100%", width: "100%", borderRadius: 10000 }} source={selectedImage ? { uri: selectedImage } : require('../../../assets/images/upload.png')} />
-                <Ionicons
-                    style={{ position: "absolute", bottom: 0, right: 0 }}
-                    onPress={() => setSelectImageModal(true)}
-                    size={30}
-                    color="gray"
-                    name="pencil-outline"
-                />
-            </View>
-            <TextInput value={wallName} onChangeText={setWallName} placeholder="Wall's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: "grey", padding: 10 }} />
-            <TextInput value={gymName} onChangeText={setGymName} placeholder="Gym's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: "grey", padding: 10 }} />
+            <TouchableWithoutFeedback onPress={() => setSelectImageModal(true)}
+                style={{ alignSelf: "center", height: 200, width: 200, borderRadius: 200, overflow: "hidden", backgroundColor: "red" }}>
+                <Image
+                    style={{ height: "100%", width: "100%" }}
+                    source={selectedImage ? { uri: selectedImage } : require('../../../assets/images/upload.png')} />
+            </TouchableWithoutFeedback>
+            <TextInput value={wallName} onChangeText={setWallName} placeholder="Wall's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: Colors.backgroundDark, padding: 10 }} />
+            <TextInput value={gymName} onChangeText={setGymName} placeholder="Gym's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: Colors.backgroundDark, padding: 10 }} />
             <View style={{ alignSelf: "center", height: 50, width: "50%" }}>
-                <SwitchSelector 
+                <SwitchSelector
                     initial={0}
+                    textColor={Colors.backgroundDark}
+                    selectedColor={Colors.backgroundExtraLite}
+                    buttonColor={Colors.backgroundDark}
+                    borderColor={Colors.backgroundDark}
+                    backgroundColor={Colors.backgroundExtraLite}
                     onPress={(value: boolean) => setIsPublic(value)}
                     options={[
                         { label: "Private", value: false },
@@ -120,5 +122,5 @@ const CreateWallScreen: React.FC = ({ }) => {
 export default CreateWallScreen;
 
 const styles = StyleSheet.create({
-    
+
 });

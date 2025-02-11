@@ -1,8 +1,6 @@
 import React from "react";
 import {
     Modal,
-    Platform,
-    StatusBar,
     StyleSheet,
     TouchableWithoutFeedback,
     View
@@ -10,7 +8,8 @@ import {
 
 const BasicModal: React.FC<React.ComponentProps<typeof Modal> & {
     closeModal: () => void;
-}> = ({ closeModal, children, style, ...props }) => {
+    backgroundColor?: string;
+}> = ({ closeModal, children, style, backgroundColor, ...props }) => {
     return (
         <Modal
             animationType="fade"
@@ -20,9 +19,9 @@ const BasicModal: React.FC<React.ComponentProps<typeof Modal> & {
         >
             <TouchableWithoutFeedback
                 onPress={closeModal}
-                style={{backgroundColor: "rgba(50, 50, 50, 0.4)", height: "100%"}}
+                style={{height: "100%"}}
             >
-                <View style={styles.modalContainer}>
+                <View style={[styles.modalContainer, {backgroundColor: backgroundColor ?? "rgba(50, 50, 50, 0.4)"}]}>
                     <TouchableWithoutFeedback>
                         <View style={style ?? styles.modal}>
                             {children}
@@ -49,7 +48,7 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "100%",
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "center"
     },
 });
 

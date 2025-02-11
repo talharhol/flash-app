@@ -11,6 +11,7 @@ import PreviewItem from '@/components/general/PreviewItem';
 import SelectImageModal from '@/components/general/modals/SelectImageModal';
 import { Wall } from '@/DAL/entities/wall';
 import { useDal } from '@/DAL/DALService';
+import { Colors } from '@/constants/Colors';
 
 const SelectWallScreen: React.FC = () => {
     const router = useRouter();
@@ -43,68 +44,66 @@ const SelectWallScreen: React.FC = () => {
     }
 
     return (
-        <View style={{ height: "100%" }}>
-            <ParallaxScrollView
-                headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-                headerImage={
-                    <ThemedView style={styles.headerContainer}>
-                        <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Select Wall</ThemedText>
-                        <MaterialCommunityIcons
-                            onPress={() => setSelectImageModal(true)}
-                            name='plus-thick' size={35} color={'#A1CEDC'} style={{ position: "absolute", left: 10, padding: 5 }} />
-                    </ThemedView>
-                }>
-                {
-                    selectImageModal &&
-                    <SelectImageModal
-                        closeModal={() => setSelectImageModal(false)}
-                        getImage={CreateAnonimusWall}
-                        text='Choose source'
-                    />
-                }
-                {
-                    group.walls
-                        .map(id => dal.walls.Get({ id }))
-                        .filter(w => w.isPublic)
-                        .map(wall => (
-                            <TouchableOpacity
-                                key={wall.id}
-                                onPress={() => createProblem(wall)}
-                            >
-                                <PreviewItem
-                                    image={wall.image}
-                                    title={`${wall.name}@${wall.gym}`}
-                                    subTitle={wall.angle && `${wall.angle}°` || undefined}
-                                    onImagePress={() => createProblem(wall)}
-                                />
-                            </TouchableOpacity>
-                        )
-                        )
-                }
-                <View style={{ alignItems: "center" }}>
-                    <ThemedText type='subtitle'>In group walls</ThemedText>
-                    <View style={{ height: 2, borderRadius: 1, width: "100%", backgroundColor: "gray" }} />
-                </View>
-                {
-                    group.walls.map(id => dal.walls.Get({ id }))
-                        .filter(w => !w.isPublic)
-                        .sort((a, b) => b.createdAt - a.createdAt)
-                        .map(wall => (
-                            <TouchableOpacity
-                                key={wall.id}
-                                onPress={() => createProblem(wall)}
-                            >
-                                <PreviewItem
-                                    image={wall.image}
-                                    title={wall.name}
-                                    onImagePress={() => createProblem(wall)}
-                                />
-                            </TouchableOpacity>
-                        )
-                        )
-                }
-            </ParallaxScrollView>
-        </View>
+        <ParallaxScrollView
+            headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+            headerImage={
+                <ThemedView style={styles.headerContainer}>
+                    <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Select Wall</ThemedText>
+                    <MaterialCommunityIcons
+                        onPress={() => setSelectImageModal(true)}
+                        name='plus-thick' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", left: 10, padding: 5 }} />
+                </ThemedView>
+            }>
+            {
+                selectImageModal &&
+                <SelectImageModal
+                    closeModal={() => setSelectImageModal(false)}
+                    getImage={CreateAnonimusWall}
+                    text='Choose source'
+                />
+            }
+            {
+                group.walls
+                    .map(id => dal.walls.Get({ id }))
+                    .filter(w => w.isPublic)
+                    .map(wall => (
+                        <TouchableOpacity
+                            key={wall.id}
+                            onPress={() => createProblem(wall)}
+                        >
+                            <PreviewItem
+                                image={wall.image}
+                                title={`${wall.name}@${wall.gym}`}
+                                subTitle={wall.angle && `${wall.angle}°` || undefined}
+                                onImagePress={() => createProblem(wall)}
+                            />
+                        </TouchableOpacity>
+                    )
+                    )
+            }
+            <View style={{ alignItems: "center" }}>
+                <ThemedText type='subtitle'>In group walls</ThemedText>
+                <View style={{ height: 2, borderRadius: 1, width: "100%", backgroundColor: Colors.backgroundDark }} />
+            </View>
+            {
+                group.walls.map(id => dal.walls.Get({ id }))
+                    .filter(w => !w.isPublic)
+                    .sort((a, b) => b.createdAt - a.createdAt)
+                    .map(wall => (
+                        <TouchableOpacity
+                            key={wall.id}
+                            onPress={() => createProblem(wall)}
+                        >
+                            <PreviewItem
+                                image={wall.image}
+                                title={wall.name}
+                                onImagePress={() => createProblem(wall)}
+                            />
+                        </TouchableOpacity>
+                    )
+                    )
+            }
+        </ParallaxScrollView>
     );
 }
 

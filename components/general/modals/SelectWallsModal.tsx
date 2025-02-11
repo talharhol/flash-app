@@ -10,6 +10,7 @@ import ThemedView from "@/components/general/ThemedView";
 import { useDal } from "@/DAL/DALService";
 import BasicButton from "@/components/general/Button";
 import { IDAL } from "@/DAL/IDAL";
+import { Colors } from "@/constants/Colors";
 
 const SelectWallModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     dal: IDAL;
@@ -20,7 +21,9 @@ const SelectWallModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     const [filterWallName, setFilterWallName] = useState<string>('');
     const [filterGymName, setFilterGymName] = useState<string>(''); const [name, setName] = useState<string>('');
     return (
-        <BasicModal {...props} style={[{ height: "70%", overflow: "hidden", borderRadius: 8 }, props.style]}>
+        <BasicModal {...props}
+        backgroundColor="rgba(50, 50, 50, 0.6)"
+         style={[{ height: "80%", overflow: "hidden", borderRadius: 8 }, props.style]}>
             <ParallaxScrollView
                 headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
                 headerImage={
@@ -57,9 +60,10 @@ const SelectWallModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                 <View style={{ height: 60 }} />
 
             </ParallaxScrollView>
-            <View style={{ width: "100%", opacity: 0.6, backgroundColor: "black", position: "absolute", bottom: 0 }}>
+            <View style={{ width: "100%", backgroundColor: Colors.backgroundDark, position: "absolute", bottom: -1 }}>
                 <BasicButton text="Submit"
-                    color="green"
+                    color={Colors.backgroundExtraDark}
+                    selected
                     onPress={props.closeModal}
                     style={{ alignSelf: "center", margin: 10 }} />
             </View>
@@ -78,7 +82,8 @@ const styles = StyleSheet.create({
         margin: 5,
         borderRadius: 8,
         borderWidth: 2,
-        borderColor: "black"
+        borderColor: "black",
+        backgroundColor: Colors.backgroundLite
     },
     header: {
         alignItems: 'center',

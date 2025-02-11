@@ -11,24 +11,20 @@ import { ThemedText } from "@/components/general/ThemedText";
 import SelectImageModal from "@/components/general/modals/SelectImageModal";
 import BasicButton from "@/components/general/Button";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import { Group } from "@/DAL/entities/group";
 import MultiSelect from "react-native-multiple-select";
-import { FlatList, ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+import { FlatList, ScrollView, TouchableOpacity, TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { Wall } from "@/DAL/entities/wall";
 import { useDal } from "@/DAL/DALService";
 import SelectWallModal from "@/components/general/modals/SelectWallsModal";
+import { Colors } from "@/constants/Colors";
 
-const WallItem = ({ wall, onRemove }: { wall: Wall | string, onRemove: (id: string) => void }) => {
-    const dal = useDal();
-
-    if (typeof wall === "string") wall = dal.walls.Get({ id: wall });
-
+const WallItem = ({ wall, onRemove }: { wall: Wall, onRemove: (id: string) => void }) => {
     return (
-        <View style={{ flexDirection: "row", borderRadius: 17, backgroundColor: "gray", justifyContent: "space-between", margin: 5 }}>
+        <View style={{ flexDirection: "row", borderRadius: 17, backgroundColor: Colors.backgroundDark, justifyContent: "space-between", margin: 5 }}>
             <Image source={wall.image} style={{ height: 30, width: 30, borderRadius: 15, margin: 2 }} />
             <Text style={{ alignSelf: "center", fontSize: 18, padding: 5 }}>{wall.fullName}</Text>
-            <TouchableOpacity onPress={() => onRemove(wall.id)} style={{ height: 30, width: 30, borderRadius: 15, margin: 2, justifyContent: "center", backgroundColor: "white" }}>
+            <TouchableOpacity onPress={() => onRemove(wall.id)} style={{ height: 30, width: 30, borderRadius: 15, margin: 2, justifyContent: "center", backgroundColor: Colors.backgroundExtraLite }}>
                 <Text style={{ alignSelf: "center", fontSize: 18 }}>X</Text>
             </TouchableOpacity>
         </View>
@@ -46,8 +42,8 @@ const ConfigGroupScreen: React.FC = ({ }) => {
     const [selectWallModal, setSelectWallModal] = useState(false);
     const [groupName, setGroupName] = useState(group ? group.name : '');
     const [selectedUsers, setSelectedUsers] = useState<string[]>(group ? group.members.filter(u => u !== dal.currentUser.id) : []);
-    const [selectedWalls, setSelectedWalls] = useState<string[]>(group ? group.PublicWalls.map(w=>w.id) : []);
-    
+    const [selectedWalls, setSelectedWalls] = useState<string[]>(group ? group.PublicWalls.map(w => w.id) : []);
+
     useFocusEffect(
         useCallback(
             () => {
@@ -56,11 +52,11 @@ const ConfigGroupScreen: React.FC = ({ }) => {
                 setSelectWallModal(false);
                 setGroupName(group ? group.name : '');
                 setSelectedUsers(group ? group.members.filter(u => u !== dal.currentUser.id) : []);
-                setSelectedWalls(group ? group.PublicWalls.map(w=>w.id) : []);
+                setSelectedWalls(group ? group.PublicWalls.map(w => w.id) : []);
             }, []
         )
     );
-    
+
     const createGroup = () => {
         if (!selectedImage) {
             alert("missing image");
@@ -83,7 +79,7 @@ const ConfigGroupScreen: React.FC = ({ }) => {
             dal.groups.Add(new_group).then(
                 () => router.push({ pathname: "/MyGroupsScreen" })
             );
-        else 
+        else
             dal.groups.Update(new_group).then(
                 () => router.push({ pathname: "/MyGroupsScreen" })
             ).catch(console.log);
@@ -101,7 +97,7 @@ const ConfigGroupScreen: React.FC = ({ }) => {
                     alignItems: 'center',
                     backgroundColor: 'transparent',
                 }}>
-                    <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>CreateWall</ThemedText>
+                    <ThemedText type="title">Create Group</ThemedText>
                 </ThemedView>
             }>
             {
@@ -120,17 +116,13 @@ const ConfigGroupScreen: React.FC = ({ }) => {
                     onRemove={(id) => setSelectedWalls(selectedWalls.filter(w => w !== id))}
                     closeModal={() => setSelectWallModal(false)} />
             }
-            <View style={{ alignSelf: "center", height: 200, width: 200 }}>
-                <Image style={{ height: "100%", width: "100%", borderRadius: 10000 }} source={selectedImage ? { uri: selectedImage } : require('../../assets/images/upload.png')} />
-                <Ionicons
-                    style={{ position: "absolute", bottom: 0, right: 0 }}
-                    onPress={() => setSelectImageModal(true)}
-                    size={30}
-                    color="gray"
-                    name="pencil-outline"
-                />
-            </View>
-            <TextInput value={groupName} onChangeText={setGroupName} placeholder="Group's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: "grey", padding: 10 }} />
+            <TouchableWithoutFeedback onPress={() => setSelectImageModal(true)}
+                style={{ alignSelf: "center", height: 200, width: 200, borderRadius: 200, overflow: "hidden", backgroundColor: "red" }}>
+                <Image
+                    style={{ height: "100%", width: "100%" }}
+                    source={selectedImage ? { uri: selectedImage } : require('../../assets/images/upload.png')} />
+            </TouchableWithoutFeedback>
+            <TextInput value={groupName} onChangeText={setGroupName} placeholder="Group's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: Colors.backgroundDark, padding: 10 }} />
             <View>
                 {usersMultiSelect.current?.getSelectedItemsExt(selectedUsers)}
             </View>
@@ -148,22 +140,22 @@ const ConfigGroupScreen: React.FC = ({ }) => {
                         searchInputPlaceholderText="Search Items..."
                         onChangeInput={(text) => console.log(text)}
                         altFontFamily="ProximaNova-Light"
-                        tagRemoveIconColor="#CCC"
-                        tagBorderColor="#CCC"
-                        tagTextColor="#CCC"
-                        selectedItemTextColor="#CCC"
-                        selectedItemIconColor="#CCC"
-                        itemTextColor="#000"
+                        tagRemoveIconColor={Colors.backgroundExtraDark}
+                        tagBorderColor={Colors.backgroundExtraDark}
+                        tagTextColor={Colors.backgroundExtraDark}
+                        selectedItemTextColor={Colors.backgroundExtraDark}
+                        selectedItemIconColor={Colors.backgroundExtraDark}
+                        itemTextColor={Colors.backgroundExtraDark}
                         displayKey="name"
-                        searchInputStyle={{ color: '#CCC' }}
-                        submitButtonColor="#CCC"
+                        searchInputStyle={{ color: Colors.backgroundExtraDark }}
+                        submitButtonColor={Colors.backgroundExtraDark}
                         submitButtonText="Submit"
                     />
                     <FlatList
                         data={selectedWalls}
                         keyExtractor={(item) => item}
                         renderItem={({ item }) => (
-                            <WallItem wall={item}
+                            <WallItem wall={dal.walls.Get({ id: item })}
                                 onRemove={(id) => setSelectedWalls(selectedWalls.filter(w => w !== id))} />)
                         }
                         numColumns={1} // Set the number of columns
