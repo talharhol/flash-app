@@ -6,7 +6,7 @@ import React, { useCallback, useReducer, useState } from 'react';
 import { Wall } from '@/DAL/entities/wall';
 import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
 import ThemedView from '@/components/general/ThemedView';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import BasicButton from '@/components/general/Button';
 import SwipablePreviewItem from '@/components/general/SwipeablePreviewItem';
 import { useDal } from '@/DAL/DALService';
@@ -17,6 +17,14 @@ const MyWallsScreen: React.FC = () => {
         setOwnedWalls(dal.currentUser.ownedWalls);
         setViewWalls(dal.currentUser.viewerWalls);
     });
+    useFocusEffect(
+        useCallback(
+            () => {
+                setOwnedWalls(dal.currentUser.ownedWalls);
+                setViewWalls(dal.currentUser.viewerWalls);
+            }, []
+        )
+    );
     const router = useRouter();
     const [wallToRemove, setWallToRemove] = useState<Wall | null>(null);
     const [wallToDelete, setWallToDelete] = useState<Wall | null>(null);

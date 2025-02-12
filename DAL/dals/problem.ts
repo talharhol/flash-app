@@ -37,9 +37,9 @@ export class ProblemDAL extends BaseDAL<Problem> {
             where("updated_at", ">=", since),
             where("isPublic", "==", true),
             where(
-                "wall_id", 
+                "wallId", 
                 "in", 
-                this._dal.users.GetWalls({ user_id: this._dal.currentUser.id }).map(w => w.id)
+                this._dal.users.GetWalls({ user_id: this._dal.currentUser.id }).map(w => w.id).concat([""])
             )
         );
     }

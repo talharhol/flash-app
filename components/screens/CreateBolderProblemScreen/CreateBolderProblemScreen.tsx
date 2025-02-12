@@ -128,7 +128,7 @@ const CreateBolderProblemScreen: React.FC = () => {
         {
           Object.values(HoldTypes).filter(x => typeof x === "number").map(type => new HoldType(type as HoldTypes)).map(hold => {
             return (
-              <View style={{ width: "20%" }}>
+              <View key={hold.type} style={{ width: "20%" }}>
                 <View style={{ height: "100%", width: "100%", backgroundColor: hold.color, opacity: 0.1, position: "absolute", borderRadius: 5 }} />
                 <BasicButton
                   style={{ width: "100%" }}
@@ -136,7 +136,6 @@ const CreateBolderProblemScreen: React.FC = () => {
                   text={hold.title}
                   color={hold.color}
                   onPress={() => setDrawingHoldType(hold)}
-                  key={hold.type}
                 />
               </View>
             );
