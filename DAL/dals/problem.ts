@@ -2,6 +2,7 @@ import { Problem, ProblemFilter } from "../entities/problem";
 import { Filter } from "../tables/BaseTable";
 import { GroupProblemTable, ProblemTable } from "../tables/tables";
 import { BaseDAL } from "../BaseDAL";
+import { collection, getDocs, Query, query, Timestamp, where } from "firebase/firestore";
 
 
 export class ProblemDAL extends BaseDAL<Problem> {
@@ -17,7 +18,7 @@ export class ProblemDAL extends BaseDAL<Problem> {
         let query = ProblemTable.query(filters);
         if (params.groupId !== undefined) {
             query = query.Join(
-                GroupProblemTable, 
+                GroupProblemTable,
                 GroupProblemTable.getField("problem_id")!.eq(ProblemTable.getField("id")!)
             );
             query.Filter(GroupProblemTable.getField("group_id")!.eq(params.groupId))
@@ -28,5 +29,18 @@ export class ProblemDAL extends BaseDAL<Problem> {
             entity.setDAL(this._dal);
             return entity
         }) as Problem[];
+    }
+    
+    protected getRemoteFetchQuery(since: Timestamp): Query {
+        return query(
+            collection(this._dal.remoteDB, this.remoteCollection!),
+            where("updated_at", ">=", since),
+            where("isPublic", "==", true),
+            where(
+                "wall_id", 
+                "in", 
+                this._dal.users.GetWalls({ user_id: this._dal.currentUser.id }).map(w => w.id)
+            )
+        );
     }
 }

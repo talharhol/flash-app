@@ -2,6 +2,7 @@ import { User } from "../entities/user";
 import { Wall } from "../entities/wall";
 import { GroupMemberTable, ProblemTable, UserConfigTable, UserTable, UserWallTable, WallTable } from "../tables/tables";
 import { BaseDAL } from "../BaseDAL";
+import { Timestamp } from "firebase/firestore";
 
 
 export class UserDAL extends BaseDAL<User> {
@@ -20,7 +21,7 @@ export class UserDAL extends BaseDAL<User> {
                 ProblemTable,
                 ProblemTable.getField("owner_id")!.eq(UserTable.getField("id")!)
             ).Join(
-                WallTable, 
+                WallTable,
                 WallTable.getField("id")!.eq(ProblemTable.getField("wall_id")!)
             ).Filter(
                 WallTable.getField("id")!.eq(params.wallId)
@@ -29,9 +30,9 @@ export class UserDAL extends BaseDAL<User> {
         delete params.groupId;
         delete params.wallId;
         Object.keys(params)
-         .filter(k => params[k] !== undefined)
-         .map(
-            k => {
+            .filter(k => params[k] !== undefined)
+            .map(
+                k => {
                     query.Filter(this.table.getField(k)!.eq(params[k]));
                 }
             )
@@ -72,14 +73,16 @@ export class UserDAL extends BaseDAL<User> {
             ),
             this._dal.db!
         );
-        if (existing.length === 0)
+        if (existing.length === 0) {
             await UserWallTable.insert({
                 wall_id: params.wall_id,
                 user_id: params.user_id,
                 role: role ?? "viewer"
             }, this._dal.db!);
-            let wall = this._dal.walls.Get({id: params.wall_id});
+            let wall = this._dal.walls.Get({ id: params.wall_id });
             wall.fetchFullImage().catch(console.error);
+            this._dal.problems.FetchFromRemote(Timestamp.fromMillis(0)).catch(console.error);
+        }
     }
 
     public async RemoveWall(params: { wall_id: string, user_id: string }): Promise<void> {
@@ -117,15 +120,15 @@ export class UserDAL extends BaseDAL<User> {
         this.Update(this._dal.currentUser);
     }
 
-    public async CreateConfig(params: {user_id: string, last_pulled?: number, should_fetch_user_data?: boolean, login_counter?: number}): Promise<void> {
+    public async CreateConfig(params: { user_id: string, last_pulled?: number, should_fetch_user_data?: boolean, login_counter?: number }): Promise<void> {
         await UserConfigTable.insert(params, this._dal.db!);
     }
 
     public getLastPulled(user: User): number {
         let conig = UserConfigTable.query()
-        .Filter(UserConfigTable.getField("user_id")!.eq(user.id))
-        .Select([UserConfigTable.getField("last_pulled")!])
-        .All<{last_pulled: number}>(this._dal.db!)[0];
+            .Filter(UserConfigTable.getField("user_id")!.eq(user.id))
+            .Select([UserConfigTable.getField("last_pulled")!])
+            .All<{ last_pulled: number }>(this._dal.db!)[0];
 
         if (conig) return conig.last_pulled;
         return 0;
@@ -141,9 +144,9 @@ export class UserDAL extends BaseDAL<User> {
 
     public getShouldFetchUserData(user: User): boolean {
         let conig = UserConfigTable.query()
-        .Filter(UserConfigTable.getField("user_id")!.eq(user.id))
-        .Select([UserConfigTable.getField("should_fetch_user_data")!])
-        .All<{should_fetch_user_data: boolean}>(this._dal.db!)[0];
+            .Filter(UserConfigTable.getField("user_id")!.eq(user.id))
+            .Select([UserConfigTable.getField("should_fetch_user_data")!])
+            .All<{ should_fetch_user_data: boolean }>(this._dal.db!)[0];
         if (conig) return conig.should_fetch_user_data;
         return false;
     }
@@ -158,9 +161,9 @@ export class UserDAL extends BaseDAL<User> {
 
     public getLoginCount(user: User): number {
         let conig = UserConfigTable.query()
-        .Filter(UserConfigTable.getField("user_id")!.eq(user.id))
-        .Select([UserConfigTable.getField("login_counter")!])
-        .All<{login_counter: number}>(this._dal.db!)[0];
+            .Filter(UserConfigTable.getField("user_id")!.eq(user.id))
+            .Select([UserConfigTable.getField("login_counter")!])
+            .All<{ login_counter: number }>(this._dal.db!)[0];
 
         if (conig) return conig.login_counter;
         return 0;

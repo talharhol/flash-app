@@ -1,7 +1,7 @@
 import { IDAL } from "./IDAL";
 import { BaseTable } from "./tables/BaseTable";
 import { Entity } from "./entities/BaseEntity";
-import { collection, query, where, getDocs, Timestamp, getDoc, doc } from "firebase/firestore";
+import { collection, query, where, getDocs, Timestamp, getDoc, doc, Query } from "firebase/firestore";
 
 export class BaseDAL<
     ObjType extends Entity
@@ -112,14 +112,18 @@ export class BaseDAL<
         return (await getDoc(doc(this._dal.remoteDB, this.remoteCollection!, id))).data()!;
     }
 
-    public async FetchFromRemote(since: Timestamp): Promise<void> {
-        if (!this.remoteCollection) return;
-        console.log(`fetching ${this.remoteCollection}`)
-        const q = query(
-            collection(this._dal.remoteDB, this.remoteCollection),
+    protected getRemoteFetchQuery(since: Timestamp): Query {
+        return query(
+            collection(this._dal.remoteDB, this.remoteCollection!),
             where("updated_at", ">=", since),
             where("isPublic", "==", true),
         );
+    }
+
+    public async FetchFromRemote(since: Timestamp): Promise<void> {
+        if (!this.remoteCollection) return;
+        console.log(`fetching ${this.remoteCollection}`)
+        const q = this.getRemoteFetchQuery(since);
         let docs = await getDocs(q);
         docs.forEach(
             doc => {
