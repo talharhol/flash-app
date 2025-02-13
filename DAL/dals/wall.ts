@@ -58,8 +58,8 @@ export class WallDAL extends BaseDAL<Wall> {
         });
     }
 
-    public async Add(obj: Wall): Promise<Wall> {
-        let wall = await super.Add(obj);
+    public async AddToLocal(wall: Wall): Promise<void> {
+        await super.AddToLocal(wall);
         if (wall.owner === this._dal.currentUser.id) {
             await UserWallTable.insert({
                 wall_id: wall.id,
@@ -67,6 +67,5 @@ export class WallDAL extends BaseDAL<Wall> {
                 role: "owner"
             }, this._dal.db!);
         }
-        return wall;
     }
 }
