@@ -26,7 +26,8 @@ const SettingsScreen: React.FC = () => {
             {
                 logoutModal &&
                 <ActionValidationModal
-                    text='Log out? you can allway login again :)'
+                    text='Log out?'
+                    subText='you can allway login again :)'
                     approveAction={() => dal.signout()}
                     closeModal={() => setLogoutModal(false)} />
             }

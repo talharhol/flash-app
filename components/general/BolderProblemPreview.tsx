@@ -20,20 +20,21 @@ import { Colors } from "@/constants/Colors";
 function RightAction(h: number, w: number, problemRef: React.RefObject<BolderProblemComponent>, problem: Problem, dal: IDAL, deleteProblem?: (problem: Problem) => void) {
 
     return (
-        <View style={{ height: h, width: w, backgroundColor: Colors.backgroundExtraDark, borderRadius: 8 }}>
+        <View style={{ height: h, width: w, backgroundColor: Colors.backgroundExtraDark, borderRadius: 8, alignItems: "center", justifyContent: "center" }}>
                 <MaterialCommunityIcons name="share" onPress={async () => {
                          Sharing.shareAsync(await problemRef.current?.getProblemUrl()!);
-                     }} size={50} color="white" style={{ position: "absolute", top: 0, right: 0, margin: 10 }} />
+                     }} size={50} color={Colors.backgroundExtraLite} style={{ position: "absolute", top: 0, right: 0, margin: 10 }} />
 
                  <MaterialCommunityIcons
                      onPress={() => problemRef.current?.exportProblem()}
-                     name="download" size={50} color={"white"} style={{ position: "absolute", bottom: 0, right: 0, margin: 10 }} />
+                     name="download" size={50} color={Colors.backgroundExtraLite} style={{ position: "absolute", bottom: 0, right: 0, margin: 10 }} />
                  {
                      problem.setter === dal.currentUser.id &&
                      <MaterialCommunityIcons
                      onPress={() => deleteProblem?.(problem)}
-                     name="delete" size={35} color={"white"} style={{ position: "absolute", top: 0, left: 0, margin: 10 }} />
+                     name="delete" size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", top: 0, left: 0, margin: 10 }} />
                  }
+                 <Image source={require("../../assets/images/loggo.png")} style={{height: 150, width: 150}}/>
         </View>
     );
 }
@@ -74,9 +75,9 @@ const BolderProblemPreview: React.FC<{
             renderRightActions={() => RightAction(height, width, problemRef, problem, dal, deleteProblem)}
         >
             <TouchableWithoutFeedback onPress={onPress}>
-                    <ThemedView style={{ backgroundColor: "rgba(50, 50, 50, 0.4)", flexDirection: "row", justifyContent: 'space-between', position: "absolute", width: "100%", paddingLeft: 5, paddingRight: 5, zIndex: 1, borderTopRightRadius: 8, borderTopLeftRadius: 8 }}>
-                        <ThemedText>{problem.name}</ThemedText>
-                        <ThemedText>{grades[problem.grade]}</ThemedText>
+                    <ThemedView style={{ backgroundColor: "rgba(50, 50, 50, 0.5)", flexDirection: "row", justifyContent: 'space-between', position: "absolute", width: "100%", paddingLeft: 5, paddingRight: 5, zIndex: 1, borderTopRightRadius: 8, borderTopLeftRadius: 8 }}>
+                        <ThemedText lite >{problem.name}</ThemedText>
+                        <ThemedText lite>{grades[problem.grade]}</ThemedText>
                     </ThemedView>
                     <BolderProblem
                         ref={problemRef}

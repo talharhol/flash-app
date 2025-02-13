@@ -1,9 +1,6 @@
 import React, { useCallback, useState } from "react";
 import {
-    Button,
     Image,
-    Platform,
-    StatusBar,
     StyleSheet,
     TextInput,
     View,
@@ -13,11 +10,9 @@ import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
 import SelectImageModal from "@/components/general/modals/SelectImageModal";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
-import Toggle from "react-native-toggle-element";
 import BasicButton from "@/components/general/Button";
 import { Wall } from "@/DAL/entities/wall";
 import { useFocusEffect, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import { useDal } from "@/DAL/DALService";
 import SwitchSelector from "react-native-switch-selector";
 import { Colors } from "@/constants/Colors";
@@ -92,7 +87,7 @@ const CreateWallScreen: React.FC = ({ }) => {
                 />
             }
             <TouchableWithoutFeedback onPress={() => setSelectImageModal(true)}
-                style={{ alignSelf: "center", height: 200, width: 200, borderRadius: 200, overflow: "hidden", backgroundColor: "red" }}>
+                style={{ alignSelf: "center", height: 200, width: 200, borderRadius: 200, overflow: "hidden" }}>
                 <Image
                     style={{ height: "100%", width: "100%" }}
                     source={selectedImage ? { uri: selectedImage } : require('../../../assets/images/upload.png')} />
