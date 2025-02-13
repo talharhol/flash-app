@@ -81,7 +81,7 @@ export class UserDAL extends BaseDAL<User> {
             }, this._dal.db!);
             let wall = this._dal.walls.Get({ id: params.wall_id });
             wall.fetchFullImage().catch(console.error);
-            this._dal.problems.FetchFromRemote(Timestamp.fromMillis(0)).catch(console.error);
+            this._dal.problems.FetchFromRemote(Timestamp.fromMillis(0), { wallId: params.wall_id }).catch(console.error);
         }
     }
 

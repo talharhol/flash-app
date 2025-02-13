@@ -61,11 +61,7 @@ export class WallDAL extends BaseDAL<Wall> {
     public async AddToLocal(wall: Wall): Promise<void> {
         await super.AddToLocal(wall);
         if (wall.owner === this._dal.currentUser.id) {
-            await UserWallTable.insert({
-                wall_id: wall.id,
-                user_id: this._dal.currentUser.id,
-                role: "owner"
-            }, this._dal.db!);
+            await this._dal.users.AddWall( {wall_id: wall.id, user_id: this._dal.currentUser.id}, "owner" );
         }
     }
 }

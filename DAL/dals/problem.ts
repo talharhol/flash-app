@@ -31,16 +31,18 @@ export class ProblemDAL extends BaseDAL<Problem> {
         }) as Problem[];
     }
     
-    protected getRemoteFetchQuery(since: Timestamp): Query {
+    protected getRemoteFetchQuery(since: Timestamp, extraData?: { wallId: string }): Query {
+        let walls = [];
+        if (extraData?.wallId) walls.push(extraData.wallId);
+        else walls = this._dal.users.GetWalls({ user_id: this._dal.currentUser.id }).map(w => w.id);
+
+        if (walls.length === 0) walls.push("");
+
         return query(
             collection(this._dal.remoteDB, this.remoteCollection!),
             where("updated_at", ">=", since),
             where("isPublic", "==", true),
-            where(
-                "wallId", 
-                "in", 
-                this._dal.users.GetWalls({ user_id: this._dal.currentUser.id }).map(w => w.id).concat([""])
-            )
+            where("wallId", "in", walls)
         );
     }
 }

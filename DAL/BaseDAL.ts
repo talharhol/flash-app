@@ -112,7 +112,7 @@ export class BaseDAL<
         return (await getDoc(doc(this._dal.remoteDB, this.remoteCollection!, id))).data()!;
     }
 
-    protected getRemoteFetchQuery(since: Timestamp): Query {
+    protected getRemoteFetchQuery(since: Timestamp, extraData?: any): Query {
         return query(
             collection(this._dal.remoteDB, this.remoteCollection!),
             where("updated_at", ">=", since),
@@ -120,10 +120,10 @@ export class BaseDAL<
         );
     }
 
-    public async FetchFromRemote(since: Timestamp): Promise<void> {
+    public async FetchFromRemote(since: Timestamp, extraData?: any): Promise<void> {
         if (!this.remoteCollection) return;
         console.log(`fetching ${this.remoteCollection}`)
-        const q = this.getRemoteFetchQuery(since);
+        const q = this.getRemoteFetchQuery(since, extraData);
         let docs = await getDocs(q);
         docs.forEach(
             doc => {
