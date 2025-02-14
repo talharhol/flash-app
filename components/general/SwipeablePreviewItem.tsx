@@ -3,11 +3,12 @@ import PreviewItem from "./PreviewItem";
 import React from "react";
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { Colors } from "@/constants/Colors";
 
 
 function RightAction(hiddenComponent?: () => React.JSX.Element) {
     return (
-        <View style={{ height: 120, width: "100%", borderRadius: 8, backgroundColor: "#ccc", flexDirection: "row" }}>
+        <View style={{ height: 120, width: "100%", borderRadius: 8, backgroundColor: Colors.backgroundExtraDark, flexDirection: "row" }}>
             <View style={{ position: "absolute", right: 0, width: 120, height: 120 }}>
                 {hiddenComponent?.()}
             </View>

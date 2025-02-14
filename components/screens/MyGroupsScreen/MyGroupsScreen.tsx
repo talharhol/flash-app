@@ -12,6 +12,7 @@ import BasicButton from '@/components/general/Button';
 import { useDal } from '@/DAL/DALService';
 import ManagmantModal, { ManagmentModalProps } from '@/components/general/modals/ManagmantModal';
 import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '@/constants/Colors';
 
 const MyGroupsScreen: React.FC = () => {
     const router = useRouter();
@@ -77,12 +78,14 @@ const MyGroupsScreen: React.FC = () => {
                         hiddenComponent={() => {
                             return (
                                 <View style={{ height: "100%", flexDirection: "column", alignItems: 'center', justifyContent: "space-evenly" }}>
-                                    <Ionicons name='options-outline' size={35} onPress={
+                                    <Ionicons name='options-outline' size={35} 
+                                    color={Colors.backgroundExtraLite}
+                                    onPress={
                                         () => setGroupManagment(
                                             {
                                                 leave: () => setGroupToRemove(group),
                                                 deleteObj: group.admins.includes(dal.currentUser.id) ? () => setGroupToDelete(group) : undefined,
-                                                edit: group.admins.includes(dal.currentUser.id) ? () => () => router.navigate({ pathname: "/CreateGroup", params: { id: group.id } }) : undefined,
+                                                edit: group.admins.includes(dal.currentUser.id) ? () => router.navigate({ pathname: "/CreateGroup", params: { id: group.id } }) : undefined,
                                             }
                                         )
                                     } />

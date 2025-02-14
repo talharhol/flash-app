@@ -7,10 +7,10 @@ import { Wall } from '@/DAL/entities/wall';
 import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
 import ThemedView from '@/components/general/ThemedView';
 import { useFocusEffect, useRouter } from 'expo-router';
-import BasicButton from '@/components/general/Button';
 import SwipablePreviewItem from '@/components/general/SwipeablePreviewItem';
 import { useDal } from '@/DAL/DALService';
 import { Colors } from '@/constants/Colors';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const MyWallsScreen: React.FC = () => {
     const dal = useDal(() => {
@@ -55,8 +55,8 @@ const MyWallsScreen: React.FC = () => {
                     <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>My Walls</ThemedText>
                 </ThemedView>
             }>
-            {wallToRemove && <ActionValidationModal closeModal={setWallToRemove.bind(this, null)} approveAction={RemoveWall.bind(this, wallToRemove)} text={`Remove ${wallToRemove.name} from your walls?`} />}
-            {wallToDelete && <ActionValidationModal closeModal={setWallToDelete.bind(this, null)} approveAction={DeleteWall.bind(this, wallToDelete)} text={`Delete ${wallToDelete.name}?`} />}
+            {wallToRemove && <ActionValidationModal closeModal={setWallToRemove.bind(this, null)} approveAction={RemoveWall.bind(this, wallToRemove)} text={`Remove ${wallToRemove.name} from your walls?`} subText='You can alway add it later' />}
+            {wallToDelete && <ActionValidationModal closeModal={setWallToDelete.bind(this, null)} approveAction={DeleteWall.bind(this, wallToDelete)} text={`Delete ${wallToDelete.name}?`} subText='this will permenantly delete this wall' />}
             {
                 viewWalls.map(wall =>
                     <SwipablePreviewItem key={wall.id} image={wall.image}
@@ -65,14 +65,13 @@ const MyWallsScreen: React.FC = () => {
                         onPress={() => router.push({ pathname: "/ViewWall", params: { id: wall.id } })}
                         hiddenComponent={() => {
                             return (
-                                <View style={{ height: "100%", flexDirection: "column", alignItems: 'center', justifyContent: "space-evenly" }}>
-                                    <BasicButton
-                                        text='Remove'
-                                        onPress={setWallToRemove.bind(this, wall)}
-                                        color="red"
-                                        style={{ width: 100 }}
-                                    />
-                                </View>
+                                <MaterialCommunityIcons
+                                    style={{ position: "absolute", right: 5, top: 5 }}
+                                    onPress={() => setWallToRemove(wall)}
+                                    name='trash-can'
+                                    color={Colors.backgroundExtraLite}
+                                    size={25}
+                                />
                             )
                         }}
                     />
@@ -94,17 +93,16 @@ const MyWallsScreen: React.FC = () => {
                         hiddenComponent={() => {
                             return (
                                 <View style={{ height: "100%", flexDirection: "column", alignItems: 'center', justifyContent: "space-evenly" }}>
-                                    <BasicButton
-                                        onPress={() => router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } })}
-                                        text='Edit Holds'
-                                        color="blue"
-                                        style={{ width: 100 }}
+                                    <MaterialCommunityIcons
+                                        style={{ position: "absolute", right: 5, top: 5 }}
+                                        onPress={() => setWallToDelete(wall)}
+                                        name='trash-can'
+                                        color={Colors.backgroundExtraLite}
+                                        size={25}
                                     />
-                                    <BasicButton
-                                        text='Delete'
-                                        onPress={setWallToDelete.bind(this, wall)}
-                                        color="red"
-                                        style={{ width: 100 }}
+                                    <MaterialCommunityIcons
+                                        onPress={() => router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } })}
+                                        size={35} name='puzzle-edit' color={Colors.backgroundExtraLite}
                                     />
                                 </View>
                             )
