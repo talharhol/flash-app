@@ -78,7 +78,9 @@ export const RangeSlider: React.FC<{
     max_animState.minBoundaryPosition = maxPos;
     max_animState.maxBoundaryPosition = maxPos + sWidth;
     // Initialize sliders
+    // @ts-ignore
     placeSlider(min_pan.x._value, min_animState, max_animState, max_setMinBoundaryPosition, true);
+    // @ts-ignore
     placeSlider(max_pan.x._value, max_animState, min_animState, min_setMaxBoundaryPosition, false);
   };
 
@@ -162,12 +164,14 @@ export const RangeSlider: React.FC<{
           onPanResponderGrant: () => // When the slider starts moving
           {
             const clamp = Math.max(min_animState.minBoundaryPosition, Math.min(min_animState.maxBoundaryPosition, min_animState.currentVal));
+            // @ts-ignore
             min_animState.clampOffSet = min_animState.clampOffSet + min_pan.x._value - clamp;
             min_pan.setOffset({x: clamp, y: 0});
           },
           onPanResponderMove: (e, gesture) => // When the slider moves
           {
             min_setEffectiveMaxBoundaryPosition(min_animState.maxBoundaryPosition);
+            // @ts-ignore
             placeSlider(min_pan.x._value, min_animState, max_animState, max_setMinBoundaryPosition, true);
             Animated.event([null, { dx: min_pan.x, dy: min_pan.y }], {useNativeDriver: false})(e, {dx:gesture.dx, dy:0});
           },
@@ -177,6 +181,7 @@ export const RangeSlider: React.FC<{
             min_animState.effectiveMaxBoundaryPosition = min_animState.currentVal;
             min_setEffectiveMaxBoundaryPosition(min_animState.currentVal);
             // Save slider's offset
+            // @ts-ignore
             min_animState.offSet = min_animState.offSet + min_pan.x._value;
             min_pan.flattenOffset();
           }
@@ -266,12 +271,14 @@ export const RangeSlider: React.FC<{
           onPanResponderGrant: () =>
           {
             const clamp = Math.max(max_animState.minBoundaryPosition, Math.min(max_animState.maxBoundaryPosition, max_animState.currentVal));
+            // @ts-ignore
             max_animState.clampOffSet = max_animState.clampOffSet + max_pan.x._value - clamp;
             max_pan.setOffset({x: clamp, y: 0 });
           },
           onPanResponderMove: (e, gesture) =>
           {
             max_setEffectiveMinBoundaryPosition(max_animState.minBoundaryPosition);
+            // @ts-ignore
             placeSlider(max_pan.x._value, max_animState, min_animState, min_setMaxBoundaryPosition, false);
             Animated.event([null, { dx: max_pan.x, dy: max_pan.y }], { useNativeDriver: false})(e, {dx:gesture.dx, dy:0});
           },
@@ -279,6 +286,7 @@ export const RangeSlider: React.FC<{
           {
             max_animState.effectiveMinBoundaryPosition = max_animState.currentVal;
             max_setEffectiveMinBoundaryPosition(max_animState.currentVal);
+            // @ts-ignore
             max_animState.offSet = max_animState.offSet + max_pan.x._value;
             max_pan.flattenOffset();
           }
