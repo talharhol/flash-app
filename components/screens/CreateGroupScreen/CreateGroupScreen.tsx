@@ -4,6 +4,7 @@ import {
     Text,
     TextInput,
     View,
+    StyleSheet
 } from "react-native";
 import ParallaxScrollView from "@/components/general/ParallaxScrollView";
 import ThemedView from "@/components/general/ThemedView";
@@ -18,6 +19,7 @@ import { Wall } from "@/DAL/entities/wall";
 import { useDal } from "@/DAL/DALService";
 import SelectWallModal from "@/components/general/modals/SelectWallsModal";
 import { Colors } from "@/constants/Colors";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 const WallItem = ({ wall, onRemove }: { wall: Wall, onRemove: (id: string) => void }) => {
     return (
@@ -93,11 +95,11 @@ const ConfigGroupScreen: React.FC = ({ }) => {
         <ParallaxScrollView
             headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
             headerImage={
-                <ThemedView style={{
-                    alignItems: 'center',
-                    backgroundColor: 'transparent',
-                }}>
+                <ThemedView style={styles.headerContainer}>
                     <ThemedText type="title">Create Group</ThemedText>
+                    <Ionicons
+                        onPress={createGroup}
+                        name='checkmark-circle-outline' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", right: 0, padding: 10 }} />
                 </ThemedView>
             }>
             {
@@ -117,10 +119,14 @@ const ConfigGroupScreen: React.FC = ({ }) => {
                     closeModal={() => setSelectWallModal(false)} />
             }
             <TouchableWithoutFeedback onPress={() => setSelectImageModal(true)}
-                style={{ alignSelf: "center", height: 200, width: 200, borderRadius: 200, overflow: "hidden" }}>
-                <Image
-                    style={{ height: "100%", width: "100%" }}
-                    source={selectedImage ? { uri: selectedImage } : require('../../../assets/images/upload.png')} />
+                style={{ alignSelf: "center", height: 200, width: 200, borderRadius: 200, overflow: "hidden", alignItems: "center" }}>
+                {
+                    selectedImage ?
+                        <Image
+                            style={{ height: "100%", width: "100%" }}
+                            source={{ uri: selectedImage }} />
+                        : <MaterialCommunityIcons name="image-plus" size={150} color={Colors.backgroundExtraDark} />
+                }
             </TouchableWithoutFeedback>
             <TextInput value={groupName} onChangeText={setGroupName} placeholder="Group's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: Colors.backgroundDark, padding: 10 }} />
             <View>
@@ -163,10 +169,18 @@ const ConfigGroupScreen: React.FC = ({ }) => {
                     />
                 </View>
             </ScrollView>
-            <BasicButton onPress={() => setSelectWallModal(true)} style={{ alignSelf: "center" }} text="Add wall" color="blue" />
-            <BasicButton onPress={createGroup} style={{ alignSelf: "center", margin: 20 }} text={!!group ? "Update" : "Create"} color="green" />
+            <BasicButton onPress={() => setSelectWallModal(true)} style={{ alignSelf: "center" }} text="Add wall" selected color={Colors.backgroundDark} />
         </ParallaxScrollView>
     );
 };
+
+const styles = StyleSheet.create({
+    headerContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: "transparent",
+        width: "100%",
+      },
+});
 
 export default ConfigGroupScreen;

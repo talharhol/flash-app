@@ -16,6 +16,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { useDal } from "@/DAL/DALService";
 import SwitchSelector from "react-native-switch-selector";
 import { Colors } from "@/constants/Colors";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 
 const CreateWallScreen: React.FC = ({ }) => {
@@ -72,10 +73,16 @@ const CreateWallScreen: React.FC = ({ }) => {
             headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
             headerImage={
                 <ThemedView style={{
+                    justifyContent: 'center',
                     alignItems: 'center',
                     backgroundColor: 'transparent',
+                    width: "100%"
                 }}>
                     <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>CreateWall</ThemedText>
+                    <Ionicons
+                        onPress={createWall}
+                        name='checkmark-circle-outline' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", right: 0, padding: 10 }} />
+
                 </ThemedView>
             }>
             {
@@ -87,14 +94,18 @@ const CreateWallScreen: React.FC = ({ }) => {
                 />
             }
             <TouchableWithoutFeedback onPress={() => setSelectImageModal(true)}
-                style={{ alignSelf: "center", height: 200, width: 200, borderRadius: 200, overflow: "hidden" }}>
-                <Image
-                    style={{ height: "100%", width: "100%" }}
-                    source={selectedImage ? { uri: selectedImage } : require('../../../assets/images/upload.png')} />
+                style={{ alignSelf: "center", height: 200, width: 200, borderRadius: 200, overflow: "hidden", alignItems: "center" }}>
+                {
+                    selectedImage ?
+                        <Image
+                            style={{ height: "100%", width: "100%" }}
+                            source={{ uri: selectedImage }} />
+                        : <MaterialCommunityIcons name="image-plus" size={150} color={Colors.backgroundExtraDark} />
+                }
             </TouchableWithoutFeedback>
             <TextInput value={wallName} onChangeText={setWallName} placeholder="Wall's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: Colors.backgroundDark, padding: 10 }} />
             <TextInput value={gymName} onChangeText={setGymName} placeholder="Gym's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: Colors.backgroundDark, padding: 10 }} />
-            <View style={{ alignSelf: "center", height: 50, width: "50%" }}>
+            <View style={{ alignSelf: "center", height: 50, width: "50%", marginTop: 50 }}>
                 <SwitchSelector
                     initial={0}
                     textColor={Colors.backgroundDark}
@@ -109,7 +120,6 @@ const CreateWallScreen: React.FC = ({ }) => {
                     ]}
                 />
             </View>
-            <BasicButton onPress={createWall} style={{ alignSelf: "center", margin: 30 }} text="Create" color="green" />
         </ParallaxScrollView>
     );
 };
