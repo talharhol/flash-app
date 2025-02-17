@@ -76,6 +76,7 @@ const DrawHold: React.FC<{
         pathToSend = `M${currentPaths.map(({ x, y }) => `${x.toFixed(0)},${y.toFixed(0)}`)} Z`;
         setCurrentPath([]);
         onFinishedDrawingShape?.(pathToSend);
+        setIsDrawing(false);
     };
     const zoom = useContext(zoomSize);
 

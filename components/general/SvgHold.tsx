@@ -1,8 +1,9 @@
 import { HoldInterface } from "@/DAL/hold";
 import React, { useContext, useState } from "react";
-import { Path } from "react-native-svg";
+import { Path, Text } from "react-native-svg";
 import { zoomSize } from "./SizeContext";
 import Zoomable from "./Zoomable";
+import { svgPathProperties } from "svg-path-properties";
 
 const SVGHold: React.FC<{
   hold: HoldInterface,
@@ -15,7 +16,9 @@ const SVGHold: React.FC<{
   const [firstPos, setFirstPos] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
   const [firstPosPage, setFirstPosPage] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
   const zoom = useContext(zoomSize);
+  const labelPoint = (new svgPathProperties(hold.svgPath)).getPointAtLength(0);
   return (
+    <>
     <Path
       key={hold.id}
       d={hold.svgPath}
@@ -42,6 +45,10 @@ const SVGHold: React.FC<{
         setFirstPosPage({ x: 0, y: 0 });
       }}
     />
+    <Text x={labelPoint.x} y={labelPoint.y} >
+      {`  ${hold.lable ?? '1'}  `}
+    </Text>
+    </>
   )
 }
 export default SVGHold;
