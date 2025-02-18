@@ -18,6 +18,16 @@ export const holdTypeToTitle: Record<HoldTypes, string> = {
     [HoldTypes.start]: "Start",
     [HoldTypes.top]: "Top",
 };
+
+const generateRainbowColors = (steps: number) => {
+    return Array.from({ length: steps }, (_, i) => {
+        const hue = (i / (steps - 1)) * 360; // Distributes hue from 240° to 240°
+        return `hsl(${(240 + hue) % 360}, 100%, 50%)`; // Full saturation, medium lightness
+    });
+};
+
+const colors = generateRainbowColors(30);
+
 export class HoldType {
     type: HoldTypes;
     constructor(type: HoldTypes) {
@@ -36,13 +46,13 @@ export class Hold {
     color: string;
     svgPath: string;
     length: number;
-    label?: string
-    constructor({ id, svgPath, color, length, label }: { svgPath: string, id?: string; color?: string, length?: number, label?: string}) {
+    label: string
+    constructor({ id, svgPath, color, length, label }: { svgPath: string, id?: string; color?: string, length?: number, label?: string }) {
         this.id = id ?? uuid.v4() as string;
         this.color = color ?? holdTypeToHoldColor[HoldTypes.route];
         this.svgPath = svgPath;
         this.length = length ?? new svgPathProperties(svgPath).getTotalLength();
-        this.label = label;
+        this.label = label ?? '';
     }
 };
 
@@ -51,7 +61,7 @@ export interface HoldInterface {
     svgPath: string;
     color?: string;
     length?: number;
-    lable?: string;
+    label: string;
 }
 
 export const SortHolds = (hold1: HoldInterface, hold2: HoldInterface) => {
@@ -62,4 +72,24 @@ export const SortHolds = (hold1: HoldInterface, hold2: HoldInterface) => {
     if (hold1.length === hold2.length)
         return 0
     return 1
+}
+
+export const ConvertToCycle = (holds: HoldInterface[]): HoldInterface[] => {
+    let holdCount = 0;
+    let newHolds: HoldInterface[] = [];
+    holds.forEach(hold => {
+        if (hold.color === holdTypeToHoldColor[HoldTypes.feet]) {
+            newHolds.push(hold);
+            return;
+        }
+        newHolds.push({
+            id: hold.id,
+            svgPath: hold.svgPath,
+            color: colors[holdCount % 30],
+            length: hold.length,
+            label: (holdCount + 1).toString()
+        });
+        holdCount = holdCount + 1;
+    });
+    return newHolds;
 }

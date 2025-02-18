@@ -116,6 +116,7 @@ export class ProblemTable extends BaseTable {
             loader: JSON.parse,
         }),
         new Field({ name: "grade", type: "INTEGER", notNull: true }),
+        new Field({ name: "type", type: "TEXT", notNull: true }),
     ];
 }
 

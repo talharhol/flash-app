@@ -4,9 +4,9 @@ import { StyleSheet, Text, TextInput, View } from "react-native";
 import BasicModal from "./BasicModal";
 import BasicButton from "../Button";
 import MultiSelect from "react-native-multiple-select";
+import SwitchSelector from "react-native-switch-selector";
 import { ProblemFilter } from "@/DAL/entities/problem";
 import { grades } from "@/constants/consts";
-import { useDal } from "@/DAL/DALService";
 import { RangeSlider } from "../RangeSlider";
 import { IDAL } from "@/DAL/IDAL";
 import { Colors } from "@/constants/Colors";
@@ -23,6 +23,8 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     const [maxGrade, setMaxGrade] = useState(initialFilters.maxGrade);
     const [name, setName] = useState(initialFilters.name);
     const [setters, setSetters] = useState<string[]>([]);
+    const [problemType, setProblemType] = useState(initialFilters.type);
+
     useEffect(() => setSetters(initialFilters.setters ?? []), []); // in order to load selected setters
     const usersMultiSelect = useRef<MultiSelect>()
     const Submit = () => {
@@ -32,7 +34,8 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                 maxGrade,
                 name,
                 setters,
-                isPublic: initialFilters.isPublic
+                isPublic: initialFilters.isPublic,
+                type: problemType,
             }
         );
         props.closeModal();
@@ -56,14 +59,30 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
 
             <View style={{ flex: 1, height: 500, width: "100%", padding: 10, justifyContent: "space-around" }}>
                 <RangeSlider
-                    maxValue={Math.max(...Object.keys(grades).map(Number))}
-                    minValue={Math.min(...Object.keys(grades).map(Number))}
-                    maxInitialValue={maxGrade}
-                    minInitialValue={minGrade}
+                    maxValue={24}
+                    minValue={0}
+                    maxInitialValue={isNaN(Number(initialFilters.maxGrade)) ? 24 : initialFilters.maxGrade}
+                    minInitialValue={isNaN(Number(initialFilters.minGrade)) ? 0 : initialFilters.minGrade}
                     valueToLable={v => grades[v]}
                     onMaxValueChange={setMaxGrade}
                     onMinValueChange={setMinGrade}
                 />
+                <View style={styles.filterContainer}>
+                    <SwitchSelector
+                        initial={initialFilters.type === "bolder" ? 0 : (initialFilters.type === "cycle" ? 2 : 1)}
+                        textColor={Colors.backgroundDark}
+                        selectedColor={Colors.backgroundExtraLite}
+                        buttonColor={Colors.backgroundDark}
+                        borderColor={Colors.backgroundDark}
+                        backgroundColor={Colors.backgroundExtraLite}
+                        onPress={(value: string | undefined) => setProblemType(value)}
+                        options={[
+                            { label: "Bolder", value: "bolder" },
+                            { label: "Both", value: undefined },
+                            { label: "Cycle", value: "cycle" },
+                        ]}
+                    />
+                </View>
                 <View style={styles.filterContainer}>
                     <TextInput
                         style={{ borderRadius: 8, height: 45, borderWidth: 2, borderColor: "#555", width: "90%", fontSize: 16, margin: 5 }}

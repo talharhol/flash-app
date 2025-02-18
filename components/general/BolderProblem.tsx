@@ -1,4 +1,4 @@
-import { Hold, HoldInterface, HoldType, SortHolds, holdTypeToHoldColor } from "@/DAL/hold";
+import { ConvertToCycle, Hold, HoldInterface, HoldType, SortHolds, holdTypeToHoldColor } from "@/DAL/hold";
 import { imageSize } from "../general/SizeContext";
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import {
@@ -21,7 +21,7 @@ import { Colors } from "@/constants/Colors";
 
 interface BolderProblemProps extends ViewProps {
   wallImage: ImageSourcePropType;
-  configuredHolds?: { id: string; svgPath: string; }[];
+  configuredHolds?: HoldInterface[];
   existingHolds?: HoldInterface[];
   drawingHoldType?: HoldType | null;
   disableMovment?: boolean;
@@ -29,6 +29,7 @@ interface BolderProblemProps extends ViewProps {
   fullScreen?: boolean;
   bindToImage?: boolean;
   aspectRatio?: number;
+  cycle?: boolean;
   onDrawHoldFinish?: (hold: HoldInterface) => void;
   onDrawHoldCancel?: () => void;
   onConfiguredHoldClick?: (hold_id: string) => void;
@@ -43,17 +44,21 @@ export interface BolderProblemComponent {
 
 const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
   (
-    { wallImage, configuredHolds, existingHolds, drawingHoldType, disableMovment, scale, fullScreen, bindToImage, aspectRatio, onDrawHoldFinish, onDrawHoldCancel, onConfiguredHoldClick, onHoldClick, ...props }
+    { wallImage, configuredHolds, existingHolds, drawingHoldType, disableMovment, scale, fullScreen, bindToImage, aspectRatio, cycle, onDrawHoldFinish, onDrawHoldCancel, onConfiguredHoldClick, onHoldClick, ...props }
     , ref
   ) => {
     const screenDimension = useWindowDimensions();
     aspectRatio = aspectRatio ?? (fullScreen ? screenDimension.height / screenDimension.width : 1.5);
     const [imageHeight, setImageHeight] = useState(0);
     const [imageWidth, setImageWidth] = useState(screenDimension.width * (scale || 1));
-    const onCreatedHold = (path: string) => {
-      if (drawingHoldType == null) return;
-      onDrawHoldFinish?.(new Hold({ svgPath: path, color: drawingHoldType.color }));
-    };
+    const zoomableViewRef = useRef<React.ElementRef<typeof Zoomable>>(null);
+    const problemContainerRef = useRef(null);
+    existingHolds = existingHolds ?? [];
+    if (cycle) {
+      existingHolds = ConvertToCycle(existingHolds);
+    }
+
+    
     useEffect(() => {
       Image.getSize(Image.resolveAssetSource(wallImage).uri, (width, height) => {
         let tmpWidth = screenDimension.width * (scale ? scale : 1);
@@ -68,7 +73,11 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
         setImageWidth(tmpWidth);
       });
     }, []);
-    const zoomableViewRef = useRef<React.ElementRef<typeof Zoomable>>(null);
+
+    const onCreatedHold = (path: string) => {
+      if (drawingHoldType == null) return;
+      onDrawHoldFinish?.(new Hold({ svgPath: path, color: drawingHoldType.color }));
+    };
     const captureAndSave = async () => {
       try {
         const uri = await captureRef(problemContainerRef, {
@@ -81,7 +90,6 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
         console.error('Error capturing and saving image:', error);
       }
     };
-
     useImperativeHandle(ref, () => {
       return {
         exportProblem() {
@@ -95,8 +103,6 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
         },
       };
     }, []);
-    const problemContainerRef = useRef(null);
-
     const getHeight = () => {
       if (fullScreen) return screenDimension.height;
       if (bindToImage) return imageHeight;
@@ -140,7 +146,7 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
                     ))
                   }
                   {
-                    existingHolds?.sort(SortHolds).map((hold) => (
+                    [...existingHolds].sort(SortHolds).map((hold) => (
                       <SVGHold
                         key={hold.id}
                         hold={hold}

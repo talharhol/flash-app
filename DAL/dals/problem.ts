@@ -15,6 +15,7 @@ export class ProblemDAL extends BaseDAL<Problem> {
         if (params.wallId !== undefined) filters.push(ProblemTable.getField("wall_id")!.eq(params.wallId));
         if (params.setters !== undefined && params.setters.length > 0) filters.push(ProblemTable.getField("owner_id")!.in(params.setters));
         if (params.isPublic !== undefined) filters.push(ProblemTable.getField("is_public")!.eq(params.isPublic));
+        if (params.type !== undefined) filters.push(ProblemTable.getField("type")!.eq(params.type));
         let query = ProblemTable.query(filters);
         if (params.groupId !== undefined) {
             query = query.Join(
@@ -32,7 +33,7 @@ export class ProblemDAL extends BaseDAL<Problem> {
     }
     
     protected getRemoteFetchQuery(since: Timestamp, extraData?: { wallId: string }): Query {
-        let walls = [];
+        let walls: string[] = [];
         if (extraData?.wallId) walls.push(extraData.wallId);
         else walls = this._dal.users.GetWalls({ user_id: this._dal.currentUser.id }).map(w => w.id);
 

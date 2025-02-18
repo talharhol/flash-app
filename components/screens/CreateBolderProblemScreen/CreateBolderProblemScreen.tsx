@@ -1,8 +1,6 @@
 import React, { useCallback, useState } from "react";
 import {
-  Button,
   Platform,
-  StatusBar,
   StyleSheet,
   View,
 } from "react-native";
@@ -15,14 +13,15 @@ import WithCancelNotification from "@/components/general/notifications/WithCance
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import PublishProblemModal from "./PublishProblemModal";
 import { Problem } from "@/DAL/entities/problem";
 import { useDal } from "@/DAL/DALService";
 import { Colors } from "@/constants/Colors";
+import ManagmantModal from "@/components/general/modals/ManagmantModal";
 
 
-const CreateBolderProblemScreen: React.FC = () => {
+const CreateProblemScreen: React.FC = () => {
   const router = useRouter();
   const dal = useDal();
   const wall = dal.walls.Get({ id: useLocalSearchParams().id as string });
@@ -33,6 +32,9 @@ const CreateBolderProblemScreen: React.FC = () => {
   const [drawingHoldType, setDrawingHoldType] = useState<HoldType>(new HoldType(HoldTypes.route));
   const [holds, setHolds] = useState<HoldInterface[]>([]);
   const [aspectRatio, setAspectRatio] = useState(1.5);
+  const [chooseMode, setChooseMode] = useState(false);
+  const [isCycle, setIsCycle] = useState(false);
+
 
   useFocusEffect(
     useCallback(
@@ -40,7 +42,7 @@ const CreateBolderProblemScreen: React.FC = () => {
         setIsDrawingHold(false);
         setEditedHold(null);
         setIsPublishModal(false);
-        setDrawingHoldType(new HoldType(HoldTypes.route))
+        setDrawingHoldType(new HoldType(HoldTypes.route));
         setHolds([]);
       }, []
     )
@@ -61,13 +63,13 @@ const CreateBolderProblemScreen: React.FC = () => {
     });
   };
   const onDrawHoldFinish = (hold: HoldInterface) => {
-    setHolds(holds => holds.concat([hold]));
+    setHolds(h => h.concat(hold));
     setIsDrawingHold(false);
   };
   const onConfiguredHoldPress = (id: string) => {
-    let holdType = drawingHoldType.type;
-    let hold = wall.configuredHolds.filter(v => v.id === id)[0]
-    setHolds(holds => holds.concat([new Hold({ svgPath: hold.svgPath, color: holdTypeToHoldColor[holdType] })]));
+    let hold = wall.configuredHolds.filter(v => v.id === id)[0];
+    let newHolds = holds.concat([new Hold({ svgPath: hold.svgPath, color: drawingHoldType.color })]);
+    setHolds(newHolds);
   }
   const editHold = (id: string, holdType: HoldType | null, is_delete: boolean) => {
     if (is_delete) {
@@ -89,7 +91,8 @@ const CreateBolderProblemScreen: React.FC = () => {
       holds,
       wallId: wall.id,
       setter: dal.currentUser.id,
-      isPublic: targetGroup === undefined
+      isPublic: targetGroup === undefined,
+      type: isCycle ? "cycle" : "bolder",
     });
     dal.problems.Add(problem).then(
       () => {
@@ -113,41 +116,100 @@ const CreateBolderProblemScreen: React.FC = () => {
       }
       {
         editedHold &&
-        <EditHoldModal
-          closeModal={() => setEditedHold(null)}
-          selectedHold={holds.filter(v => v.id === editedHold)[0]}
-          editHold={(holdType, isDeleted) => editHold(editedHold, holdType, isDeleted)} />
+        (
+          isCycle ?
+            <ManagmantModal closeModal={() => setEditedHold(null)}
+              deleteObj={() => {
+                setHolds(holds.filter(h => h.id !== editedHold));
+              }}
+              extraActions={{
+                "cancel": () => { }
+              }} />
+            :
+            <EditHoldModal
+              closeModal={() => setEditedHold(null)}
+              selectedHold={holds.filter(v => v.id === editedHold)[0]}
+              editHold={(holdType, isDeleted) => editHold(editedHold, holdType, isDeleted)} />
+        )
+      }
+      {
+        chooseMode &&
+        <ManagmantModal closeModal={() => setChooseMode(false)} extraActions={{
+          "cycle": () => {
+            setDrawingHoldType(new HoldType(HoldTypes.route));
+            setIsCycle(true);
+          },
+          "bolder": () => setIsCycle(false)
+        }} />
       }
       <ThemedView style={styles.headerContainer}>
-        <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Create problem</ThemedText>
+        <MaterialCommunityIcons
+          onPress={() => setChooseMode(true)}
+          name='dots-vertical-circle-outline' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", left: 0, padding: 10 }} />
+        <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Create {isCycle ? 'cycle' : 'bolder'}</ThemedText>
         <Ionicons
           onPress={() => setIsPublishModal(true)}
           name='checkmark-circle-outline' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", right: 0, padding: 10 }} />
       </ThemedView>
       <View style={{ flexDirection: "row", backgroundColor: Colors.backgroundDark }}>
         {
-          Object.values(HoldTypes).filter(x => typeof x === "number").map(type => new HoldType(type as HoldTypes)).map(hold => {
-            return (
-              <View key={hold.type} style={{ width: "20%" }}>
-                <View style={{ height: "100%", width: "100%", backgroundColor: hold.color, opacity: 0.1, position: "absolute", borderRadius: 5 }} />
+          isCycle ?
+            <>
+              <View style={{ width: "33%" }}>
+                <View style={{ height: "100%", width: "100%", backgroundColor: holdTypeToHoldColor[HoldTypes.route], opacity: 0.1, position: "absolute", borderRadius: 5 }} />
                 <BasicButton
                   style={{ width: "100%" }}
-                  selected={drawingHoldType.type === hold.type}
-                  text={hold.title}
-                  color={hold.color}
-                  onPress={() => setDrawingHoldType(hold)}
+                  selected={drawingHoldType.type === HoldTypes.route}
+                  text="Hold"
+                  color={holdTypeToHoldColor[HoldTypes.route]}
+                  onPress={() => setDrawingHoldType(new HoldType(HoldTypes.route))}
                 />
               </View>
-            );
-          })
+              <View style={{ width: "33%" }}>
+                <View style={{ height: "100%", width: "100%", backgroundColor: holdTypeToHoldColor[HoldTypes.feet], opacity: 0.1, position: "absolute", borderRadius: 5 }} />
+                <BasicButton
+                  style={{ width: "100%" }}
+                  selected={drawingHoldType.type === HoldTypes.feet}
+                  text="Feet"
+                  color={holdTypeToHoldColor[HoldTypes.feet]}
+                  onPress={() => setDrawingHoldType(new HoldType(HoldTypes.feet))}
+                />
+              </View>
+              <BasicButton
+                style={{ width: "33%" }}
+                text="Draw"
+                color={Colors.backgroundExtraLite}
+                onPress={startDrawingHold}
+                key="New"
+              />
+            </>
+            :
+            <>
+              {
+                Object.values(HoldTypes).filter(x => typeof x === "number").map(type => new HoldType(type as HoldTypes)).map(hold => {
+                  return (
+                    <View key={hold.type} style={{ width: "20%" }}>
+                      <View style={{ height: "100%", width: "100%", backgroundColor: hold.color, opacity: 0.1, position: "absolute", borderRadius: 5 }} />
+                      <BasicButton
+                        style={{ width: "100%" }}
+                        selected={drawingHoldType.type === hold.type}
+                        text={hold.title}
+                        color={hold.color}
+                        onPress={() => setDrawingHoldType(hold)}
+                      />
+                    </View>
+                  );
+                })
+              }
+              <BasicButton
+                style={{ width: "20%" }}
+                text="Draw"
+                color={Colors.backgroundExtraLite}
+                onPress={startDrawingHold}
+                key="New"
+              />
+            </>
         }
-        <BasicButton
-          style={{ width: "20%" }}
-          text="Draw"
-          color={Colors.backgroundExtraLite}
-          onPress={startDrawingHold}
-          key="New"
-        />
       </View>
       <View
         onLayout={(event) => {
@@ -158,6 +220,7 @@ const CreateBolderProblemScreen: React.FC = () => {
         style={{ flex: 1, width: "100%", backgroundColor: Colors.backgroundDark }}>
         <BolderProblem
           key={wall.id}
+          cycle={isCycle}
           aspectRatio={aspectRatio}
           wallImage={wall.image}
           configuredHolds={wall.configuredHolds}
@@ -167,14 +230,14 @@ const CreateBolderProblemScreen: React.FC = () => {
           onDrawHoldFinish={onDrawHoldFinish}
           onDrawHoldCancel={() => setIsDrawingHold(false)}
           disableMovment={isDrawingHold}
-          drawingHoldType={isDrawingHold ? (drawingHoldType || new HoldType(HoldTypes.route)) : null}
+          drawingHoldType={isDrawingHold ? drawingHoldType : null}
         />
       </View>
     </View>
   );
 };
 
-export default CreateBolderProblemScreen;
+export default CreateProblemScreen;
 
 const styles = StyleSheet.create({
   headerContainer: {

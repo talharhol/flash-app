@@ -59,6 +59,7 @@ const migrations = [
                 new Field({ name: "is_public", type: "BOOLEAN", default_: () => true, notNull: true }),
                 new Field({ name: "holds", type: "TEXT", notNull: true }),
                 new Field({ name: "grade", type: "INTEGER", notNull: true }),
+                new Field({ name: "type", type: "TEXT", notNull: true }),
             ];
         }
 

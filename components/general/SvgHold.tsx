@@ -46,7 +46,7 @@ const SVGHold: React.FC<{
       }}
     />
     <Text x={labelPoint.x} y={labelPoint.y} >
-      {`  ${hold.lable ?? '1'}  `}
+      {`  ${hold.label}  `}
     </Text>
     </>
   )

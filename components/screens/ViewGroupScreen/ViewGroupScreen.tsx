@@ -24,7 +24,8 @@ const ViewGroupScreen: React.FC = () => {
         minGrade: 1,
         maxGrade: 15,
         name: "",
-        setters: []
+        setters: [],
+        type: undefined,
     });
     const deleteProblem = async (problem: Problem) => {
         await group.RemoveProblem({ problem_id: problem.id });

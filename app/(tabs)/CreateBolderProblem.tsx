@@ -1,3 +1,3 @@
-import CreateBolderProblemScreen from "@/components/screens/CreateBolderProblemScreen/CreateBolderProblemScreen";
+import CreateProblemScreen from "@/components/screens/CreateBolderProblemScreen/CreateBolderProblemScreen";
 
-export default CreateBolderProblemScreen
+export default CreateProblemScreen

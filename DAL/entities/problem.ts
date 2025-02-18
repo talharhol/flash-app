@@ -2,7 +2,7 @@ import { HoldInterface } from "../hold";
 import { Entity, EntityProps } from "./BaseEntity";
 import { Wall } from "./wall";
 
-export type ProblemProps = EntityProps &  { name: string, wallId: string, grade: number, holds: HoldInterface[], setter: string, isPublic?: boolean};
+export type ProblemProps = EntityProps &  { name: string, wallId: string, grade: number, holds: HoldInterface[], setter: string, isPublic?: boolean, type: string};
 
 export class Problem extends Entity {
     name: string;
@@ -11,7 +11,8 @@ export class Problem extends Entity {
     holds: HoldInterface[];
     setter: string;
     isPublic: boolean;
-    constructor({ name, wallId, grade, holds, setter, isPublic, ...props }: ProblemProps) {
+    type: string;
+    constructor({ name, wallId, grade, holds, setter, isPublic, type, ...props }: ProblemProps) {
         super(props);
         this.name = name;
         this.wallId = wallId;
@@ -19,6 +20,7 @@ export class Problem extends Entity {
         this.holds = holds;
         this.setter = setter;
         this.isPublic = isPublic ?? true;
+        this.type = type;
     }
 
     public toRemoteDoc(): { [key: string]: any} {
@@ -30,6 +32,7 @@ export class Problem extends Entity {
             holds: this.holds.map(h => {return {...h}}),
             setter: this.setter,
             isPublic: this.isPublic,
+            type: this.type,
         }
     }
 
@@ -49,7 +52,8 @@ export class Problem extends Entity {
             grade: data.grade,
             holds: data.holds,
             setter: data.setter,
-            isPublic: data.isPublic
+            isPublic: data.isPublic,
+            type: data.type
         })
     }
 };
@@ -59,17 +63,6 @@ export interface ProblemFilter {
     maxGrade?: number;
     name?: string;
     setters?: string[];
-    isPublic?: boolean
-}
-
-export function FilterProblems(filter: ProblemFilter) {
-    return function filterProblem(problem: Problem) {
-        return (
-            (filter.minGrade !== undefined ? problem.grade >= filter.minGrade : true)
-            && (filter.maxGrade !== undefined ? problem.grade <= filter.maxGrade : true)
-            && (filter.name !== undefined ? problem.name.includes(filter.name) : true)
-            && (filter.setters !== undefined ? (filter.setters.length > 0 ? filter.setters.includes(problem.setter) : true) : true)
-            && (filter.isPublic !== undefined ? problem.isPublic == filter.isPublic : true)
-        )
-    }
+    isPublic?: boolean;
+    type?: string;
 }

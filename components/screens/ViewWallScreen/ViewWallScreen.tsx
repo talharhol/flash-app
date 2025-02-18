@@ -25,7 +25,8 @@ const ViewWallScreen: React.FC = () => {
         maxGrade: 15,
         name: "",
         setters: [],
-        isPublic: true
+        isPublic: true,
+        type: undefined,
     });
 
     const deleteProblem = (problem: Problem) => {

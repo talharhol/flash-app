@@ -33,7 +33,7 @@ React.ComponentProps<typeof BasicModal> & ManagmentModalProps
                 {
                     !!extraActions &&
                     Object.keys(extraActions).map(
-                        k => <BasicButton text={k} selected color={Colors.backgroundDark} onPress={() => {extraActions[k](); closeModal()}} style={{width: "50%", margin: 10}}/>
+                        k => <BasicButton key={k} text={k} selected color={Colors.backgroundDark} onPress={() => {extraActions[k](); closeModal()}} style={{width: "50%", margin: 10}}/>
                     )
                 }
                 {

@@ -43,8 +43,13 @@ const DrawHold: React.FC<{
             onCancel?.();
             return;
         }
-        if (currentPaths.length && !isMoved(x, lastPath.x, y, lastPath.y))
+        if (currentPaths.length === 0) {
+            setCurrentPath(currentPaths.concat([{ x, y }]));
             return;
+        }
+        if (!isMoved(x, lastPath.x, y, lastPath.y)) {
+            return;
+        }
         setIsDrawing(true);
         setCurrentPath(currentPaths.concat([{ x, y }]));
     };
