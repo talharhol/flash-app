@@ -57,7 +57,7 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
             }, props.style]} >
             <ThemedText type="subtitle">Filter Problems</ThemedText>
 
-            <View style={{ flex: 1, height: 500, width: "100%", padding: 10, justifyContent: "space-around" }}>
+            <View style={{ flex: 1, width: "100%", padding: 10, justifyContent: "space-around" }}>
                 <RangeSlider
                     maxValue={24}
                     minValue={0}

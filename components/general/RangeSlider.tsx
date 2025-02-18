@@ -32,7 +32,7 @@ export const RangeSlider: React.FC<{
 
   // ----------------- Common ----------------------- //
   const [forceRender, setForceRender] = React.useState(0);
-  const [isRendered, setIsRendered] = React.useState(false);
+  const [renderedAmounts, setRenderedAmounts] = React.useState(0);
 
   const [sliderHeight, setSliderHeight] = React.useState(0);
   const [sliderWidth, setSliderWidth] = React.useState(0);
@@ -40,8 +40,8 @@ export const RangeSlider: React.FC<{
   
   const initSliders = (height: number, width: number) =>
   {
-    if (isRendered) return;
-    setIsRendered(true);
+    if (renderedAmounts >= 2 || (height === width)) return; // we want to init only 2 times (for some reason the first time the h/w are not accurate)
+    setRenderedAmounts(renderedAmounts + 1);
     // Set sizes
     let sWidth = width - height // - height : Avoid the slider to overlap the borders
     const center = sWidth / 2;
