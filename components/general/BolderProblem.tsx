@@ -72,7 +72,7 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
         setImageHeight(tmpHeight);
         setImageWidth(tmpWidth);
       });
-    }, []);
+    }, [aspectRatio]);
 
     const onCreatedHold = (path: string) => {
       if (drawingHoldType == null) return;

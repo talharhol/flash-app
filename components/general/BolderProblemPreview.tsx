@@ -84,6 +84,7 @@ const BolderProblemPreview: React.FC<{
                         scale={scale}
                         wallImage={wall.image}
                         existingHolds={problem.holds}
+                        cycle={problem.type === "cycle"}
                         disableMovment
                         bindToImage
                     />

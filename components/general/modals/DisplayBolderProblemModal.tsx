@@ -18,6 +18,7 @@ const DisplayBolderProblemModal: React.FC<React.ComponentProps<typeof BasicModal
                 fullScreen
                 wallImage={wall.image}
                 existingHolds={problem.holds}
+                cycle={problem.type === "cycle"}
             />
             <Ionicons
                 color={Colors.backgroundLite}

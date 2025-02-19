@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { View, useWindowDimensions } from "react-native";
+import { View } from "react-native";
 import Svg, { Path } from 'react-native-svg';
 import { imageSize, zoomSize } from './SizeContext';
 import { HoldType } from '@/DAL/hold';

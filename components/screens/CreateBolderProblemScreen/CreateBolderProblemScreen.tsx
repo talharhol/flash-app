@@ -152,64 +152,38 @@ const CreateProblemScreen: React.FC = () => {
           name='checkmark-circle-outline' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", right: 0, padding: 10 }} />
       </ThemedView>
       <View style={{ flexDirection: "row", backgroundColor: Colors.backgroundDark }}>
-        {
-          isCycle ?
-            <>
-              <View style={{ width: "33%" }}>
-                <View style={{ height: "100%", width: "100%", backgroundColor: holdTypeToHoldColor[HoldTypes.route], opacity: 0.1, position: "absolute", borderRadius: 5 }} />
-                <BasicButton
-                  style={{ width: "100%" }}
-                  selected={drawingHoldType.type === HoldTypes.route}
-                  text="Hold"
-                  color={holdTypeToHoldColor[HoldTypes.route]}
-                  onPress={() => setDrawingHoldType(new HoldType(HoldTypes.route))}
-                />
-              </View>
-              <View style={{ width: "33%" }}>
-                <View style={{ height: "100%", width: "100%", backgroundColor: holdTypeToHoldColor[HoldTypes.feet], opacity: 0.1, position: "absolute", borderRadius: 5 }} />
-                <BasicButton
-                  style={{ width: "100%" }}
-                  selected={drawingHoldType.type === HoldTypes.feet}
-                  text="Feet"
-                  color={holdTypeToHoldColor[HoldTypes.feet]}
-                  onPress={() => setDrawingHoldType(new HoldType(HoldTypes.feet))}
-                />
-              </View>
-              <BasicButton
-                style={{ width: "33%" }}
-                text="Draw"
-                color={Colors.backgroundExtraLite}
-                onPress={startDrawingHold}
-                key="New"
-              />
-            </>
-            :
-            <>
+          
               {
-                Object.values(HoldTypes).filter(x => typeof x === "number").map(type => new HoldType(type as HoldTypes)).map(hold => {
-                  return (
-                    <View key={hold.type} style={{ width: "20%" }}>
-                      <View style={{ height: "100%", width: "100%", backgroundColor: hold.color, opacity: 0.1, position: "absolute", borderRadius: 5 }} />
-                      <BasicButton
-                        style={{ width: "100%" }}
-                        selected={drawingHoldType.type === hold.type}
-                        text={hold.title}
-                        color={hold.color}
-                        onPress={() => setDrawingHoldType(hold)}
-                      />
-                    </View>
-                  );
-                })
+                Object.values(HoldTypes)
+                  .filter(
+                    x => (
+                      typeof x === "number" &&
+                      (!isCycle || [HoldTypes.route, HoldTypes.feet].includes(x))
+                    )
+                  )
+                  .map(type => new HoldType(type as HoldTypes))
+                  .map(hold => {
+                    return (
+                      <View key={hold.type} style={{ flex: 1 }}>
+                        <View style={{ height: "100%", width: "100%", backgroundColor: hold.color, opacity: 0.1, position: "absolute", borderRadius: 5 }} />
+                        <BasicButton
+                          style={{ width: "100%" }}
+                          selected={drawingHoldType.type === hold.type}
+                          text={hold.title}
+                          color={hold.color}
+                          onPress={() => setDrawingHoldType(hold)}
+                        />
+                      </View>
+                    );
+                  })
               }
               <BasicButton
-                style={{ width: "20%" }}
+                style={{ flex: 1 }}
                 text="Draw"
                 color={Colors.backgroundExtraLite}
                 onPress={startDrawingHold}
                 key="New"
               />
-            </>
-        }
       </View>
       <View
         onLayout={(event) => {
