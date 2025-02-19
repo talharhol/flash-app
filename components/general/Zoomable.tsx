@@ -7,6 +7,7 @@ const Zoomable = forwardRef<ReactNativeZoomableView, ReactNativeZoomableViewProp
     children,
     disableMovement,
     maxZoom,
+    minZoom,
     ...props
 }, ref) => {
     const [zoomState, setZoomStat] = useState<{zoomLevel: number,
@@ -43,7 +44,7 @@ const Zoomable = forwardRef<ReactNativeZoomableView, ReactNativeZoomableViewProp
             initialOffsetX={zoomState.offsetX}
             initialOffsetY={zoomState.offsetY}
             initialZoom={zoomState.zoomLevel}
-            minZoom={1}
+            minZoom={minZoom ?? 1}
             zoomStep={2}
             bindToBorders
             onTransform={onTransform}

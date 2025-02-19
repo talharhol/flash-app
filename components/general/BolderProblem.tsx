@@ -119,7 +119,7 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
         <imageSize.Provider value={{ width: imageWidth, height: imageHeight }}>
           <Zoomable
             ref={zoomableViewRef}
-            disableMovement={!!disableMovment || !!drawingHoldType} maxZoom={20}>
+            disableMovement={!!disableMovment || !!drawingHoldType} maxZoom={20} minZoom={0.8}>
             <View ref={problemContainerRef} style={[styles.zoomedContent, { height: getHeight(), width: getWidth(), alignContent: "center", justifyContent: "center", alignItems: "center" }]} collapsable={false}>
               {
                 !!drawingHoldType &&
