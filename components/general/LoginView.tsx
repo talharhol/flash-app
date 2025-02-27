@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Button, Image, StyleSheet, Text, TextInput, View } from "react-native";
 import { useDal } from "@/DAL/DALService";
 import { ThemedText } from "./ThemedText";
+import { Colors } from "@/constants/Colors";
+import BasicButton from "./Button";
 
 
 const LoginView: React.FC
@@ -45,11 +47,17 @@ const LoginView: React.FC
             onChangeText={setPassword}
             secureTextEntry
           />
-          <Button title={isSignUp ? "Sign Up" : "Login"} onPress={handleAuth} />
-          <Button
-            title={`Switch to ${isSignUp ? "Login" : "Sign Up"}`}
+          <BasicButton 
+          text={isSignUp ? "Sign Up" : "Login"}
+           onPress={handleAuth} 
+           style={styles.button}
+           color={Colors.backgroundDark} 
+           selected/>
+          <BasicButton
+            text={`Switch to ${isSignUp ? "Login" : "Sign Up"}`}
             onPress={() => setIsSignUp(!isSignUp)}
-            color="#555"
+           style={styles.button}
+            color={Colors.backgroundDark}
           />
         </View>
     );
@@ -69,7 +77,7 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
     padding: 20,
-    backgroundColor: "grey"
+    backgroundColor: Colors.backgroundLite
   },
   loggoText: {
     textAlign: "center",
@@ -81,9 +89,13 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: Colors.backgroundExtraDark,
     padding: 10,
     borderRadius: 5,
     marginBottom: 15,
+  },
+  button: {
+    width: "100%",
+    marginTop: 15
   }
 });

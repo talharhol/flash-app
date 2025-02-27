@@ -30,10 +30,19 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "f5e2c7e4-6342-41e2-bb63-b8a94104db4c"
+      }
     }
   }
 }

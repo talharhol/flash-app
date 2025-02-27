@@ -117,13 +117,27 @@ export class Entity {
         let dal = this.getDAL();
         try {
             let remoteDoc = this.toRemoteDoc();
-            await updateDoc(
-                doc(dal.remoteDB, collectionName, this.id), 
-                {
-                    "updated_at": serverTimestamp(),
-                    ...remoteDoc
-                }
-            );
+            try {
+                await updateDoc(
+                    doc(dal.remoteDB, collectionName, this.id), 
+                    {
+                        "updated_at": serverTimestamp(),
+                        ...remoteDoc
+                    }
+                );
+            }
+            catch {
+                // retry
+                await new Promise(resolve => setTimeout(resolve, 5000));
+                await updateDoc(
+                    doc(dal.remoteDB, collectionName, this.id), 
+                    {
+                        "updated_at": serverTimestamp(),
+                        ...remoteDoc
+                    }
+                );
+            }
+                
         }
         catch (e) {
             console.log(e);
