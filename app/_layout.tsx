@@ -12,7 +12,7 @@ import { NotifierWrapper } from 'react-native-notifier';
 import dalService, { DalContext } from '@/DAL/DALService';
 import { View } from 'react-native';
 import { runMigrations } from '@/DAL/migrations';
-import LoginView from '@/components/general/LoginView';
+import LoginView from '@/components/screens/LoginScreen/LoginView';
 import DonationView from '@/components/general/DonationView';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.

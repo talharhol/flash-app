@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Button, Image, StyleSheet, Text, TextInput, View } from "react-native";
+import { Image, StyleSheet, TextInput, View } from "react-native";
 import { useDal } from "@/DAL/DALService";
-import { ThemedText } from "./ThemedText";
+import { ThemedText } from "../../general/ThemedText";
 import { Colors } from "@/constants/Colors";
-import BasicButton from "./Button";
+import BasicButton from "../../general/Button";
+import GoogleLoginButton from "./GoogleLoginButton";
 
 
 const LoginView: React.FC
@@ -16,11 +17,9 @@ const LoginView: React.FC
     const handleAuth = async () => {
       try {
         if (isSignUp) {
-          await dal.signup(email, password);
-          alert("User created successfully!");
+          await dal.signup({email, password});
         } else {
-          await dal.signin(email, password);
-          alert("Logged in successfully!");
+          await dal.signin({email, password});
         }
       } catch (error) {
         console.log(error);
@@ -53,6 +52,9 @@ const LoginView: React.FC
            style={styles.button}
            color={Colors.backgroundDark} 
            selected/>
+          
+          <GoogleLoginButton dal={dal} />
+
           <BasicButton
             text={`Switch to ${isSignUp ? "Login" : "Sign Up"}`}
             onPress={() => setIsSignUp(!isSignUp)}

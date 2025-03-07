@@ -12,7 +12,7 @@ import { UserDAL } from "./dals/user";
 import { WallDAL } from "./dals/wall";
 import { ProblemDAL } from "./dals/problem";
 import { Firestore } from "firebase/firestore";
-import { Auth, NextOrObserver, User as AuthUser } from "firebase/auth";
+import { Auth, NextOrObserver, User as AuthUser, OAuthCredential, signInWithCredential } from "firebase/auth";
 import { auth, app, db } from "../firebaseConfig"
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
 import { RemoteStorage } from "./remoteStorage";
@@ -182,8 +182,16 @@ class DalService extends EventEmitter {
         return compressed.uri;
     }
 
-    public async signin(email: string, password: string) {
-        await signInWithEmailAndPassword(this._remoteAuth, email, password);
+    public async signin(params: {email?: string, password?: string, googleCredential?: OAuthCredential}) {
+        try {
+            if (params.email && params.password)
+                await signInWithEmailAndPassword(this._remoteAuth, params.email, params.password);
+            else if (params.googleCredential)
+                await signInWithCredential(this._remoteAuth, params.googleCredential);
+        } catch (e) {
+            console.error("failed to login to firebase", e);
+            alert("failed to login");
+        }
     }
 
     public async signout() {
@@ -191,8 +199,11 @@ class DalService extends EventEmitter {
         this._currentUser = undefined;
     }
 
-    public async signup(email: string, password: string) {
-        await createUserWithEmailAndPassword(this._remoteAuth, email, password);
+    public async signup(params: {email?: string, password?: string, googleCredential?: OAuthCredential}) {
+        if (params.email && params.password)
+            await createUserWithEmailAndPassword(this._remoteAuth, params.email, params.password);
+        else if (params.googleCredential) 
+            signInWithCredential(this._remoteAuth, params.googleCredential);
     }
 
     public onAuthStateChanged(callback: NextOrObserver<AuthUser | null>) {

@@ -11,6 +11,7 @@ import { WallDAL } from "./dals/wall";
 import { Firestore } from "firebase/firestore";
 import { RemoteStorage } from "./remoteStorage";
 import { EventEmitter } from 'events';
+import { OAuthCredential } from "firebase/auth";
 
 export interface IDAL extends EventEmitter {
     walls: WallDAL;
@@ -26,4 +27,6 @@ export interface IDAL extends EventEmitter {
     isLogin: boolean;
     compressImage(uri: string): Promise<string>;
     updateScreen(): void;
+    signin(params: {email?: string, password?: string, googleCredential?: OAuthCredential}): Promise<void>
+    signup(params: {email?: string, password?: string, googleCredential?: OAuthCredential}): Promise<void>
 } 

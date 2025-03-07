@@ -74,7 +74,7 @@ const DrawHold: React.FC<{
         let pathToSend = "";
         if (touches.length !== 0) return;
         // Check if it's a tap by measuring the distance the finger did.
-        if (!isDrawing) {
+        if (!isDrawing || currentPaths.length <= 4) {
             setShowRadiusModal(true);
             return;
         }
