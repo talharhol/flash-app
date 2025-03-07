@@ -3,6 +3,7 @@ import { Wall } from "../entities/wall";
 import { GroupMemberTable, ProblemTable, UserConfigTable, UserTable, UserWallTable, WallTable } from "../tables/tables";
 import { BaseDAL } from "../BaseDAL";
 import { Timestamp } from "firebase/firestore";
+import { ProblemFilter } from "../IDAL";
 
 
 export class UserDAL extends BaseDAL<User> {
@@ -173,6 +174,22 @@ export class UserDAL extends BaseDAL<User> {
         await UserConfigTable.update(
             [UserConfigTable.getField("user_id")!.eq(user.id)],
             { login_counter: value },
+            this._dal.db!
+        );
+    }
+
+    public getFilters(user: User): {[key: string]: ProblemFilter} {
+        let query = UserConfigTable.query().Filter(
+            UserConfigTable.getField("user_id")!.eq(user.id)
+        ).Select([UserConfigTable.getField("filters")!]);
+        let data = query.First<{filters?: any}>(this._dal.db!);
+        return data.filters ?? {}; 
+    }
+    
+    public async setFilters(user: User, filters: {[key: string]: ProblemFilter}): Promise<void> {
+        await UserConfigTable.update(
+            [UserConfigTable.getField("user_id")!.eq(user.id)],
+            { filters: filters },
             this._dal.db!
         );
     }

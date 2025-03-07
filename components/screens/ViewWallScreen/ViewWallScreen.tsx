@@ -9,9 +9,10 @@ import BolderProblemPreview from '../../general/BolderProblemPreview';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import DisplayBolderProblemModal from '../../general/modals/DisplayBolderProblemModal';
 import FilterProblemssModal from '@/components/general/modals/FilterBoldersModal';
-import { Problem, ProblemFilter } from '@/DAL/entities/problem';
+import { Problem } from '@/DAL/entities/problem';
 import { useDal } from '@/DAL/DALService';
 import { Colors } from '@/constants/Colors';
+import { ProblemFilter } from '@/DAL/IDAL';
 
 const ViewWallScreen: React.FC = () => {
     const router = useRouter();
@@ -20,14 +21,14 @@ const ViewWallScreen: React.FC = () => {
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(null);
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
     const [_, updateGUI] = useReducer(i => i + 1, 0);
-    const [filters, setFilters] = useState<ProblemFilter>({
-        minGrade: 1,
-        maxGrade: 15,
-        name: "",
-        setters: [],
-        isPublic: true,
-        type: undefined,
-    });
+    const [filters, setFilters] = useState<ProblemFilter>(
+        dal.currentUser.getLastFilters({ id: wall.id })
+    );
+
+    const handleFiltersChange = (f: ProblemFilter) => {
+        setFilters(f);
+        dal.currentUser.setFilters({ id: wall.id, filters: f });
+    };
 
     const deleteProblem = (problem: Problem) => {
         dal.problems.Remove(problem).then(updateGUI);
@@ -53,7 +54,7 @@ const ViewWallScreen: React.FC = () => {
                     dal={dal}
                     closeModal={() => setFilterProblemsModal(false)}
                     initialFilters={filters}
-                    onFiltersChange={setFilters}
+                    onFiltersChange={handleFiltersChange}
                     wallId={wall.id}
                 />
             }

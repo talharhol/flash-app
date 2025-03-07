@@ -5,10 +5,9 @@ import BasicModal from "./BasicModal";
 import BasicButton from "../Button";
 import MultiSelect from "react-native-multiple-select";
 import SwitchSelector from "react-native-switch-selector";
-import { ProblemFilter } from "@/DAL/entities/problem";
 import { grades } from "@/constants/consts";
 import { RangeSlider } from "../RangeSlider";
-import { IDAL } from "@/DAL/IDAL";
+import { IDAL, ProblemFilter } from "@/DAL/IDAL";
 import { Colors } from "@/constants/Colors";
 
 

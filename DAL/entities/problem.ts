@@ -57,12 +57,3 @@ export class Problem extends Entity {
         })
     }
 };
-
-export interface ProblemFilter {
-    minGrade?: number;
-    maxGrade?: number;
-    name?: string;
-    setters?: string[];
-    isPublic?: boolean;
-    type?: string;
-}

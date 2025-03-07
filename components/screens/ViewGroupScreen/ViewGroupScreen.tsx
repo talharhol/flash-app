@@ -9,9 +9,10 @@ import BolderProblemPreview from '../../general/BolderProblemPreview';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import DisplayBolderProblemModal from '../../general/modals/DisplayBolderProblemModal';
 import FilterProblemssModal from '@/components/general/modals/FilterBoldersModal';
-import { Problem, ProblemFilter } from '@/DAL/entities/problem';
+import { Problem } from '@/DAL/entities/problem';
 import { useDal } from '@/DAL/DALService';
 import { Colors } from '@/constants/Colors';
+import { ProblemFilter } from '@/DAL/IDAL';
 
 const ViewGroupScreen: React.FC = () => {
     const router = useRouter();
@@ -20,13 +21,14 @@ const ViewGroupScreen: React.FC = () => {
     const [_, updateGUI] = useReducer(i => i + 1, 0);
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(null);
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
-    const [filters, setFilters] = useState<ProblemFilter>({
-        minGrade: 1,
-        maxGrade: 15,
-        name: "",
-        setters: [],
-        type: undefined,
-    });
+    const [filters, setFilters] = useState<ProblemFilter>(
+        dal.currentUser.getLastFilters({ id: group.id })
+    );
+
+    const handleFiltersChange = (f: ProblemFilter) => {
+        setFilters(f);
+        dal.currentUser.setFilters({ id: group.id, filters: f });
+    };
     const deleteProblem = async (problem: Problem) => {
         await group.RemoveProblem({ problem_id: problem.id });
         updateGUI();
@@ -58,7 +60,7 @@ const ViewGroupScreen: React.FC = () => {
                     dal={dal}
                     closeModal={() => setFilterProblemsModal(false)}
                     initialFilters={filters}
-                    onFiltersChange={setFilters}
+                    onFiltersChange={handleFiltersChange}
                     groupId={group.id}
                 />
             }

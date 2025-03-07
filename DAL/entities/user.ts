@@ -1,5 +1,6 @@
 import { ImageSourcePropType, Image } from "react-native";
 import { Entity, EntityProps } from "./BaseEntity";
+import { ProblemFilter } from "../IDAL";
 
 export type UserProps = EntityProps & { name?: string, image?: ImageSourcePropType }
 
@@ -70,7 +71,7 @@ export class User extends Entity {
     }
 
     public static fromRemoteDoc(data: { [key: string]: any }, old?: User): Entity {
-        let image = undefined;
+        let image: ImageSourcePropType | undefined = undefined;
         if (!!data.image.commpressed) image = { uri: data.image.commpressed }
         if (!!old) image = old._image ?? image;
         return new this({
@@ -102,6 +103,24 @@ export class User extends Entity {
 
     public set loginCount(value: number) {
         this.getDAL().users.setLoginCount(this, value).catch(console.error);
+    }
+
+    public getLastFilters(params: { id: string }): ProblemFilter {
+        let filters = this.getDAL().users.getFilters(this);
+        return filters[params.id] ?? {
+            minGrade: 1,
+            maxGrade: 15,
+            name: "",
+            setters: [],
+            isPublic: true,
+            type: undefined,
+        };
+    }
+
+    public setFilters(params: { id: string, filters: ProblemFilter }) {
+        let filters = this.getDAL().users.getFilters(this);
+        filters[params.id] = filters;
+        this.getDAL().users.setFilters(this, filters);
     }
     
 };

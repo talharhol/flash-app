@@ -30,3 +30,12 @@ export interface IDAL extends EventEmitter {
     signin(params: {email?: string, password?: string, googleCredential?: OAuthCredential}): Promise<void>
     signup(params: {email?: string, password?: string, googleCredential?: OAuthCredential}): Promise<void>
 } 
+
+export interface ProblemFilter {
+    minGrade?: number;
+    maxGrade?: number;
+    name?: string;
+    setters?: string[];
+    isPublic?: boolean;
+    type?: string;
+}

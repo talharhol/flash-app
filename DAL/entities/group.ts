@@ -1,9 +1,10 @@
 import { ImageResolvedAssetSource, ImageSourcePropType, Image } from "react-native";
 import { Entity, EntityProps } from "./BaseEntity";
-import { Problem, ProblemFilter } from "./problem";
+import { Problem } from "./problem";
 import { Wall } from "./wall";
 import { BaseTable } from "../tables/BaseTable";
 import { doc, serverTimestamp, updateDoc, arrayRemove, arrayUnion } from "firebase/firestore";
+import { ProblemFilter } from "../IDAL";
 
 export type UpdatedData = {
     walls: {
