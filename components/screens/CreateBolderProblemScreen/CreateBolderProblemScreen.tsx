@@ -20,6 +20,7 @@ import { useDal } from "@/DAL/DALService";
 import { Colors } from "@/constants/Colors";
 import ManagmantModal from "@/components/general/modals/ManagmantModal";
 import SwitchSelector from "react-native-switch-selector";
+import ActionValidationModal from "@/components/general/modals/ActionValidationModal";
 
 
 const CreateProblemScreen: React.FC = () => {
@@ -123,13 +124,15 @@ const CreateProblemScreen: React.FC = () => {
         editedHold &&
         (
           isCycle ?
-            <ManagmantModal closeModal={() => setEditedHold(null)}
-              deleteObj={() => {
-                setHolds(holds.filter(h => h.id !== editedHold));
-              }}
-              extraActions={{
-                "cancel": () => { }
-              }} />
+            <ActionValidationModal
+              text="Delete hold?"
+              approveAction={
+                () => {
+                  setHolds(holds.filter(h => h.id !== editedHold));
+                }
+              }
+              closeModal={() => setEditedHold(null)}
+            />
             :
             <EditHoldModal
               closeModal={() => setEditedHold(null)}
