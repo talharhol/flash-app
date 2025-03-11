@@ -13,12 +13,13 @@ import WithCancelNotification from "@/components/general/notifications/WithCance
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import PublishProblemModal from "./PublishProblemModal";
 import { Problem } from "@/DAL/entities/problem";
 import { useDal } from "@/DAL/DALService";
 import { Colors } from "@/constants/Colors";
 import ManagmantModal from "@/components/general/modals/ManagmantModal";
+import SwitchSelector from "react-native-switch-selector";
 
 
 const CreateProblemScreen: React.FC = () => {
@@ -32,8 +33,12 @@ const CreateProblemScreen: React.FC = () => {
   const [drawingHoldType, setDrawingHoldType] = useState<HoldType>(new HoldType(HoldTypes.route));
   const [holds, setHolds] = useState<HoldInterface[]>([]);
   const [aspectRatio, setAspectRatio] = useState(1.5);
-  const [chooseMode, setChooseMode] = useState(false);
-  const [isCycle, setIsCycle] = useState(false);
+  const [isCycle, _setIsCycle] = useState(false);
+
+  const setIsCycle = (value: boolean) => {
+    if (value) setDrawingHoldType(new HoldType(HoldTypes.route));
+    _setIsCycle(value);
+  }
 
 
   useFocusEffect(
@@ -132,58 +137,68 @@ const CreateProblemScreen: React.FC = () => {
               editHold={(holdType, isDeleted) => editHold(editedHold, holdType, isDeleted)} />
         )
       }
-      {
-        chooseMode &&
-        <ManagmantModal closeModal={() => setChooseMode(false)} extraActions={{
-          "cycle": () => {
-            setDrawingHoldType(new HoldType(HoldTypes.route));
-            setIsCycle(true);
-          },
-          "bolder": () => setIsCycle(false)
-        }} />
-      }
       <ThemedView style={styles.headerContainer}>
-        <MaterialCommunityIcons
-          onPress={() => setChooseMode(true)}
-          name='dots-vertical-circle-outline' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", left: 0, padding: 10 }} />
-        <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Create {isCycle ? 'cycle' : 'bolder'}</ThemedText>
+        <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Create </ThemedText>
+        <SwitchSelector
+          initial={0}
+          textColor={Colors.textDark}
+          selectedColor={Colors.textDark}
+          buttonColor={Colors.backgroundDark}
+          borderColor={Colors.backgroundDark}
+          backgroundColor={Colors.backgroundExtraLite}
+          onPress={(value: boolean) => setIsCycle(value)}
+          options={[
+            { label: "Bolder", value: false },
+            { label: "Cycle", value: true }
+          ]}
+          style={{
+            width: 120
+          }}
+          textStyle={{
+            fontSize: 16,
+          }}
+          selectedTextStyle={{
+            fontSize: 16,
+            fontWeight: 'bold',
+          }}
+        />
         <Ionicons
           onPress={() => setIsPublishModal(true)}
           name='checkmark-circle-outline' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", right: 0, padding: 10 }} />
       </ThemedView>
       <View style={{ flexDirection: "row", backgroundColor: Colors.backgroundDark }}>
-          
-              {
-                Object.values(HoldTypes)
-                  .filter(
-                    x => (
-                      typeof x === "number" &&
-                      (!isCycle || [HoldTypes.route, HoldTypes.feet].includes(x))
-                    )
-                  )
-                  .map(type => new HoldType(type as HoldTypes))
-                  .map(hold => {
-                    return (
-                      <View key={hold.type} style={{ flex: 1 }}>
-                        <View style={{ height: "100%", width: "100%", backgroundColor: hold.color, opacity: 0.1, position: "absolute", borderRadius: 5 }} />
-                        <BasicButton
-                          style={{ width: "100%" }}
-                          selected={drawingHoldType.type === hold.type}
-                          text={hold.title}
-                          color={hold.color}
-                          onPress={() => setDrawingHoldType(hold)}
-                        />
-                      </View>
-                    );
-                  })
-              }
-              <BasicButton
-                style={{ flex: 1 }}
-                text="Draw"
-                color={Colors.backgroundExtraLite}
-                onPress={startDrawingHold}
-                key="New"
-              />
+
+        {
+          Object.values(HoldTypes)
+            .filter(
+              x => (
+                typeof x === "number" &&
+                (!isCycle || [HoldTypes.route, HoldTypes.feet].includes(x))
+              )
+            )
+            .map(type => new HoldType(type as HoldTypes))
+            .map(hold => {
+              return (
+                <View key={hold.type} style={{ flex: 1 }}>
+                  <View style={{ height: "100%", width: "100%", backgroundColor: hold.color, opacity: 0.1, position: "absolute", borderRadius: 5 }} />
+                  <BasicButton
+                    style={{ width: "100%" }}
+                    selected={drawingHoldType.type === hold.type}
+                    text={hold.title}
+                    color={hold.color}
+                    onPress={() => setDrawingHoldType(hold)}
+                  />
+                </View>
+              );
+            })
+        }
+        <BasicButton
+          style={{ flex: 1 }}
+          text="Draw"
+          color={Colors.backgroundExtraLite}
+          onPress={startDrawingHold}
+          key="New"
+        />
       </View>
       <View
         onLayout={(event) => {
