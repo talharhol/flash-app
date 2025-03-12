@@ -190,6 +190,6 @@ export class UserConfigTable extends BaseTable {
         new Field({ name: "last_pulled", type: "INTEGER", notNull: true, default_: () => 0 }),
         new Field({ name: "should_fetch_user_data", type: "BOOLEAN", notNull: true, default_: () => false }),
         new Field({ name: "login_counter", type: "INTEGER", notNull: true, default_: () => 0 }),
-        new Field({ name: "filters", type: "TEXT",  notNull: true, dumper: JSON.stringify, loader: JSON.parse, default_: () => "{}" }),
+        new Field({ name: "filters", type: "TEXT",  notNull: true, dumper: JSON.stringify, loader: JSON.parse, default_: () => {return {}} }),
     ];
 }

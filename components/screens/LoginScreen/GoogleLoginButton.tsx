@@ -34,7 +34,7 @@ const GoogleLoginButton: React.FC<{
     
     <TouchableOpacity style={styles.button} onPress={handleGoogleAuth}>
         <Image source={require("../../../assets/images/google.jpg")} style={styles.icon} />
-        <ThemedText type="defaultSemiBold">Sign in with Google</ThemedText>
+        <ThemedText type="defaultSemiBold">Continue with Google</ThemedText>
     </TouchableOpacity>
       
   );
@@ -48,23 +48,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: Colors.backgroundDark,
     borderWidth: 1,
-    borderColor: Colors.backgroundExtraDark,
+    borderColor: Colors.backgroundDark,
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 20,
-    elevation: 3, // Shadow for Android
-    shadowColor: "#000", // Shadow for iOS
-    shadowOffset: { width: 1, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
     width: "100%",
-    height: 48
+    height: 48,
+    justifyContent: "center"
   },
   icon: {
     width: 48,
     height: 48,
     position: "absolute",
-    left: 0,
+    left: -1,
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8
   },

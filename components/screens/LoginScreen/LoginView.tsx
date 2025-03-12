@@ -28,7 +28,7 @@ const LoginView: React.FC
 
     return (
         <View style={styles.container}>
-          <Image style={styles.loggo} source={require("../../assets/images/loggo.png")}/>
+          <Image style={styles.loggo} source={require("../../../assets/images/loggo.png")}/>
           <ThemedText type="subtitle" style={styles.loggoText}>Flash app</ThemedText>
           <ThemedText type="title" style={styles.title}>{isSignUp ? "Sign Up" : "Login"}</ThemedText>
           <TextInput
@@ -98,6 +98,7 @@ const styles = StyleSheet.create({
   },
   button: {
     width: "100%",
-    marginTop: 15
+    marginTop: 15,
+    marginBottom: 15
   }
 });

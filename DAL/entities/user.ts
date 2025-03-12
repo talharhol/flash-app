@@ -119,7 +119,7 @@ export class User extends Entity {
 
     public setFilters(params: { id: string, filters: ProblemFilter }) {
         let filters = this.getDAL().users.getFilters(this);
-        filters[params.id] = filters;
+        filters[params.id] = params.filters;
         this.getDAL().users.setFilters(this, filters);
     }
     
