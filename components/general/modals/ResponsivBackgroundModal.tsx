@@ -11,14 +11,14 @@ const ResponsiveBackgroundModal: React.FC<React.ComponentProps<typeof Modal> & {
     onDrageEnd: (dx: number, dy: number) => void;
 }> = ({ closeModal, onDrage, onDrageEnd, children }) => {
 
-    const [initialPosition, setInitialPosition] = useState({ x: 0, y: 0 });
+    const [initialPosition, setInitialPosition] = useState<{x: number, y: number} | null>(null);
     const [isDragging, setIsDragging] = useState(false);
 
     const onTouchStart: React.ComponentProps<typeof View>["onTouchStart"] = ({ nativeEvent: { locationX: x, locationY: y } }) => {
         setInitialPosition({ x, y });
     }, 
-    onTouchEnd: React.ComponentProps<typeof View>["onTouchEnd"] = ({ nativeEvent: { locationX: x, locationY: y } }) => {
-        if (isDragging){
+    onTouchEnd: React.ComponentProps<typeof View>["onTouchEnd"] = ({ nativeEvent: { locationX: x, locationY: y } }) => {        
+        if (isDragging && initialPosition !== null){
             const dx = x - initialPosition.x, dy = y - initialPosition.y;
             onDrageEnd(dx, dy);
             setIsDragging(false);
@@ -27,6 +27,7 @@ const ResponsiveBackgroundModal: React.FC<React.ComponentProps<typeof Modal> & {
             closeModal();
     },
     onTouchMove: React.ComponentProps<typeof View>["onTouchMove"] = ({ nativeEvent: { locationX: x, locationY: y } }) => {
+        if (initialPosition === null) return;
         const dx = x - initialPosition.x, dy = y - initialPosition.y;
         if (Math.abs(dx) > 10 || Math.abs(dy) > 10)
             setIsDragging(true);

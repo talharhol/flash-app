@@ -18,7 +18,6 @@ import PublishProblemModal from "./PublishProblemModal";
 import { Problem } from "@/DAL/entities/problem";
 import { useDal } from "@/DAL/DALService";
 import { Colors } from "@/constants/Colors";
-import ManagmantModal from "@/components/general/modals/ManagmantModal";
 import SwitchSelector from "react-native-switch-selector";
 import ActionValidationModal from "@/components/general/modals/ActionValidationModal";
 
@@ -57,15 +56,17 @@ const CreateProblemScreen: React.FC = () => {
   const startDrawingHold = () => {
     setIsDrawingHold(true);
     Notifier.showNotification({
-      duration: 3000,
-      showAnimationDuration: 300,
-      showEasing: Easing.linear,
+      duration: 2000,
+      showAnimationDuration: 0,
+      showEasing: Easing.step1,
       hideOnPress: true,
-      Component: WithCancelNotification.bind(this, {
-        title: 'Create new hold',
-        description: 'you can tap or draw a new hold now',
-        onCancel: () => { setIsDrawingHold(false); Notifier.hideNotification(); },
-      })
+      Component: () => WithCancelNotification(
+        {
+          title: 'Create new hold',
+          description: 'tap or draw a new hold',
+          onCancel: () => { setIsDrawingHold(false); Notifier.hideNotification(); },
+        }
+      )
     });
   };
   const onDrawHoldFinish = (hold: HoldInterface) => {

@@ -2,8 +2,8 @@ import React, { useContext } from "react";
 import { Slider } from '@miblanchard/react-native-slider';
 import ResponsiveBackgroundModal from "@/components/general/modals/ResponsivBackgroundModal";
 import { zoomSize } from "./SizeContext";
-import { Text, View } from "react-native";
 import { ThemedText } from "./ThemedText";
+import { View } from "react-native";
 
 const SetRadiusModal: React.FC<{
     closeModal: () => void;

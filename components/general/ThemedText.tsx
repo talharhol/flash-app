@@ -67,27 +67,27 @@ const styles = StyleSheet.create({
   },
   defaultSemiBold: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
   default1: {
     fontSize: 14,
   },
   defaultSemiBold1: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
   default2: {
     fontSize: 12,
   },
   defaultSemiBold2: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
   default3: {
     fontSize: 10,
   },
   defaultSemiBold3: {
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
 });
