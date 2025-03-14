@@ -44,7 +44,8 @@ const ConfigGroupScreen: React.FC = ({ }) => {
     const [selectWallModal, setSelectWallModal] = useState(false);
     const [groupName, setGroupName] = useState(group ? group.name : '');
     const [selectedUsers, setSelectedUsers] = useState<string[]>(group ? group.members.filter(u => u !== dal.currentUser.id) : []);
-    const [selectedWalls, setSelectedWalls] = useState<string[]>(group ? group.PublicWalls.map(w => w.id) : []);
+    const [selectedWalls, setSelectedWalls] = useState<string[]>(group ? group.walls : []);
+    console.log(selectedWalls)
 
     useFocusEffect(
         useCallback(
@@ -54,7 +55,7 @@ const ConfigGroupScreen: React.FC = ({ }) => {
                 setSelectWallModal(false);
                 setGroupName(group ? group.name : '');
                 setSelectedUsers(group ? group.members.filter(u => u !== dal.currentUser.id) : []);
-                setSelectedWalls(group ? group.PublicWalls.map(w => w.id) : []);
+                setSelectedWalls(group ? group.walls : []);
             }, []
         )
     );

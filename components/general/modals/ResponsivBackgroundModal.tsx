@@ -22,6 +22,7 @@ const ResponsiveBackgroundModal: React.FC<React.ComponentProps<typeof Modal> & {
             const dx = x - initialPosition.x, dy = y - initialPosition.y;
             onDrageEnd(dx, dy);
             setIsDragging(false);
+            setInitialPosition(null);
         }
         else
             closeModal();

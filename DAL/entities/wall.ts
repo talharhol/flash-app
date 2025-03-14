@@ -3,7 +3,7 @@ import { HoldInterface } from "../hold";
 import { Entity, EntityProps } from "./BaseEntity";
 
 
-export type WallProps = EntityProps & { name: string, gym: string, image: ImageSourcePropType, angle?: number, configuredHolds?: { svgPath: string; id: string }[], isPublic?: boolean, owner: string }
+export type WallProps = EntityProps & { name: string, gym: string, image: ImageSourcePropType, angle?: number, configuredHolds?: HoldInterface[], isPublic?: boolean, owner: string }
 
 export class Wall extends Entity {
     name: string;
@@ -50,7 +50,9 @@ export class Wall extends Entity {
     }
 
     get fullName() {
-        return `${this.name}@${this.gym}`;
+        if (this.isPublic)
+            return `${this.name}@${this.gym}`;
+        return this.name;
     }
 
     get walls(): Wall[] {

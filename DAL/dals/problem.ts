@@ -15,7 +15,6 @@ export class ProblemDAL extends BaseDAL<Problem> {
         if (params.name !== undefined) filters.push(ProblemTable.getField("name")!.like(params.name));
         if (params.wallId !== undefined) filters.push(ProblemTable.getField("wall_id")!.eq(params.wallId));
         if (params.setters !== undefined && params.setters.length > 0) filters.push(ProblemTable.getField("owner_id")!.in(params.setters));
-        if (params.isPublic !== undefined) filters.push(ProblemTable.getField("is_public")!.eq(params.isPublic));
         if (params.type !== undefined) filters.push(ProblemTable.getField("type")!.eq(params.type));
         let query = ProblemTable.query(filters);
         if (params.groupId !== undefined) {
@@ -23,8 +22,10 @@ export class ProblemDAL extends BaseDAL<Problem> {
                 GroupProblemTable,
                 GroupProblemTable.getField("problem_id")!.eq(ProblemTable.getField("id")!)
             );
-            query.Filter(GroupProblemTable.getField("group_id")!.eq(params.groupId))
+            query.Filter(GroupProblemTable.getField("group_id")!.eq(params.groupId));
+            params.isPublic = false; // group has only private problems
         }
+        if (params.isPublic !== undefined) query.Filter(ProblemTable.getField("is_public")!.eq(params.isPublic));
         let results = query.All<{ [key: string]: any; }>(this._dal.db!);
         return results.map(r => {
             let entity = ProblemTable.toEntity(r);

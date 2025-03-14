@@ -109,7 +109,7 @@ export class User extends Entity {
         let filters = this.getDAL().users.getFilters(this);
         return filters[params.id] ?? {
             minGrade: 1,
-            maxGrade: 15,
+            maxGrade: 24,
             name: "",
             setters: [],
             isPublic: true,

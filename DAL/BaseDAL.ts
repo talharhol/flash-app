@@ -72,6 +72,7 @@ export class BaseDAL<
     }
 
     public async Update(obj: ObjType): Promise<ObjType> {
+        obj.setDAL(this._dal);
         let updatedData = await this.UpdateLocal(obj);
         this.UpdateRemote(obj, updatedData);
         return this._objects[obj.id] = obj;
