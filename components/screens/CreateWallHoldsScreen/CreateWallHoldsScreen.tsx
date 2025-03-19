@@ -1,8 +1,6 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import {
-    Button,
     Platform,
-    StatusBar,
     StyleSheet,
     View,
 } from "react-native";
@@ -22,18 +20,24 @@ import { Colors } from "@/constants/Colors";
 
 const CreateWallHoldsScreen: React.FC = ({ }) => {
     const dal = useDal();
-    const wall = dal.walls.Get({ id: useLocalSearchParams().id as string });
+    const { id } = useLocalSearchParams();
+    const wall = dal.walls.Get({ id });
     const [isDrawingHold, setIsDrawingHold] = useState(false);
     const [isExitRequest, setIsExitRequest] = useState(false);
     const [holdToDelete, setHoldToDelete] = useState<string | null>(null);
     const [aspectRatio, setAspectRatio] = useState(1.5);
-    const [holds, setHolds] = useState<HoldInterface[]>(wall?.configuredHolds.map((h) => ({ ...h, color: holdTypeToHoldColor[HoldTypes.route] })));
+    const [holds, setHolds] = useState<HoldInterface[]>([]);
+    useEffect(
+        () => {
+            setHolds(wall.configuredHolds.map((h) => ({ ...h, color: holdTypeToHoldColor[HoldTypes.route] })));
+        }, 
+        [id]
+    );
     useFocusEffect(
         useCallback(
             () => {
                 setIsDrawingHold(false);
                 setHoldToDelete(null);
-                setHolds(wall.configuredHolds.map(h => ({ ...h, color: holdTypeToHoldColor[HoldTypes.route] })));
             }, []
         )
     );

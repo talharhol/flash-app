@@ -17,7 +17,8 @@ const DrawHold: React.FC<{
     minimalMovingDistance?: number;
     currentHoldType: HoldType;
 }> = ({ currentHoldType, onFinishedDrawingShape, onCancel, minimalMovingDistance }) => {
-    minimalMovingDistance = minimalMovingDistance || 10;
+    const zoom = useContext(zoomSize);
+    minimalMovingDistance = (minimalMovingDistance || 10) / zoom;
     const dimensions = useContext(imageSize);
     const [currentPaths, setCurrentPath] = useState<{ x: number, y: number; }[]>([]);
     const [centerShift, setCenterShift] = useState({ x: 0, y: 0 });
@@ -83,7 +84,6 @@ const DrawHold: React.FC<{
         onFinishedDrawingShape?.(pathToSend);
         setIsDrawing(false);
     };
-    const zoom = useContext(zoomSize);
 
     return (
         <View style={[dimensions, { zIndex: 2, position: "absolute"} ]}>
@@ -109,7 +109,7 @@ const DrawHold: React.FC<{
                         d={`M${currentPaths.map(({ x, y }) => `${x.toFixed(0)},${y.toFixed(0)}`)}`}
                         stroke={currentHoldType.color}
                         fill='transparent'
-                        strokeWidth={2  / (Math.max(1, zoom / 2))}
+                        strokeWidth={2  / (Math.max(1, zoom / 8))}
                         strokeLinejoin='round'
                         strokeLinecap='round'
                     />
@@ -119,7 +119,7 @@ const DrawHold: React.FC<{
                         d={`M ${currentPaths[currentPaths.length - 1].x + centerShift.x - holdRadius}, ${currentPaths[currentPaths.length - 1].y + centerShift.y} a ${holdRadius},${holdRadius} 0 1,0 ${holdRadius * 2},0 a ${holdRadius},${holdRadius} 0 1,0 -${holdRadius * 2},0`}
                         stroke={currentHoldType.color}
                         fill='transparent'
-                        strokeWidth={2  / (Math.max(1, zoom / 2))}
+                        strokeWidth={2  / (Math.max(1, zoom / 8))}
                         strokeLinejoin='round'
                         strokeLinecap='round'
                     />

@@ -24,7 +24,7 @@ const SVGHold: React.FC<{
       d={hold.svgPath}
       stroke={transparant ? undefined : hold.color}
       fill='transparent'
-      strokeWidth={2 / (Math.max(1, zoom / 4))}
+      strokeWidth={2 / (Math.max(1, zoom / 8))}
       strokeLinejoin='round'
       strokeLinecap='round'
       onStartShouldSetResponder={() => shouldSetResponder}
