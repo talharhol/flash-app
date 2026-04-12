@@ -34,6 +34,7 @@ export default {
       "expo-router",
       "expo-font",
       "expo-sqlite",
+      "@react-native-firebase/app",
       "@react-native-google-signin/google-signin"
     ],
     "experiments": {
@@ -47,9 +48,7 @@ export default {
         "projectId": "f5e2c7e4-6342-41e2-bb63-b8a94104db4c"
       }
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "updates": {
       "url": "https://u.expo.dev/f5e2c7e4-6342-41e2-bb63-b8a94104db4c"
     },
