@@ -1,6 +1,7 @@
 import { Wall } from "../entities/wall";
 import { UserWallTable, WallTable } from "../tables/tables";
 import { BaseDAL } from "../BaseDAL";
+import { Filter } from "../tables/BaseTable";
 
 
 export class WallDAL extends BaseDAL<Wall> {
@@ -12,7 +13,7 @@ export class WallDAL extends BaseDAL<Wall> {
         ids?: string[],
         id?: string
     }): Wall[] {
-        let filters = [];
+        let filters: Filter[] = [];
         let selectedIds: string[] = [];
         if (params.id !== undefined) selectedIds.push(params.id);
         if (params.isPublic) {

@@ -1,6 +1,6 @@
 import { ConvertToCycle, Hold, HoldInterface, HoldType, SortHolds, holdTypeToHoldColor } from "@/DAL/hold";
 import { imageSize } from "../general/SizeContext";
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import {
   Image,
   Platform,
@@ -11,10 +11,10 @@ import {
   ImageSourcePropType,
   ViewProps,
 } from "react-native";
-import Svg from "react-native-svg";
+import { Canvas, Group, Skia } from "@shopify/react-native-skia";
 import Zoomable from "./Zoomable";
 import DrawHold from "./DrawHold";
-import SVGHold from "./SvgHold";
+import SkiaHold from "./SkiaHold";
 import { captureRef } from "react-native-view-shot";
 import * as MediaLibrary from 'expo-media-library';
 import { Colors } from "@/constants/Colors";
@@ -53,12 +53,13 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
     const [imageWidth, setImageWidth] = useState(screenDimension.width * (scale || 1));
     const zoomableViewRef = useRef<React.ElementRef<typeof Zoomable>>(null);
     const problemContainerRef = useRef(null);
+    const tapStartRef = useRef<{ x: number; y: number } | null>(null);
     existingHolds = existingHolds ?? [];
     if (cycle) {
       existingHolds = ConvertToCycle(existingHolds);
     }
 
-    
+
     useEffect(() => {
       Image.getSize(Image.resolveAssetSource(wallImage).uri, (width, height) => {
         let tmpWidth = screenDimension.width * (scale ? scale : 1);
@@ -113,6 +114,41 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
       return screenDimension.width * (scale || 1);
     }
 
+    const pathScale = imageWidth / 1000;
+
+    const sortedExistingHolds = useMemo(() =>
+      [...existingHolds].sort(SortHolds).map(hold => ({
+        hold,
+        path: Skia.Path.MakeFromSVGString(hold.svgPath) ?? Skia.Path.Make(),
+      })),
+      [existingHolds]
+    );
+
+    const sortedConfiguredHolds = useMemo(() =>
+      [...(configuredHolds ?? [])].sort(SortHolds).map(hold => ({
+        hold,
+        path: Skia.Path.MakeFromSVGString(hold.svgPath) ?? Skia.Path.Make(),
+      })),
+      [configuredHolds]
+    );
+
+    const handleTap = (canvasX: number, canvasY: number) => {
+      const pathX = canvasX / pathScale;
+      const pathY = canvasY / pathScale;
+      for (const { hold, path } of sortedExistingHolds) {
+        if (path.contains(pathX, pathY)) {
+          onHoldClick?.(hold.id);
+          return;
+        }
+      }
+      for (const { hold, path } of sortedConfiguredHolds) {
+        if (path.contains(pathX, pathY)) {
+          onConfiguredHoldClick?.(hold.id);
+          return;
+        }
+      }
+    };
+
 
     return (
       <View {...props} style={[styles.zoomedContainer, { height: getHeight(), width: getWidth(), alignContent: "center", justifyContent: "center", alignItems: "center", backgroundColor: Colors.backgroundDark, borderRadius: 8 }, props.style]}>
@@ -120,45 +156,51 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
           <Zoomable
             ref={zoomableViewRef}
             disableMovement={!!disableMovment || !!drawingHoldType} maxZoom={20} minZoom={0.8}>
-            <View ref={problemContainerRef} style={[styles.zoomedContent, { height: getHeight(), width: getWidth(), alignContent: "center", justifyContent: "center", alignItems: "center" }]} collapsable={false}>
-              {
-                !!drawingHoldType &&
-                <DrawHold
-                  onCancel={onDrawHoldCancel}
-                  currentHoldType={drawingHoldType}
-                  onFinishedDrawingShape={onCreatedHold}
-                />
-              }
-              <View style={{ position: "absolute", zIndex: 1 }}>
-                <Svg
-                  viewBox={`0 0 1000 ${1000 / (imageWidth / imageHeight)}`}
-                  style={[{ position: "relative", width: imageWidth, height: imageHeight }]}>
-                  {
-                    configuredHolds?.sort(SortHolds).map(hold => (
-                      <SVGHold
+            <View style={[styles.zoomedContent, { height: getHeight(), width: getWidth(), alignContent: "center", justifyContent: "center", alignItems: "center" }]}>
+              <View ref={problemContainerRef} style={{ width: imageWidth, height: imageHeight }} collapsable={false}>
+                {
+                  !!drawingHoldType &&
+                  <DrawHold
+                    onCancel={onDrawHoldCancel}
+                    currentHoldType={drawingHoldType}
+                    onFinishedDrawingShape={onCreatedHold}
+                  />
+                }
+                <Canvas
+                  style={{ position: "absolute", top: 0, left: 0, zIndex: 1, width: imageWidth, height: imageHeight }}
+                  onTouchStart={(e) => {
+                    tapStartRef.current = { x: e.nativeEvent.locationX, y: e.nativeEvent.locationY };
+                  }}
+                  onTouchEnd={(e) => {
+                    if (!tapStartRef.current) return;
+                    const { locationX: x, locationY: y } = e.nativeEvent;
+                    const { x: sx, y: sy } = tapStartRef.current;
+                    tapStartRef.current = null;
+                    if (Math.abs(x - sx) < 8 && Math.abs(y - sy) < 8) {
+                      handleTap(x, y);
+                    }
+                  }}
+                >
+                  <Group transform={[{ scale: pathScale }]}>
+                    {sortedConfiguredHolds.map(({ hold, path }) => (
+                      <SkiaHold
                         key={hold.id}
                         hold={hold}
-                        transparant
-                        onHoldClick={onConfiguredHoldClick}
-                        zoomableViewRef={zoomableViewRef}
-                        disabeMovment={disableMovment}
+                        path={path}
+                        transparent
                       />
-                    ))
-                  }
-                  {
-                    [...existingHolds].sort(SortHolds).map((hold) => (
-                      <SVGHold
+                    ))}
+                    {sortedExistingHolds.map(({ hold, path }) => (
+                      <SkiaHold
                         key={hold.id}
                         hold={hold}
-                        onHoldClick={onHoldClick}
-                        zoomableViewRef={zoomableViewRef}
-                        disabeMovment={disableMovment}
+                        path={path}
                       />
-                    ))
-                  }
-                </Svg>
+                    ))}
+                  </Group>
+                </Canvas>
+                <Image style={[styles.problemImage, { width: imageWidth, height: imageHeight }]} source={wallImage} />
               </View>
-              <Image style={[styles.problemImage, { width: imageWidth, height: imageHeight }]} source={wallImage} />
             </View>
           </Zoomable>
         </imageSize.Provider>
