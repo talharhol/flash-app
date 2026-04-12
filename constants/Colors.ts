@@ -6,5 +6,7 @@ export const Colors = {
   backgroundDark: '#A89070',
   backgroundExtraDark: '#826F57',
   textLite: "white",
-  textDark: "black"
+  textDark: "black",
+  tickProject: '#E8A838',
+  tickSent: '#4CAF50',
 };

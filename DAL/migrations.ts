@@ -6,7 +6,7 @@ import { BaseTable, Field } from './tables/BaseTable';
 
 export async function runMigrations() {
     const db = await SQLite.openDatabaseAsync('flashLocalDB.db');
-    let currentVersion = await getCurrentVersion(db);
+    let currentVersion = 0;// await getCurrentVersion(db);
     while (currentVersion < migrations.length) {
         await migrations[currentVersion](db)
         currentVersion += 1;
@@ -121,7 +121,17 @@ const migrations = [
                 new Field({ name: "filters", type: "TEXT",  notNull: true, dumper: JSON.stringify, loader: JSON.parse, default_: () => "{}" }),
             ];
         }
-        
+
+        class UserTicks extends BaseTable {
+            public static tableName: string = "user_ticks";
+            public static fields: Field[] = [
+                ...BaseTable.getDefaultFields(),
+                new Field({ name: "user_id", type: "TEXT", notNull: true, fk: User.getField('id') }),
+                new Field({ name: "problem_id", type: "TEXT", notNull: true, fk: Problem.getField('id') }),
+                new Field({ name: "tag", type: "TEXT", notNull: true }),
+            ];
+        }
+
         await db.execAsync(`DROP TABLE IF EXISTS ${User.tableName};`)
         await db.execAsync(`DROP TABLE IF EXISTS ${Wall.tableName};`)
         await db.execAsync(`DROP TABLE IF EXISTS ${Problem.tableName};`)
@@ -131,7 +141,8 @@ const migrations = [
         await db.execAsync(`DROP TABLE IF EXISTS ${GroupWall.tableName};`)
         await db.execAsync(`DROP TABLE IF EXISTS ${UserWall.tableName};`)
         await db.execAsync(`DROP TABLE IF EXISTS ${UserConfigTable.tableName};`)
-        
+        await db.execAsync(`DROP TABLE IF EXISTS ${UserTicks.tableName};`)
+
         await User.createTable(db);
         await Wall.createTable(db);
         await Problem.createTable(db);
@@ -141,6 +152,7 @@ const migrations = [
         await GroupProblem.createTable(db);
         await UserWall.createTable(db);
         await UserConfigTable.createTable(db);
+        await UserTicks.createTable(db);
     }
     
 ];

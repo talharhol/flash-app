@@ -8,6 +8,7 @@ import { ProblemDAL } from "./dals/problem";
 import { GroupDAL } from "./dals/group";
 import { UserDAL } from "./dals/user";
 import { WallDAL } from "./dals/wall";
+import { UserTickDAL } from "./dals/userTick";
 import { Firestore } from "firebase/firestore";
 import { RemoteStorage } from "./remoteStorage";
 import { EventEmitter } from 'events';
@@ -18,6 +19,7 @@ export interface IDAL extends EventEmitter {
     users: UserDAL;
     problems: ProblemDAL;
     groups: GroupDAL;
+    ticks: UserTickDAL;
 
     currentUser: User;
     convertToLocalImage(image: ImageSourcePropType, localFileName?: string): Promise<string>;
@@ -38,4 +40,5 @@ export interface ProblemFilter {
     setters?: string[];
     isPublic?: boolean;
     type?: string;
+    tag?: string;
 }

@@ -11,6 +11,8 @@ import { GroupDAL } from "./dals/group";
 import { UserDAL } from "./dals/user";
 import { WallDAL } from "./dals/wall";
 import { ProblemDAL } from "./dals/problem";
+import { UserTickDAL } from "./dals/userTick";
+import { UserTickTable } from "./tables/tables";
 import { Firestore } from "firebase/firestore";
 import { Auth, NextOrObserver, User as AuthUser, OAuthCredential, signInWithCredential } from "firebase/auth";
 import { auth, app, db } from "../firebaseConfig"
@@ -32,6 +34,7 @@ class DalService extends EventEmitter {
     private _wallDal?: WallDAL;
     private _problemDal?: ProblemDAL;
     private _groupDal?: GroupDAL;
+    private _tickDal?: UserTickDAL;
     private _remoteStorage?: RemoteStorage;
 
     private _currentUser?: User;
@@ -58,6 +61,7 @@ class DalService extends EventEmitter {
                 await this.walls.FetchFromRemote(last).catch(console.error);
                 await this.problems.FetchFromRemote(last).catch(console.error);
                 await this.groups.FetchFromRemote(last).catch(console.error);
+                await this.ticks.FetchFromRemote(last).catch(console.error);
                 if (this.currentUser.shouldFetchUserData) await this.users.FetchUserData().catch(console.error);
                 last = cur;
                 this.currentUser.lastPulled = last.toMillis();
@@ -92,6 +96,7 @@ class DalService extends EventEmitter {
         this._wallDal = new WallDAL(this, WallTable, "wall");
         this._problemDal = new ProblemDAL(this, ProblemTable, "problem");
         this._groupDal = new GroupDAL(this, GroupTable, "group");
+        this._tickDal = new UserTickDAL(this, UserTickTable, "user_tick");
         this._remoteStorage = new RemoteStorage(app);
         this.setMaxListeners(100); // support up to 100 screens
         this.onAuthStateChanged(() => this.updateScreen());
@@ -109,6 +114,9 @@ class DalService extends EventEmitter {
     }
     public get problems() {
         return this._problemDal!
+    }
+    public get ticks() {
+        return this._tickDal!
     }
 
     public static get Instance() {

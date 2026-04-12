@@ -23,6 +23,7 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     const [name, setName] = useState(initialFilters.name);
     const [setters, setSetters] = useState<string[]>([]);
     const [problemType, setProblemType] = useState(initialFilters.type);
+    const [tag, setTag] = useState(initialFilters.tag);
 
     useEffect(() => setSetters(initialFilters.setters ?? []), []); // in order to load selected setters
     const usersMultiSelect = useRef<MultiSelect>()
@@ -35,6 +36,7 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                 setters,
                 isPublic: initialFilters.isPublic,
                 type: problemType,
+                tag,
             }
         );
         props.closeModal();
@@ -79,6 +81,22 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                             { label: "Bolder", value: "bolder" },
                             { label: "Both", value: undefined },
                             { label: "Cycle", value: "cycle" },
+                        ]}
+                    />
+                </View>
+                <View style={styles.filterContainer}>
+                    <SwitchSelector
+                        initial={initialFilters.tag === "project" ? 1 : (initialFilters.tag === "sent" ? 2 : 0)}
+                        textColor={Colors.backgroundDark}
+                        selectedColor={Colors.backgroundExtraLite}
+                        buttonColor={Colors.backgroundDark}
+                        borderColor={Colors.backgroundDark}
+                        backgroundColor={Colors.backgroundExtraLite}
+                        onPress={(value: string | undefined) => setTag(value)}
+                        options={[
+                            { label: "All", value: undefined },
+                            { label: "Project", value: "project" },
+                            { label: "Sent", value: "sent" },
                         ]}
                     />
                 </View>

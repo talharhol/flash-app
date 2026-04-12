@@ -9,6 +9,7 @@ import { Wall } from "../entities/wall";
 import { Problem } from "../entities/problem";
 import { Group } from "../entities/group";
 import { Entity } from "../entities/BaseEntity";
+import { UserTick } from "../entities/userTick";
 
 function convertToLocalImage(image: ImageSourcePropType): string {
     const imageSrc = Image.resolveAssetSource(image);
@@ -181,6 +182,17 @@ export class UserWallTable extends BaseTable {
     ];
 }
 
+
+export class UserTickTable extends BaseTable {
+    public static entity: typeof Entity = UserTick;
+    public static tableName: string = "user_ticks";
+    public static fields: Field[] = [
+        ...BaseTable.getDefaultFields(),
+        new Field({ name: "user_id", type: "TEXT", notNull: true, fk: UserTable.getField('id'), alias: "userId" }),
+        new Field({ name: "problem_id", type: "TEXT", notNull: true, fk: ProblemTable.getField('id'), alias: "problemId" }),
+        new Field({ name: "tag", type: "TEXT", notNull: true }),
+    ];
+}
 
 export class UserConfigTable extends BaseTable {
     public static tableName: string = "user_config";

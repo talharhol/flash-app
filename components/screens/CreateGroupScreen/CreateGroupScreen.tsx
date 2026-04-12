@@ -45,7 +45,6 @@ const ConfigGroupScreen: React.FC = ({ }) => {
     const [groupName, setGroupName] = useState(group ? group.name : '');
     const [selectedUsers, setSelectedUsers] = useState<string[]>(group ? group.members.filter(u => u !== dal.currentUser.id) : []);
     const [selectedWalls, setSelectedWalls] = useState<string[]>(group ? group.walls : []);
-    console.log(selectedWalls)
 
     useFocusEffect(
         useCallback(

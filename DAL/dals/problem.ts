@@ -1,6 +1,6 @@
 import { Problem } from "../entities/problem";
 import { Filter } from "../tables/BaseTable";
-import { GroupProblemTable, ProblemTable } from "../tables/tables";
+import { GroupProblemTable, ProblemTable, UserTickTable } from "../tables/tables";
 import { BaseDAL } from "../BaseDAL";
 import { collection, Query, query, Timestamp, where } from "firebase/firestore";
 import { ProblemFilter } from "../IDAL";
@@ -17,6 +17,16 @@ export class ProblemDAL extends BaseDAL<Problem> {
         if (params.setters !== undefined && params.setters.length > 0) filters.push(ProblemTable.getField("owner_id")!.in(params.setters));
         if (params.type !== undefined) filters.push(ProblemTable.getField("type")!.eq(params.type));
         let query = ProblemTable.query(filters);
+        if (params.tag !== undefined) {
+            query = query.Join(
+                UserTickTable,
+                UserTickTable.getField("problem_id")!.eq(ProblemTable.getField("id")!)
+            ).Filter(
+                UserTickTable.getField("user_id")!.eq(this._dal.currentUser.id)
+            ).Filter(
+                UserTickTable.getField("tag")!.eq(params.tag)
+            );
+        }
         if (params.groupId !== undefined) {
             query = query.Join(
                 GroupProblemTable,
