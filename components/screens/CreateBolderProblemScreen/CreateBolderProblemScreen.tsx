@@ -224,6 +224,7 @@ const CreateProblemScreen: React.FC = () => {
           onDrawHoldCancel={() => setIsDrawingHold(false)}
           disableMovment={isDrawingHold}
           drawingHoldType={isDrawingHold ? drawingHoldType : null}
+          useHoldDetection={false}
         />
       </View>
     </View>

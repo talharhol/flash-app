@@ -108,6 +108,7 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
                     onDrawHoldCancel={() => setIsDrawingHold(false)}
                     drawingHoldType={isDrawingHold ? new HoldType(HoldTypes.route) : null}
                     aspectRatio={aspectRatio}
+                    useHoldDetection={true}
                 />
             </View>
             <View style={styles.buttonContainer}>

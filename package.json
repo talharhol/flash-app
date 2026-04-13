@@ -23,8 +23,10 @@
     "@react-native-google-signin/google-signin": "^13.2.0",
     "@react-native-picker/picker": "2.9.0",
     "@react-navigation/native": "^7.0.14",
+    "@shopify/react-native-skia": "1.5.0",
     "expo": "~52.0.36",
     "expo-constants": "~17.0.3",
+    "expo-dev-client": "~5.0.20",
     "expo-file-system": "~18.0.6",
     "expo-font": "~13.0.2",
     "expo-image-manipulator": "~13.0.6",
@@ -43,6 +45,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.7",
+    "react-native-fast-tflite": "^2.0.0",
     "react-native-gesture-handler": "~2.20.2",
     "react-native-multiple-select": "^0.5.12",
     "react-native-notifier": "^1.9.0",
@@ -58,9 +61,7 @@
     "react-native-uuid": "^2.0.2",
     "react-native-view-shot": "~4.0.3",
     "react-native-web": "~0.19.13",
-    "svg-path-properties": "^1.3.0",
-    "expo-dev-client": "~5.0.20",
-    "@shopify/react-native-skia": "1.5.0"
+    "svg-path-properties": "^1.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

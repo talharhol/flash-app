@@ -6,7 +6,7 @@ import { BaseTable, Field } from './tables/BaseTable';
 
 export async function runMigrations() {
     const db = await SQLite.openDatabaseAsync('flashLocalDB.db');
-    let currentVersion = 0;// await getCurrentVersion(db);
+    let currentVersion = await getCurrentVersion(db);
     while (currentVersion < migrations.length) {
         await migrations[currentVersion](db)
         currentVersion += 1;

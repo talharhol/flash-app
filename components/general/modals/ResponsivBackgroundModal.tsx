@@ -44,9 +44,9 @@ const ResponsiveBackgroundModal: React.FC<React.ComponentProps<typeof Modal> & {
         >
             <View
                 style={{ backgroundColor: "rgba(50, 50, 50, 0.1)" }}
-                onTouchMove={onTouchMove}
-                onTouchStart={onTouchStart}
-                onTouchEnd={onTouchEnd}
+                onTouchMove={e => { e.stopPropagation(); onTouchMove(e); }}
+                onTouchStart={e => { e.stopPropagation(); onTouchStart(e); }}
+                onTouchEnd={e => { e.stopPropagation(); onTouchEnd(e); }}
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modal}

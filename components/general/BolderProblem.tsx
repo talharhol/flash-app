@@ -2,10 +2,12 @@ import { ConvertToCycle, Hold, HoldInterface, HoldType, SortHolds, holdTypeToHol
 import { imageSize } from "../general/SizeContext";
 import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Image,
   Platform,
   StatusBar,
   StyleSheet,
+  Text,
   View,
   useWindowDimensions,
   ImageSourcePropType,
@@ -18,6 +20,7 @@ import SkiaHold from "./SkiaHold";
 import { captureRef } from "react-native-view-shot";
 import * as MediaLibrary from 'expo-media-library';
 import { Colors } from "@/constants/Colors";
+import { useHoldDetection } from "@/hooks/useHoldDetection";
 
 interface BolderProblemProps extends ViewProps {
   wallImage: ImageSourcePropType;
@@ -30,6 +33,7 @@ interface BolderProblemProps extends ViewProps {
   bindToImage?: boolean;
   aspectRatio?: number;
   cycle?: boolean;
+  useHoldDetection?: boolean;
   onDrawHoldFinish?: (hold: HoldInterface) => void;
   onDrawHoldCancel?: () => void;
   onConfiguredHoldClick?: (hold_id: string) => void;
@@ -44,7 +48,7 @@ export interface BolderProblemComponent {
 
 const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
   (
-    { wallImage, configuredHolds, existingHolds, drawingHoldType, disableMovment, scale, fullScreen, bindToImage, aspectRatio, cycle, onDrawHoldFinish, onDrawHoldCancel, onConfiguredHoldClick, onHoldClick, ...props }
+    { wallImage, configuredHolds, existingHolds, drawingHoldType, disableMovment, scale, fullScreen, bindToImage, aspectRatio, cycle, useHoldDetection: enableHoldDetection, onDrawHoldFinish, onDrawHoldCancel, onConfiguredHoldClick, onHoldClick, ...props }
     , ref
   ) => {
     const screenDimension = useWindowDimensions();
@@ -60,8 +64,13 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
     }
 
 
-    useEffect(() => {
-      Image.getSize(Image.resolveAssetSource(wallImage).uri, (width, height) => {
+    const [imageUri, setImageUri] = useState<string | null>(null);
+    const { detectHold, isEncoding, isReady } = useHoldDetection(imageUri, !!enableHoldDetection);
+
+  useEffect(() => {
+      const uri = Image.resolveAssetSource(wallImage).uri;
+      setImageUri(uri);
+      Image.getSize(uri, (width, height) => {
         let tmpWidth = screenDimension.width * (scale ? scale : 1);
         let tmpHeight = tmpWidth * aspectRatio;
         if (height / width <= aspectRatio) {
@@ -73,7 +82,7 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
         setImageHeight(tmpHeight);
         setImageWidth(tmpWidth);
       });
-    }, [aspectRatio]);
+    }, [wallImage, aspectRatio]);
 
     const onCreatedHold = (path: string) => {
       if (drawingHoldType == null) return;
@@ -152,8 +161,17 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
 
     return (
       <View {...props} style={[styles.zoomedContainer, { height: getHeight(), width: getWidth(), alignContent: "center", justifyContent: "center", alignItems: "center", backgroundColor: Colors.backgroundDark, borderRadius: 8 }, props.style]}>
+        {enableHoldDetection && !isReady && (
+          <View style={styles.modelLoadingBanner}>
+            <ActivityIndicator size="small" color="#fff" />
+            <Text style={styles.modelLoadingText}>
+              {isEncoding ? 'Preparing wall...' : 'Loading model...'}
+            </Text>
+          </View>
+        )}
         <imageSize.Provider value={{ width: imageWidth, height: imageHeight }}>
           <Zoomable
+            key={JSON.stringify(wallImage)}
             ref={zoomableViewRef}
             disableMovement={!!disableMovment || !!drawingHoldType} maxZoom={20} minZoom={0.8}>
             <View style={[styles.zoomedContent, { height: getHeight(), width: getWidth(), alignContent: "center", justifyContent: "center", alignItems: "center" }]}>
@@ -164,6 +182,9 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
                     onCancel={onDrawHoldCancel}
                     currentHoldType={drawingHoldType}
                     onFinishedDrawingShape={onCreatedHold}
+                    detectHold={enableHoldDetection ? detectHold : undefined}
+                    isEncoding={isEncoding}
+                    isReady={isReady}
                   />
                 }
                 <Canvas
@@ -218,6 +239,23 @@ const styles = StyleSheet.create({
   zoomedContainer: {
     overflow: "hidden",
     backgroundColor: "black",
+  },
+  modelLoadingBanner: {
+    position: 'absolute',
+    top: 8,
+    alignSelf: 'center',
+    zIndex: 10,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  modelLoadingText: {
+    color: '#fff',
+    fontSize: 12,
   },
   zoomedContent: {
     flex: 1,
