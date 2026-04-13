@@ -102,8 +102,6 @@ export function useHoldDetection(imageUri: string | null, enabled = true) {
             const tapX = normalizedX * ENCODER_INPUT_SIZE;
             const tapY = normalizedY * ENCODER_INPUT_SIZE;
 
-            console.log(`[HoldDetection] Decoder tap at (${tapX.toFixed(0)}, ${tapY.toFixed(0)})`);
-
             const [rawMasks, rawScores] = await decoderRef.current.run([
                 cachedEmbeddingRef.current.embedding,
                 new Float32Array([tapX, tapY]),
@@ -113,8 +111,6 @@ export function useHoldDetection(imageUri: string | null, enabled = true) {
             const score   = (rawScores as Float32Array)[0];
             const mask    = rawMasks  as Float32Array;
             const fgCount = countFg(mask);
-
-            console.log(`[HoldDetection] score=${score.toFixed(3)}  fg=${fgCount}/${mask.length} (${((fgCount / mask.length) * 100).toFixed(1)}%)`);
 
             if (score <= MIN_SCORE) {
                 console.log('[HoldDetection] Score too low — fallback to circle');
