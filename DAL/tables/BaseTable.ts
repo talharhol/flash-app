@@ -120,6 +120,13 @@ export class Filter {
     }
 }
 
+export function And(...filters: Filter[]): Filter {
+    return new Filter({
+        sql: filters.map(f => f.sql).join(' AND '),
+        value: filters.map(f => f.value).flat(Infinity)
+    });
+}
+
 export class Query {
     private table: typeof BaseTable;
     private selectedFields: Field[];

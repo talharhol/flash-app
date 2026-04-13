@@ -86,7 +86,7 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                 </View>
                 <View style={styles.filterContainer}>
                     <SwitchSelector
-                        initial={initialFilters.tag === "project" ? 1 : (initialFilters.tag === "sent" ? 2 : 0)}
+                        initial={initialFilters.tag === "project" ? 1 : (initialFilters.tag === "sent" ? 2 : (initialFilters.tag === "unsent" ? 3 : 0))}
                         textColor={Colors.backgroundDark}
                         selectedColor={Colors.backgroundExtraLite}
                         buttonColor={Colors.backgroundDark}
@@ -97,6 +97,7 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                             { label: "All", value: undefined },
                             { label: "Project", value: "project" },
                             { label: "Sent", value: "sent" },
+                            { label: "Unsent", value: "unsent" },
                         ]}
                     />
                 </View>

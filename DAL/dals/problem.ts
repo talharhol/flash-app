@@ -1,5 +1,5 @@
 import { Problem } from "../entities/problem";
-import { Filter } from "../tables/BaseTable";
+import { And, Filter } from "../tables/BaseTable";
 import { GroupProblemTable, ProblemTable, UserTickTable } from "../tables/tables";
 import { BaseDAL } from "../BaseDAL";
 import { collection, Query, query, Timestamp, where } from "firebase/firestore";
@@ -18,14 +18,27 @@ export class ProblemDAL extends BaseDAL<Problem> {
         if (params.type !== undefined) filters.push(ProblemTable.getField("type")!.eq(params.type));
         let query = ProblemTable.query(filters);
         if (params.tag !== undefined) {
-            query = query.Join(
-                UserTickTable,
-                UserTickTable.getField("problem_id")!.eq(ProblemTable.getField("id")!)
-            ).Filter(
-                UserTickTable.getField("user_id")!.eq(this._dal.currentUser.id)
-            ).Filter(
-                UserTickTable.getField("tag")!.eq(params.tag)
-            );
+            if (params.tag === "unsent") {
+                query = query.Join(
+                    UserTickTable,
+                    And(
+                        UserTickTable.getField("problem_id")!.eq(ProblemTable.getField("id")!),
+                        UserTickTable.getField("user_id")!.eq(this._dal.currentUser.id),
+                        UserTickTable.getField("tag")!.eq("sent")
+                    ),
+                    "LEFT JOIN"
+                );
+                query.Filter(UserTickTable.getField("problem_id")!.isNull());
+            } else {
+                query = query.Join(
+                    UserTickTable,
+                    UserTickTable.getField("problem_id")!.eq(ProblemTable.getField("id")!)
+                ).Filter(
+                    UserTickTable.getField("user_id")!.eq(this._dal.currentUser.id)
+                ).Filter(
+                    UserTickTable.getField("tag")!.eq(params.tag)
+                );
+            }
         }
         if (params.groupId !== undefined) {
             query = query.Join(
