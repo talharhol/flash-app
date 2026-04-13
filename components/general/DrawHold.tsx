@@ -5,6 +5,7 @@ import { imageSize, zoomSize } from './SizeContext';
 import { HoldType } from '@/DAL/hold';
 import SetRadiusModal from './SelectRadiusModal';
 import { useHoldDetection } from '@/hooks/useHoldDetection';
+import { Notifier } from 'react-native-notifier';
 type DetectHold = ReturnType<typeof useHoldDetection>['detectHold'];
 
 
@@ -41,6 +42,7 @@ const DrawHold: React.FC<{
     };
 
     const onTouchStart = (e: GestureResponderEvent) => {
+        Notifier.hideNotification();
         let x = e.nativeEvent.locationX / scaleRatio;
         let y = e.nativeEvent.locationY / scaleRatio;
         setCurrentPath(currentPaths.concat([{ x, y }]));
