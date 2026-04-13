@@ -13,7 +13,7 @@ import WithCancelNotification from "@/components/general/notifications/WithCance
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import PublishProblemModal from "./PublishProblemModal";
 import { Problem } from "@/DAL/entities/problem";
 import { useDal } from "@/DAL/DALService";
@@ -34,6 +34,7 @@ const CreateProblemScreen: React.FC = () => {
   const [holds, setHolds] = useState<HoldInterface[]>([]);
   const [aspectRatio, setAspectRatio] = useState(1.5);
   const [isCycle, _setIsCycle] = useState(false);
+  const [holdDetectionEnabled, setHoldDetectionEnabled] = useState(false);
 
   const setIsCycle = (value: boolean) => {
     if (value) setDrawingHoldType(new HoldType(HoldTypes.route));
@@ -142,6 +143,13 @@ const CreateProblemScreen: React.FC = () => {
         )
       }
       <ThemedView style={styles.headerContainer}>
+        <MaterialCommunityIcons
+          name="auto-fix"
+          size={35}
+          color={holdDetectionEnabled ? Colors.backgroundExtraLite : Colors.backgroundDark}
+          onPress={() => setHoldDetectionEnabled(v => !v)}
+          style={{ position: "absolute", left: 0, padding: 10 }}
+        />
         <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Create </ThemedText>
         <SwitchSelector
           initial={0}
@@ -224,7 +232,7 @@ const CreateProblemScreen: React.FC = () => {
           onDrawHoldCancel={() => setIsDrawingHold(false)}
           disableMovment={isDrawingHold}
           drawingHoldType={isDrawingHold ? drawingHoldType : null}
-          useHoldDetection={false}
+          useHoldDetection={holdDetectionEnabled}
         />
       </View>
     </View>

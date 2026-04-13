@@ -32,6 +32,7 @@ export function useHoldDetection(imageUri: string | null, enabled = true) {
     const encoderRef = useRef<TensorflowModel | null>(null);
     const decoderRef = useRef<TensorflowModel | null>(null);
     const cachedEmbeddingRef = useRef<{ uri: string; embedding: Embedding } | null>(null);
+    const hasStartedLoadingRef = useRef(false);
 
     const [modelsReady, setModelsReady] = useState(false);
     const [isEncoding, setIsEncoding]   = useState(false);
@@ -41,7 +42,8 @@ export function useHoldDetection(imageUri: string | null, enabled = true) {
     // InteractionManager doesn't work with native stack navigation (no JS interactions
     // are registered), so we use a plain timeout to guarantee the screen is visible first.
     useEffect(() => {
-        if (!enabled) return;
+        if (!enabled || hasStartedLoadingRef.current) return;
+        hasStartedLoadingRef.current = true;
         const timer = setTimeout(() => {
             console.log('[HoldDetection] Loading models...');
             Promise.all([
@@ -57,7 +59,7 @@ export function useHoldDetection(imageUri: string | null, enabled = true) {
                 .catch(e => console.warn('[HoldDetection] Failed to load models:', e));
         }, 600);
         return () => clearTimeout(timer);
-    }, []);
+    }, [enabled]);
 
     // ── Encode full image once when URI changes ──────────────────────────────
     // The encoder runs once per wall. All taps reuse this cached embedding.

@@ -12,7 +12,7 @@ import ActionValidationModal from "@/components/general/modals/ActionValidationM
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDal } from "@/DAL/DALService";
 import BasicButton from "@/components/general/Button";
 import { Colors } from "@/constants/Colors";
@@ -23,6 +23,7 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
     const { id } = useLocalSearchParams();
     const wall = dal.walls.Get({ id });
     const [isDrawingHold, setIsDrawingHold] = useState(false);
+    const [holdDetectionEnabled, setHoldDetectionEnabled] = useState(false);
     const [isExitRequest, setIsExitRequest] = useState(false);
     const [holdToDelete, setHoldToDelete] = useState<string | null>(null);
     const [aspectRatio, setAspectRatio] = useState(1.5);
@@ -108,11 +109,18 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
                     onDrawHoldCancel={() => setIsDrawingHold(false)}
                     drawingHoldType={isDrawingHold ? new HoldType(HoldTypes.route) : null}
                     aspectRatio={aspectRatio}
-                    useHoldDetection={true}
+                    useHoldDetection={holdDetectionEnabled}
                 />
             </View>
             <View style={styles.buttonContainer}>
                 <BasicButton text="New Hold" color={Colors.backgroundExtraDark} selected onPress={startDrawingHold} />
+                <MaterialCommunityIcons
+                    name="auto-fix"
+                    size={35}
+                    color={holdDetectionEnabled ? Colors.backgroundExtraLite : Colors.backgroundExtraDark}
+                    onPress={() => setHoldDetectionEnabled(v => !v)}
+                    style={{ position: "absolute", right: 10}}
+                />
             </View>
         </View>
     );
