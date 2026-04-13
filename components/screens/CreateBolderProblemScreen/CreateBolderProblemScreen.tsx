@@ -50,6 +50,7 @@ const CreateProblemScreen: React.FC = () => {
         setIsPublishModal(false);
         setDrawingHoldType(new HoldType(HoldTypes.route));
         setHolds([]);
+        setHoldDetectionEnabled(false);
       }, []
     )
   );

@@ -1,4 +1,5 @@
 import { ThemedText } from "@/components/general/ThemedText";
+import { Colors } from "@/constants/Colors";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import BasicModal from "./BasicModal";
@@ -11,13 +12,14 @@ const ActionValidationModal: React.FC<React.ComponentProps<typeof BasicModal> & 
 }> = ({ closeModal, approveAction, text, subText }) => {
     return (
         <BasicModal closeModal={closeModal} style={styles.modal}>
-            <ThemedText type="subtitle">{text}</ThemedText>
-            {subText && 
-            <ThemedText type="default">{subText}</ThemedText>
-}
+            <ThemedText type="subtitle2" style={{ color: Colors.backgroundDeep, textAlign: "center", paddingHorizontal: 16 }}>{text}</ThemedText>
+            {subText &&
+                <ThemedText type="default1" style={{ color: Colors.backgroundExtraDark, textAlign: "center", paddingHorizontal: 16 }}>{subText}</ThemedText>
+            }
+            <View style={styles.divider} />
             <View style={styles.buttonsContainer}>
-                <BasicButton text="cancel" color="#555" onPress={closeModal} style={styles.actionButton}/>
-                <BasicButton text="ok" color="#0056B3" onPress={() => {approveAction(); closeModal()}} style={styles.actionButton} />
+                <BasicButton text="Cancel" color={Colors.backgroundExtraDark} onPress={closeModal} style={styles.actionButton} />
+                <BasicButton text="OK" color={Colors.backgroundDeep} selected onPress={() => { approveAction(); closeModal(); }} style={styles.actionButton} />
             </View>
         </BasicModal>
     );
@@ -28,20 +30,28 @@ export default ActionValidationModal;
 const styles = StyleSheet.create({
     modal: {
         width: "80%",
-        height: 260,
-        backgroundColor: "#E8E8E8",
+        paddingVertical: 28,
+        backgroundColor: Colors.surface,
         borderRadius: 20,
-        opacity: 0.97,
-        justifyContent: "space-around",
-        alignItems: "center",
-    },
-    buttonsContainer: {flexDirection: "row", justifyContent: "space-around", width: "100%"},
-    actionButton: {
-        height: 40,
-        width: "40%",
-        borderRadius: 10,
-        borderWidth: 2,
         justifyContent: "center",
         alignItems: "center",
-    }
+        gap: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 8,
+        elevation: 6,
+    },
+    divider: {
+        height: 1,
+        width: "85%",
+        backgroundColor: Colors.backgroundLite,
+        borderRadius: 1,
+    },
+    buttonsContainer: { flexDirection: "row", justifyContent: "space-around", width: "100%" },
+    actionButton: {
+        height: 44,
+        width: "40%",
+        borderRadius: 12,
+    },
 });

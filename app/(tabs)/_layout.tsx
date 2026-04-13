@@ -10,8 +10,22 @@ export default function TabLayout() {
     <Tabs
       backBehavior='history'
       screenOptions={{
-        tabBarActiveTintColor: Colors.backgroundLite,
+        tabBarActiveTintColor: Colors.backgroundExtraLite,
+        tabBarInactiveTintColor: Colors.backgroundDark,
         headerShown: false,
+        tabBarStyle: {
+          backgroundColor: Colors.backgroundDeep,
+          borderTopColor: Colors.backgroundExtraDark,
+          borderTopWidth: 1,
+          height: 60,
+          paddingBottom: 8,
+          paddingTop: 4,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontFamily: 'Nunito',
+          fontWeight: '600',
+        },
       }}>
 
       <Tabs.Screen

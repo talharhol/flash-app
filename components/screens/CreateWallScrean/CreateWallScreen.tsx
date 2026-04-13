@@ -103,8 +103,20 @@ const CreateWallScreen: React.FC = ({ }) => {
                         : <MaterialCommunityIcons name="image-plus" size={150} color={Colors.backgroundExtraDark} />
                 }
             </TouchableWithoutFeedback>
-            <TextInput value={wallName} onChangeText={setWallName} placeholder="Wall's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: Colors.backgroundDark, padding: 10 }} />
-            <TextInput value={gymName} onChangeText={setGymName} placeholder="Gym's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: Colors.backgroundDark, padding: 10 }} />
+            <TextInput
+                value={wallName}
+                onChangeText={setWallName}
+                placeholder="Wall's name"
+                placeholderTextColor={Colors.backgroundExtraDark}
+                style={{ fontSize: 20, height: 56, width: "100%", borderRadius: 12, borderWidth: 2, borderColor: Colors.backgroundExtraDark, backgroundColor: Colors.backgroundLite, paddingHorizontal: 14, color: Colors.textDark, fontFamily: 'Nunito' }}
+            />
+            <TextInput
+                value={gymName}
+                onChangeText={setGymName}
+                placeholder="Gym's name"
+                placeholderTextColor={Colors.backgroundExtraDark}
+                style={{ fontSize: 20, height: 56, width: "100%", borderRadius: 12, borderWidth: 2, borderColor: Colors.backgroundExtraDark, backgroundColor: Colors.backgroundLite, paddingHorizontal: 14, color: Colors.textDark, fontFamily: 'Nunito' }}
+            />
             <View style={{ alignSelf: "center", height: 50, width: "50%", marginTop: 50 }}>
                 <SwitchSelector
                     initial={0}

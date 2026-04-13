@@ -39,6 +39,7 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
             () => {
                 setIsDrawingHold(false);
                 setHoldToDelete(null);
+                setHoldDetectionEnabled(false);
             }, []
         )
     );
@@ -113,13 +114,19 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
                 />
             </View>
             <View style={styles.buttonContainer}>
-                <BasicButton text="New Hold" color={Colors.backgroundExtraDark} selected onPress={startDrawingHold} />
+                <BasicButton text="New Hold" color={Colors.backgroundDeep} selected onPress={startDrawingHold} />
                 <MaterialCommunityIcons
                     name="auto-fix"
-                    size={35}
-                    color={holdDetectionEnabled ? Colors.backgroundExtraLite : Colors.backgroundExtraDark}
+                    size={32}
+                    color={holdDetectionEnabled ? Colors.backgroundExtraLite : Colors.backgroundDark}
                     onPress={() => setHoldDetectionEnabled(v => !v)}
-                    style={{ position: "absolute", right: 10}}
+                    style={{
+                        position: "absolute",
+                        right: 16,
+                        padding: 6,
+                        borderRadius: 20,
+                        backgroundColor: holdDetectionEnabled ? Colors.backgroundExtraDark : 'transparent',
+                    }}
                 />
             </View>
         </View>
@@ -139,12 +146,14 @@ const styles = StyleSheet.create({
         height: 100,
     },
     buttonContainer: {
-        display: "flex",
         flexDirection: "row",
-        justifyContent: "space-evenly",
-        marginTop: "auto",
-        marginBottom: "auto",
-
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+        backgroundColor: Colors.backgroundExtraDark,
+        borderTopWidth: 1,
+        borderTopColor: Colors.backgroundDeep,
     },
     container: {
         width: "100%",
