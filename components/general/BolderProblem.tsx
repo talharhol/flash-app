@@ -58,6 +58,7 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
     const zoomableViewRef = useRef<React.ElementRef<typeof Zoomable>>(null);
     const problemContainerRef = useRef(null);
     const tapStartRef = useRef<{ x: number; y: number } | null>(null);
+    const isDraggingRef = useRef(false);
     existingHolds = existingHolds ?? [];
     if (cycle) {
       existingHolds = ConvertToCycle(existingHolds);
@@ -191,13 +192,22 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
                   style={{ position: "absolute", top: 0, left: 0, zIndex: 1, width: imageWidth, height: imageHeight }}
                   onTouchStart={(e) => {
                     tapStartRef.current = { x: e.nativeEvent.locationX, y: e.nativeEvent.locationY };
+                    isDraggingRef.current = false;
+                  }}
+                  onTouchMove={(e) => {
+                    if (!tapStartRef.current) return;
+                    const { locationX: x, locationY: y } = e.nativeEvent;
+                    const { x: sx, y: sy } = tapStartRef.current;
+                    if (Math.abs(x - sx) > 4 || Math.abs(y - sy) > 4) {
+                      isDraggingRef.current = true;
+                    }
                   }}
                   onTouchEnd={(e) => {
                     if (!tapStartRef.current) return;
                     const { locationX: x, locationY: y } = e.nativeEvent;
                     const { x: sx, y: sy } = tapStartRef.current;
                     tapStartRef.current = null;
-                    if (Math.abs(x - sx) < 8 && Math.abs(y - sy) < 8) {
+                    if (!isDraggingRef.current && Math.abs(x - sx) < 4 && Math.abs(y - sy) < 4) {
                       handleTap(x, y);
                     }
                   }}
