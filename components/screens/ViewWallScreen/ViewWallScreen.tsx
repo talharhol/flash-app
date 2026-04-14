@@ -1,14 +1,15 @@
-import { StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import ThemedView from "@/components/general/ThemedView";
-import React, { useReducer, useState } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import BolderProblemPreview from '../../general/BolderProblemPreview';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import DisplayBolderProblemModal from '../../general/modals/DisplayBolderProblemModal';
 import FilterProblemssModal from '@/components/general/modals/FilterBoldersModal';
+import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
 import { Problem } from '@/DAL/entities/problem';
 import { useDal } from '@/DAL/DALService';
 import { Colors } from '@/constants/Colors';
@@ -16,14 +17,46 @@ import { ProblemFilter } from '@/DAL/IDAL';
 
 const ViewWallScreen: React.FC = () => {
     const router = useRouter();
-    const dal = useDal();
-    const wall = dal.walls.Get({ id: useLocalSearchParams().id as string });
-    const [displayedProblem, setDisplayedProblem] = useState<string | null>(null);
-    const [filterProblemsModal, setFilterProblemsModal] = useState(false);
+    const { id, problemId } = useLocalSearchParams<{ id: string; problemId?: string }>();
+
+    // Declare updateGUI before useDal so we can pass it as the update callback.
+    // This ensures auth state changes (updateScreen) trigger a re-render here.
     const [_, updateGUI] = useReducer(i => i + 1, 0);
-    const [filters, setFilters] = useState<ProblemFilter>(
-        dal.currentUser.getLastFilters({ id: wall.id })
-    );
+    const dal = useDal(updateGUI);
+
+    const [displayedProblem, setDisplayedProblem] = useState<string | null>(problemId ?? null);
+    const [filterProblemsModal, setFilterProblemsModal] = useState(false);
+    const [filters, setFilters] = useState<ProblemFilter>({});
+
+    useEffect(() => {
+        if (problemId) setDisplayedProblem(problemId);
+    }, [problemId]);
+
+    useEffect(() => {
+        if (dal.currentUser.name !== "tmp") {
+            setFilters(dal.currentUser.getLastFilters({ id }));
+        }
+    }, [dal.currentUser.name]);
+
+    // Wait for Firebase auth — currentUser is "tmp" until login completes
+    if (dal.currentUser.name === "tmp") {
+        return <ActivityIndicator style={{ flex: 1 }} />;
+    }
+
+    const isInUserWalls = dal.currentUser.walls.some(w => w.id === id);
+
+    if (!isInUserWalls) {
+        return (
+            <ActionValidationModal
+                closeModal={() => {}}
+                cancelAction={() => router.navigate("/")}
+                approveAction={() => { dal.currentUser.addWall(id).then(updateGUI); }}
+                text="This wall isn't in your collection. Would you like to add it?"
+            />
+        );
+    }
+
+    const wall = dal.walls.Get({ id });
 
     const handleFiltersChange = (f: ProblemFilter) => {
         setFilters(f);
@@ -32,7 +65,7 @@ const ViewWallScreen: React.FC = () => {
 
     const deleteProblem = (problem: Problem) => {
         dal.problems.Remove(problem).then(updateGUI);
-    }
+    };
 
     return (
         <ParallaxScrollView

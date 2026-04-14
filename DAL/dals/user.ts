@@ -182,8 +182,8 @@ export class UserDAL extends BaseDAL<User> {
         let query = UserConfigTable.query().Filter(
             UserConfigTable.getField("user_id")!.eq(user.id)
         ).Select([UserConfigTable.getField("filters")!]);
-        let data = query.First<{filters?: any}>(this._dal.db!);
-        return data.filters ?? {}; 
+        let data = query.All<{filters?: any}>(this._dal.db!);
+        return data[0]?.filters ?? {}; 
     }
     
     public async setFilters(user: User, filters: {[key: string]: ProblemFilter}): Promise<void> {

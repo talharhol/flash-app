@@ -8,7 +8,7 @@ import { Wall } from "@/DAL/entities/wall";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
 import { Image, useWindowDimensions, View } from "react-native";
-import * as Sharing from 'expo-sharing';
+import Share from 'react-native-share';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { IDAL } from "@/DAL/IDAL";
@@ -22,6 +22,7 @@ function RightAction(
     w: number,
     problemRef: React.RefObject<BolderProblemComponent>,
     problem: Problem,
+    wall: Wall,
     dal: IDAL,
     tag: TickTag | undefined,
     onSetTag: (tag: TickTag | undefined) => void,
@@ -30,7 +31,14 @@ function RightAction(
     return (
         <View style={{ height: h, width: w, backgroundColor: Colors.backgroundExtraDark, borderRadius: 8, alignItems: "center", justifyContent: "center" }}>
             <MaterialCommunityIcons name="share" onPress={async () => {
-                Sharing.shareAsync(await problemRef.current?.getProblemUrl()!);
+                const imageUri = await problemRef.current?.getProblemUrl()!;
+                const shareUrl = `https://flash-b9950.web.app/?wallId=${wall.id}&problemId=${problem.id}`;
+                await Share.open({
+                    title: problem.name,
+                    message: `Check out "${problem.name}" (${grades[problem.grade]}) on Flash App!\n${shareUrl}`,
+                    url: imageUri,
+                    failOnCancel: false,
+                });
             }} size={50} color={Colors.backgroundExtraLite} style={{ position: "absolute", top: 0, right: 0, margin: 10 }} />
 
             <MaterialCommunityIcons
@@ -104,7 +112,7 @@ const BolderProblemPreview: React.FC<{
     return (
         <Swipeable
             containerStyle={{ height: height, width: width, alignSelf: "center" }}
-            renderRightActions={() => RightAction(height, width, problemRef, problem, dal, tag, handleSetTag, deleteProblem)}
+            renderRightActions={() => RightAction(height, width, problemRef, problem, wall, dal, tag, handleSetTag, deleteProblem)}
         >
             <TouchableWithoutFeedback onPress={onPress}>
                 <ThemedView style={{ backgroundColor: "rgba(50, 50, 50, 0.5)", flexDirection: "row", justifyContent: 'space-between', alignItems: "center", position: "absolute", width: "100%", paddingLeft: 5, paddingRight: 5, zIndex: 1, borderTopRightRadius: 8, borderTopLeftRadius: 8 }}>

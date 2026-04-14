@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Flash App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #1a1a1a;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      text-align: center;
+    }
+    h1 { color: #A89070; font-size: 2rem; margin-bottom: 12px; }
+    p  { color: #bbb; font-size: 1rem; line-height: 1.5; }
+    .btn {
+      display: none;
+      margin-top: 24px;
+      padding: 14px 28px;
+      background: #A89070;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Flash App</h1>
+  <p id="msg">Opening boulder problem…</p>
+  <a id="fallback" class="btn" href="#">Download Flash App</a>
+
+  <script>
+    const params   = new URLSearchParams(window.location.search);
+    const wallId   = params.get('wallId');
+    const problemId = params.get('problemId');
+
+    if (wallId && problemId) {
+      window.location.href = 'myapp://ViewWall?id=' + wallId + '&problemId=' + problemId;
+
+      setTimeout(function () {
+        document.getElementById('msg').textContent =
+          "Couldn't open Flash App. Make sure it's installed.";
+
+        var btn = document.getElementById('fallback');
+        var isAndroid = /android/i.test(navigator.userAgent);
+        btn.href = isAndroid
+          ? 'https://play.google.com/store/apps/details?id=com.climbing.flashApp'
+          : 'https://apps.apple.com/app/id?';   // replace with your iOS App Store link
+        btn.style.display = 'inline-block';
+      }, 2000);
+    } else {
+      document.getElementById('msg').textContent = 'Invalid link.';
+    }
+  </script>
+</body>
+</html>

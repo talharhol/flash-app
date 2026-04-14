@@ -7,9 +7,11 @@ import BasicButton from "../Button";
 
 const ActionValidationModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     approveAction: () => void;
+    cancelAction?: () => void;
     text: string;
     subText?: string;
-}> = ({ closeModal, approveAction, text, subText }) => {
+}> = ({ closeModal, approveAction, cancelAction, text, subText }) => {
+    cancelAction = cancelAction ? cancelAction : closeModal;
     return (
         <BasicModal closeModal={closeModal} style={styles.modal}>
             <ThemedText type="subtitle2" style={{ color: Colors.backgroundDeep, textAlign: "center", paddingHorizontal: 16 }}>{text}</ThemedText>
@@ -18,7 +20,7 @@ const ActionValidationModal: React.FC<React.ComponentProps<typeof BasicModal> & 
             }
             <View style={styles.divider} />
             <View style={styles.buttonsContainer}>
-                <BasicButton text="Cancel" color={Colors.backgroundExtraDark} onPress={closeModal} style={styles.actionButton} />
+                <BasicButton text="Cancel" color={Colors.backgroundExtraDark} onPress={cancelAction} style={styles.actionButton} />
                 <BasicButton text="OK" color={Colors.backgroundDeep} selected onPress={() => { approveAction(); closeModal(); }} style={styles.actionButton} />
             </View>
         </BasicModal>
