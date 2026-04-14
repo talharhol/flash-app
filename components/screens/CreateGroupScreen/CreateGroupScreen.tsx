@@ -75,7 +75,8 @@ const ConfigGroupScreen: React.FC = ({ }) => {
             image: { uri: selectedImage },
             members: [dal.currentUser.id, ...selectedUsers],
             admins: [dal.currentUser.id],
-            walls: selectedWalls
+            walls: selectedWalls,
+            problems: group?.problems ?? [],
         });
         if (!group)
             dal.groups.Add(new_group).then(

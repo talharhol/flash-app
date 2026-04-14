@@ -41,7 +41,7 @@ const ViewWallScreen: React.FC = () => {
                 <ThemedView style={styles.headerContainer}>
                     <MaterialCommunityIcons
                         onPress={() => router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id } })}
-                        name='plus-thick' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", left: 10, padding: 5 }} />
+                        name='plus-thick' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", left: 10, padding: 5, zIndex: 1 }} />
                     <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{wall.name}@{wall.gym}</ThemedText>
                     <MaterialCommunityIcons
                         onPress={() => setFilterProblemsModal(true)}

@@ -23,7 +23,7 @@ const SkiaHold: React.FC<{
         path={path}
         color={transparent ? "transparent" : hold.color}
         style="stroke"
-        strokeWidth={2}
+        strokeWidth={4}
         strokeJoin="round"
         strokeCap="round"
       />
