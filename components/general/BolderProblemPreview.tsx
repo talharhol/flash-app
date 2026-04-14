@@ -110,6 +110,17 @@ const BolderProblemPreview: React.FC<{
     };
 
     return (
+        <View style={{
+            height: height,
+            width: width,
+            alignSelf: "center",
+            borderRadius: 8,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.6,
+            shadowRadius: 12,
+            elevation: 16,
+        }}>
         <Swipeable
             containerStyle={{ height: height, width: width, alignSelf: "center" }}
             renderRightActions={() => RightAction(height, width, problemRef, problem, wall, dal, tag, handleSetTag, deleteProblem)}
@@ -138,6 +149,7 @@ const BolderProblemPreview: React.FC<{
                 />
             </TouchableWithoutFeedback>
         </Swipeable>
+        </View>
     )
 }
 

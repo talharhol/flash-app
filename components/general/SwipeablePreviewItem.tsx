@@ -21,9 +21,18 @@ const SwipablePreviewItem: React.FC<React.ComponentProps<typeof PreviewItem> & {
     onPress?: () => void;
 }> = ({ hiddenComponent, onPress, ...props }) => {
     return (
-        <Swipeable
+        <View style={{
+                borderRadius: 8,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
+                elevation: 4,
+            }}>
+                <Swipeable
             renderRightActions={() => RightAction(hiddenComponent)}
         >
+            
             <TouchableWithoutFeedback onPress={onPress}>
                 <PreviewItem
                     {...props}
@@ -32,6 +41,8 @@ const SwipablePreviewItem: React.FC<React.ComponentProps<typeof PreviewItem> & {
                 />
             </TouchableWithoutFeedback>
         </Swipeable>
+            </View>
+
     )
 }
 

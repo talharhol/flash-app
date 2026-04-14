@@ -8,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import ThemedView from '@/components/general/ThemedView';
+import { Colors } from '@/constants/Colors';
 import React from 'react';
 
 const HEADER_HEIGHT = 250;
@@ -56,7 +57,7 @@ const ParallaxScrollView: React.FC<React.ComponentProps<typeof ThemedView> & {
           <Animated.View
             style={[
               styles.header,
-              { backgroundColor: "#A89070" },
+              { backgroundColor: Colors.backgroundDark },
               headerAnimatedStyle,
             ]}>
             {headerImage}
@@ -74,7 +75,7 @@ export default ParallaxScrollView;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#C2B798"
+    backgroundColor: Colors.backgroundLite
   },
   header: {
     paddingTop: Platform.OS === "ios" ? 50 : 0,

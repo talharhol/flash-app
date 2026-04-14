@@ -1,3 +1,5 @@
+const palette = require('./constants/palette');
+
 export default {
   "expo": {
     "newArchEnabled": true,
@@ -59,7 +61,7 @@ export default {
       "url": "https://u.expo.dev/f5e2c7e4-6342-41e2-bb63-b8a94104db4c"
     },
     "androidStatusBar": {
-      "backgroundColor": "#A89070",
+      "backgroundColor": palette.backgroundDeep,
       "translucent": false
     }
   }

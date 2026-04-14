@@ -1,17 +1,18 @@
 
-export const Colors = {
-  backgroundExtraLite: '#E3D6B2',
-  backgroundLite: '#C2B798',
-  backgroundDark: '#A89070',
-  backgroundExtraDark: '#826F57',
-  backgroundDeep: '#5C4A36',
-  textLite: "white",
-  textDark: "black",
-  tickProject: '#E8A838',
-  tickSent: '#4CAF50',
-  danger: '#C0392B',
-  confirm: '#2E7D32',
-  surface: '#F5EDD8',
-  border: '#A89070',
-  shadow: '#3B2A1A',
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+export const Colors = require('./palette') as {
+  backgroundExtraLite: string;
+  backgroundLite: string;
+  backgroundDark: string;
+  backgroundExtraDark: string;
+  backgroundDeep: string;
+  textLite: string;
+  textDark: string;
+  tickProject: string;
+  tickSent: string;
+  danger: string;
+  confirm: string;
+  surface: string;
+  border: string;
+  shadow: string;
 };
