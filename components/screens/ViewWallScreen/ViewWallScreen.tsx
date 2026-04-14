@@ -1,4 +1,4 @@
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
@@ -27,6 +27,7 @@ const ViewWallScreen: React.FC = () => {
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(problemId ?? null);
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
     const [filters, setFilters] = useState<ProblemFilter>({});
+    const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
     useEffect(() => {
         if (problemId) setDisplayedProblem(problemId);
@@ -68,48 +69,60 @@ const ViewWallScreen: React.FC = () => {
     };
 
     return (
-        <ParallaxScrollView
-            headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-            headerImage={
-                <ThemedView style={styles.headerContainer}>
-                    <MaterialCommunityIcons
-                        onPress={() => router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id } })}
-                        name='plus-thick' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", left: 10, padding: 5, zIndex: 1 }} />
-                    <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{wall.name}@{wall.gym}</ThemedText>
-                    <MaterialCommunityIcons
-                        onPress={() => setFilterProblemsModal(true)}
-                        name='filter-plus' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", right: 10, padding: 5 }} />
-                </ThemedView>
-            }>
-            {
-                filterProblemsModal &&
-                <FilterProblemssModal
-                    dal={dal}
-                    closeModal={() => setFilterProblemsModal(false)}
-                    initialFilters={filters}
-                    onFiltersChange={handleFiltersChange}
-                    wallId={wall.id}
-                />
-            }
-            {
-                displayedProblem &&
-                <DisplayBolderProblemModal
-                    problem={dal.problems.Get({ id: displayedProblem })}
-                    closeModal={setDisplayedProblem.bind(this, null)} />
-            }
-            {
-                dal.problems.List({ wallId: wall.id, ...filters }).map(problem =>
-                    <BolderProblemPreview
-                        key={problem.id}
+        <View style={{ flex: 1 }}>
+            <ParallaxScrollView
+                headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+                headerImage={
+                    <ThemedView style={styles.headerContainer}>
+                        <MaterialCommunityIcons
+                            onPress={() => router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id } })}
+                            name='plus-thick' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", left: 10, padding: 5, zIndex: 1 }} />
+                        <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{wall.name}@{wall.gym}</ThemedText>
+                        <MaterialCommunityIcons
+                            onPress={() => setFilterProblemsModal(true)}
+                            name='filter-plus' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", right: 10, padding: 5 }} />
+                    </ThemedView>
+                }>
+                {
+                    filterProblemsModal &&
+                    <FilterProblemssModal
                         dal={dal}
-                        onPress={() => setDisplayedProblem(problem.id)}
-                        wall={wall}
-                        problem={problem}
-                        deleteProblem={deleteProblem}
+                        closeModal={() => setFilterProblemsModal(false)}
+                        initialFilters={filters}
+                        onFiltersChange={handleFiltersChange}
+                        wallId={wall.id}
                     />
-                )
-            }
-        </ParallaxScrollView>
+                }
+                {
+                    displayedProblem &&
+                    <DisplayBolderProblemModal
+                        problem={dal.problems.Get({ id: displayedProblem })}
+                        closeModal={setDisplayedProblem.bind(this, null)} />
+                }
+                <View style={viewMode === 'grid' ? { flexDirection: 'row', flexWrap: 'wrap', rowGap: 12 } : {rowGap: 12}}>
+                    {
+                        dal.problems.List({ wallId: wall.id, ...filters }).map(problem =>
+                            <View key={problem.id} style={viewMode === 'grid' ? { width: '50%', alignItems: 'center' } : {}}>
+                                <BolderProblemPreview
+                                    dal={dal}
+                                    compact={viewMode === 'grid'}
+                                    onPress={() => setDisplayedProblem(problem.id)}
+                                    wall={wall}
+                                    problem={problem}
+                                    deleteProblem={deleteProblem}
+                                />
+                            </View>
+                        )
+                    }
+                </View>
+            </ParallaxScrollView>
+            <View style={styles.fab}>
+                <MaterialCommunityIcons
+                    onPress={() => setViewMode(v => v === 'list' ? 'grid' : 'list')}
+                    name={viewMode === 'grid' ? 'view-list' : 'view-grid'}
+                    size={28} color={Colors.backgroundExtraLite} />
+            </View>
+        </View>
     );
 }
 
@@ -120,6 +133,19 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         width: "100%",
         flexDirection: "row",
+    },
+    fab: {
+        position: 'absolute',
+        bottom: 24,
+        right: 24,
+        backgroundColor: Colors.backgroundExtraDark,
+        borderRadius: 28,
+        padding: 10,
+        elevation: 6,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.4,
+        shadowRadius: 6,
     },
 });
 

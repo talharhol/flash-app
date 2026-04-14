@@ -27,9 +27,18 @@ function RightAction(
     tag: TickTag | undefined,
     onSetTag: (tag: TickTag | undefined) => void,
     deleteProblem?: (problem: Problem) => void,
+    compact?: boolean,
 ) {
+    const iconLg = compact ? 30 : 50;
+    const iconMd = compact ? 25 : 40;
+    const iconSm = compact ? 20 : 35;
+    const margin = compact ? 5 : 10;
+    const logoSize = compact ? 75 : 150;
+    const sentLeft = compact ? 26 : 60;
+
     return (
         <View style={{ height: h, width: w, backgroundColor: Colors.backgroundExtraDark, borderRadius: 8, alignItems: "center", justifyContent: "center" }}>
+            <Image source={require("../../assets/images/loggo.png")} style={{ height: logoSize, width: logoSize }} />
             <MaterialCommunityIcons name="share" onPress={async () => {
                 const imageUri = await problemRef.current?.getProblemUrl()!;
                 const shareUrl = `https://flash-b9950.web.app/?wallId=${wall.id}&problemId=${problem.id}`;
@@ -39,35 +48,34 @@ function RightAction(
                     url: imageUri,
                     failOnCancel: false,
                 });
-            }} size={50} color={Colors.backgroundExtraLite} style={{ position: "absolute", top: 0, right: 0, margin: 10 }} />
+            }} size={iconLg} color={Colors.backgroundExtraLite} style={{ position: "absolute", top: 0, right: 0, margin }} />
 
             <MaterialCommunityIcons
                 onPress={() => problemRef.current?.exportProblem()}
-                name="download" size={50} color={Colors.backgroundExtraLite} style={{ position: "absolute", bottom: 0, right: 0, margin: 10 }} />
+                name="download" size={iconLg} color={Colors.backgroundExtraLite} style={{ position: "absolute", bottom: 0, right: 0, margin }} />
 
             {problem.setter === dal.currentUser.id &&
                 <MaterialCommunityIcons
                     onPress={() => deleteProblem?.(problem)}
-                    name="delete" size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", top: 0, left: 0, margin: 10 }} />
+                    name="delete" size={iconSm} color={Colors.backgroundExtraLite} style={{ position: "absolute", top: 0, left: 0, margin }} />
             }
 
             <MaterialCommunityIcons
                 name={tag === "project" ? "flag" : "flag-outline"}
-                size={40}
+                size={iconMd}
                 color={tag === "project" ? Colors.tickProject : Colors.backgroundExtraLite}
                 onPress={() => onSetTag(tag === "project" ? undefined : "project")}
-                style={{ position: "absolute", bottom: 0, left: 0, margin: 10 }}
+                style={{ position: "absolute", bottom: 0, left: 0, margin }}
             />
 
             <MaterialCommunityIcons
                 name={tag === "sent" ? "check-circle" : "check-circle-outline"}
-                size={40}
+                size={iconMd}
                 color={tag === "sent" ? Colors.tickSent : Colors.backgroundExtraLite}
                 onPress={() => onSetTag(tag === "sent" ? undefined : "sent")}
-                style={{ position: "absolute", bottom: 0, left: 60, margin: 10 }}
+                style={{ position: "absolute", bottom: 0, left: sentLeft, margin }}
             />
 
-            <Image source={require("../../assets/images/loggo.png")} style={{ height: 150, width: 150 }} />
         </View>
     );
 }
@@ -78,10 +86,11 @@ const BolderProblemPreview: React.FC<{
     problem: Problem;
     dal: IDAL;
     aspectRatio?: number;
+    compact?: boolean;
     onPress?: () => void;
     deleteProblem?: (problem: Problem) => void;
-}> = ({ wall, problem, dal, aspectRatio, onPress, deleteProblem }) => {
-    const scale = 0.8;
+}> = ({ wall, problem, dal, aspectRatio, compact, onPress, deleteProblem }) => {
+    const scale = compact ? 0.38 : 0.8;
     aspectRatio = aspectRatio ?? 1.5;
     const screenDimension = useWindowDimensions();
     const [height, setHeight] = useState(0);
@@ -100,7 +109,7 @@ const BolderProblemPreview: React.FC<{
             setHeight(tmpHeight);
             setWidth(tmpWidth);
         });
-    }, []);
+    }, [scale]);
 
     const problemRef = useRef<BolderProblemComponent>(null);
 
@@ -123,19 +132,19 @@ const BolderProblemPreview: React.FC<{
         }}>
         <Swipeable
             containerStyle={{ height: height, width: width, alignSelf: "center" }}
-            renderRightActions={() => RightAction(height, width, problemRef, problem, wall, dal, tag, handleSetTag, deleteProblem)}
+            renderRightActions={() => RightAction(height, width, problemRef, problem, wall, dal, tag, handleSetTag, deleteProblem, compact)}
         >
             <TouchableWithoutFeedback onPress={onPress}>
-                <ThemedView style={{ backgroundColor: "rgba(50, 50, 50, 0.5)", flexDirection: "row", justifyContent: 'space-between', alignItems: "center", position: "absolute", width: "100%", paddingLeft: 5, paddingRight: 5, zIndex: 1, borderTopRightRadius: 8, borderTopLeftRadius: 8 }}>
-                    <ThemedText lite>{problem.name}</ThemedText>
-                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                <ThemedView style={{ backgroundColor: "rgba(50, 50, 50, 0.5)", flexDirection: "row", justifyContent: 'space-between', alignItems: "center", position: "absolute", width: "100%", paddingLeft: compact ? 3 : 5, paddingRight: compact ? 3 : 5, zIndex: 1, borderTopRightRadius: 8, borderTopLeftRadius: 8 }}>
+                    <ThemedText lite style={{ fontSize: compact ? 10 : 16 }}>{compact && problem.name.length > 16 ? problem.name.slice(0, 16) + '…' : problem.name}</ThemedText>
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: compact ? 3 : 6 }}>
                         {tag === "project" &&
-                            <MaterialCommunityIcons name="flag" size={16} color={Colors.tickProject} />
+                            <MaterialCommunityIcons name="flag" size={compact ? 10 : 16} color={Colors.tickProject} />
                         }
                         {tag === "sent" &&
-                            <MaterialCommunityIcons name="check-circle" size={16} color={Colors.tickSent} />
+                            <MaterialCommunityIcons name="check-circle" size={compact ? 10 : 16} color={Colors.tickSent} />
                         }
-                        <ThemedText lite>{grades[problem.grade]}</ThemedText>
+                        <ThemedText lite style={{ fontSize: compact ? 10 : 16 }}>{grades[problem.grade]}</ThemedText>
                     </View>
                 </ThemedView>
                 <BolderProblem
