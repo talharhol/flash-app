@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import { Path, Text, SkPath, matchFont } from "@shopify/react-native-skia";
 import { Platform } from "react-native";
 
-const FONT_SIZE = 30;
+const FONT_SIZE = 40;
 
 const SkiaHold: React.FC<{
   hold: HoldInterface;
@@ -13,6 +13,7 @@ const SkiaHold: React.FC<{
   const labelFont = useMemo(() => matchFont({
     fontFamily: Platform.OS === "ios" ? "Helvetica" : "sans-serif",
     fontSize: FONT_SIZE,
+    fontWeight: "bold",
   }), []);
 
   const labelPoint = useMemo(() => path.getPoint(0), [path]);

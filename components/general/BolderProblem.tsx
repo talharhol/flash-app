@@ -145,13 +145,13 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
     const handleTap = (canvasX: number, canvasY: number) => {
       const pathX = canvasX / pathScale;
       const pathY = canvasY / pathScale;
-      for (const { hold, path } of sortedExistingHolds) {
+      for (const { hold, path } of [...sortedExistingHolds].reverse()) {
         if (path.contains(pathX, pathY)) {
           onHoldClick?.(hold.id);
           return;
         }
       }
-      for (const { hold, path } of sortedConfiguredHolds) {
+      for (const { hold, path } of [...sortedConfiguredHolds].reverse()) {
         if (path.contains(pathX, pathY)) {
           onConfiguredHoldClick?.(hold.id);
           return;

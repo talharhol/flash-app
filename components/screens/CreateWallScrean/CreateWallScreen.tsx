@@ -9,6 +9,7 @@ import ParallaxScrollView from "@/components/general/ParallaxScrollView";
 import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
 import SelectImageModal from "@/components/general/modals/SelectImageModal";
+import TooManyPublicWallsModal from "@/components/general/modals/TooManyPublicWallsModal";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import BasicButton from "@/components/general/Button";
 import { Wall } from "@/DAL/entities/wall";
@@ -27,6 +28,7 @@ const CreateWallScreen: React.FC = ({ }) => {
     const [isPublic, setIsPublic] = useState(false);
     const [wallName, setWallName] = useState('');
     const [gymName, setGymName] = useState('');
+    const [showTooManyPublicModal, setShowTooManyPublicModal] = useState(false);
     useFocusEffect(
         useCallback(
             () => {
@@ -35,34 +37,36 @@ const CreateWallScreen: React.FC = ({ }) => {
                 setIsPublic(false);
                 setWallName('');
                 setGymName('');
+                setShowTooManyPublicModal(false);
             }, []
         )
     );
-    const createWall = () => {
-        if (!selectedImage) {
-            alert("missing image");
-            return
-        }
-
-        if (!wallName) {
-            alert("missing wall name");
-            return
-        }
-        if (!gymName) {
-            alert("missing gym name");
-            return
-        }
-
+    const doCreateWall = (asPublic: boolean) => {
         let wall = new Wall({
             name: wallName,
             gym: gymName,
             image: { uri: selectedImage },
-            isPublic: isPublic,
+            isPublic: asPublic,
             owner: dal.currentUser.id
         });
         dal.walls.Add(wall).then(
             () => router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } })
         );
+    };
+    const createWall = () => {
+        if (!selectedImage) { alert("missing image"); return; }
+        if (!wallName) { alert("missing wall name"); return; }
+        if (!gymName) { alert("missing gym name"); return; }
+
+        if (isPublic) {
+            const publicWalls = dal.currentUser.ownedWalls.filter(wall => wall.isPublic);
+            if (publicWalls.length >= 3) {
+                setShowTooManyPublicModal(true);
+                return;
+            }
+        }
+
+        doCreateWall(isPublic);
     };
     const SaveWallImage: (uri: string) => void = (uri) => {
         setSelectedImage(uri);
@@ -85,12 +89,17 @@ const CreateWallScreen: React.FC = ({ }) => {
 
                 </ThemedView>
             }>
-            {
-                selectImageModal &&
+            {selectImageModal &&
                 <SelectImageModal
                     closeModal={() => setSelectImageModal(false)}
                     getImage={SaveWallImage}
                     text='Choose source'
+                />
+            }
+            {showTooManyPublicModal &&
+                <TooManyPublicWallsModal
+                    closeModal={() => setShowTooManyPublicModal(false)}
+                    onMakePrivate={() => { setShowTooManyPublicModal(false); doCreateWall(false); }}
                 />
             }
             <TouchableWithoutFeedback onPress={() => setSelectImageModal(true)}
