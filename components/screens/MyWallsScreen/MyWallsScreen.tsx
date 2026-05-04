@@ -101,7 +101,8 @@ const MyWallsScreen: React.FC = () => {
                                         size={25}
                                     />
                                     <MaterialCommunityIcons
-                                        onPress={() => router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } })}
+                                        onPress={() => router.push({ pathname: '/UpdateWallImage', params: { id: wall.id } })
+                            }//router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } })}
                                         size={35} name='puzzle-edit' color={Colors.backgroundExtraLite}
                                     />
                                 </View>

@@ -106,6 +106,12 @@ export default function TabLayout() {
           href: null,
         }}
       />
+      <Tabs.Screen
+        name="UpdateWallImage"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
