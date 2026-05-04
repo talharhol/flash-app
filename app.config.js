@@ -8,7 +8,7 @@ export default {
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/loggo.png",
-    "scheme": "myapp",
+    "scheme": "flash-app",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/loggo.png",
@@ -16,12 +16,13 @@ export default {
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "icon": "./assets/images/loggo-ios.png",
       "supportsTablet": true,
       "googleServicesFile": process.env.GOOGLE_SERVICES_PLIST ?? "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/loggo.png",
+        "foregroundImage": "./assets/images/loggo-android.png",
         "backgroundColor": "#ffffff"
       },
       "googleServicesFile": process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",

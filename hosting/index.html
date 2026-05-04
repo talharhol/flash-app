@@ -46,7 +46,7 @@
     const problemId = params.get('problemId');
 
     if (wallId && problemId) {
-      window.location.href = 'myapp://ViewWall?id=' + wallId + '&problemId=' + problemId;
+      window.location.href = 'flash-app://ViewWall?id=' + wallId + '&problemId=' + problemId;
 
       setTimeout(function () {
         document.getElementById('msg').textContent =
