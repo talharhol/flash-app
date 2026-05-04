@@ -29,8 +29,8 @@ export interface IDAL extends EventEmitter {
     isLogin: boolean;
     compressImage(uri: string): Promise<string>;
     updateScreen(): void;
-    signin(params: {email?: string, password?: string, googleCredential?: OAuthCredential}): Promise<void>
-    signup(params: {email?: string, password?: string, googleCredential?: OAuthCredential}): Promise<void>
+    signin(params: {email?: string, password?: string, oauthCredential?: OAuthCredential}): Promise<void>
+    signup(params: {email?: string, password?: string, oauthCredential?: OAuthCredential}): Promise<void>
 } 
 
 export interface ProblemFilter {

@@ -99,6 +99,8 @@ export class WallTable extends BaseTable {
             alias: "configuredHolds"
         }),
         new Field({ name: "owner", type: "TEXT" }),
+        new Field({ name: "lat", type: "REAL" }),
+        new Field({ name: "lng", type: "REAL" }),
     ];
 }
 

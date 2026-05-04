@@ -11,7 +11,9 @@ export class WallDAL extends BaseDAL<Wall> {
         gym?: string,
         userId?: string,
         ids?: string[],
-        id?: string
+        id?: string,
+        lat?: number,
+        lng?: number,
     }): Wall[] {
         let filters: Filter[] = [];
         let selectedIds: string[] = [];
@@ -48,9 +50,18 @@ export class WallDAL extends BaseDAL<Wall> {
                 WallTable.getField("id")!.in(selectedIds)
             );
         }
-        let results = this.table.getAll<{ [key: string]: any }>(
-            ...WallTable.filter(filters), this._dal.db!
-        )
+        
+        let query = WallTable.query(filters);
+        if (params.lat !== undefined && params.lng !== undefined) {
+            let latField = WallTable.getField("lat")!.toSQL();
+            let lngField = WallTable.getField("lng")!.toSQL();
+            let cosLat = Math.cos(params.lat * Math.PI / 180);
+            query.Sort(new Filter({
+                sql: `IFNULL((${latField} - ?) * (${latField} - ?) + (${lngField} - ?) * (${lngField} - ?) * ? * ?, 9e18)`,
+                value: [params.lat, params.lat, params.lng, params.lng, cosLat, cosLat]
+            }), "ASC");
+        }
+        let results = query.All<{ [key: string]: any }>(this._dal.db!);
 
         return results.map(r => {
             let entity = WallTable.toEntity(r, Wall);

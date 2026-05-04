@@ -35,6 +35,7 @@ export default {
     },
     "plugins": [
       "expo-router",
+      "expo-apple-authentication",
       "expo-font",
       "expo-sqlite",
       "@react-native-firebase/app",
@@ -43,6 +44,12 @@ export default {
         "react-native-fast-tflite",
         {
           "enableCoreMLDelegate": true
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow flash-app to use your location to tag walls and find walls near you."
         }
       ]
     ],

@@ -46,6 +46,8 @@ const migrations = [
                 new Field({ name: "is_public", type: "BOOLEAN" }),
                 new Field({ name: "holds", type: "TEXT" }),
                 new Field({ name: "owner", type: "TEXT" }),
+                new Field({ name: "lat", type: "REAL" }),
+                new Field({ name: "lng", type: "REAL" }),
             ];
         }
 

@@ -3,8 +3,10 @@ import {
     Image,
     StyleSheet,
     TextInput,
+    TouchableOpacity,
     View,
 } from "react-native";
+import * as Location from "expo-location";
 import ParallaxScrollView from "@/components/general/ParallaxScrollView";
 import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
@@ -28,6 +30,9 @@ const CreateWallScreen: React.FC = ({ }) => {
     const [isPublic, setIsPublic] = useState(false);
     const [wallName, setWallName] = useState('');
     const [gymName, setGymName] = useState('');
+    const [lat, setLat] = useState('');
+    const [lng, setLng] = useState('');
+    const [fetchingLocation, setFetchingLocation] = useState(false);
     const [showTooManyPublicModal, setShowTooManyPublicModal] = useState(false);
     useFocusEffect(
         useCallback(
@@ -37,17 +42,44 @@ const CreateWallScreen: React.FC = ({ }) => {
                 setIsPublic(false);
                 setWallName('');
                 setGymName('');
+                setLat('');
+                setLng('');
                 setShowTooManyPublicModal(false);
             }, []
         )
     );
+    const useCurrentLocation = async () => {
+        try {
+            setFetchingLocation(true);
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                alert('Location permission denied');
+                return;
+            }
+            const pos = await Location.getCurrentPositionAsync({});
+            setLat(String(pos.coords.latitude));
+            setLng(String(pos.coords.longitude));
+        } catch (e) {
+            alert('Failed to get location');
+        } finally {
+            setFetchingLocation(false);
+        }
+    };
+    const parseCoord = (v: string): number | undefined => {
+        const n = parseFloat(v);
+        return Number.isFinite(n) ? n : undefined;
+    };
     const doCreateWall = (asPublic: boolean) => {
+        const latNum = parseCoord(lat);
+        const lngNum = parseCoord(lng);
         let wall = new Wall({
             name: wallName,
             gym: gymName,
             image: { uri: selectedImage },
             isPublic: asPublic,
-            owner: dal.currentUser.id
+            owner: dal.currentUser.id,
+            lat: latNum,
+            lng: lngNum,
         });
         dal.walls.Add(wall).then(
             () => router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } })
@@ -126,6 +158,34 @@ const CreateWallScreen: React.FC = ({ }) => {
                 placeholderTextColor={Colors.backgroundExtraDark}
                 style={{ fontSize: 20, height: 56, width: "100%", borderRadius: 12, borderWidth: 2, borderColor: Colors.backgroundExtraDark, backgroundColor: Colors.backgroundLite, paddingHorizontal: 14, color: Colors.textDark, fontFamily: 'Nunito' }}
             />
+            <View style={{ flexDirection: "row", gap: 8, width: "100%" }}>
+                <TextInput
+                    value={lat}
+                    onChangeText={setLat}
+                    placeholder="Latitude"
+                    placeholderTextColor={Colors.backgroundExtraDark}
+                    keyboardType="numbers-and-punctuation"
+                    style={{ flex: 1, fontSize: 18, height: 56, borderRadius: 12, borderWidth: 2, borderColor: Colors.backgroundExtraDark, backgroundColor: Colors.backgroundLite, paddingHorizontal: 14, color: Colors.textDark, fontFamily: 'Nunito' }}
+                />
+                <TextInput
+                    value={lng}
+                    onChangeText={setLng}
+                    placeholder="Longitude"
+                    placeholderTextColor={Colors.backgroundExtraDark}
+                    keyboardType="numbers-and-punctuation"
+                    style={{ flex: 1, fontSize: 18, height: 56, borderRadius: 12, borderWidth: 2, borderColor: Colors.backgroundExtraDark, backgroundColor: Colors.backgroundLite, paddingHorizontal: 14, color: Colors.textDark, fontFamily: 'Nunito' }}
+                />
+            </View>
+            <TouchableOpacity
+                onPress={useCurrentLocation}
+                disabled={fetchingLocation}
+                style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, height: 44, borderRadius: 12, borderWidth: 2, borderColor: Colors.backgroundExtraDark, backgroundColor: Colors.backgroundLite, opacity: fetchingLocation ? 0.6 : 1 }}
+            >
+                <Ionicons name="location-outline" size={20} color={Colors.textDark} />
+                <ThemedText style={{ color: Colors.textDark }}>
+                    {fetchingLocation ? "Getting location..." : "Use current location"}
+                </ThemedText>
+            </TouchableOpacity>
             <View style={{ alignSelf: "center", height: 50, width: "50%", marginTop: 50 }}>
                 <SwitchSelector
                     initial={0}

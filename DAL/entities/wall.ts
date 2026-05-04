@@ -1,9 +1,10 @@
 import { Image, ImageResolvedAssetSource, ImageSourcePropType } from "react-native";
 import { HoldInterface } from "../hold";
 import { Entity, EntityProps } from "./BaseEntity";
+import { GeoPoint } from "firebase/firestore";
 
 
-export type WallProps = EntityProps & { name: string, gym: string, image: ImageSourcePropType, angle?: number, configuredHolds?: HoldInterface[], isPublic?: boolean, owner: string }
+export type WallProps = EntityProps & { name: string, gym: string, image: ImageSourcePropType, angle?: number, configuredHolds?: HoldInterface[], isPublic?: boolean, owner: string, lat?: number, lng?: number }
 
 export class Wall extends Entity {
     name: string;
@@ -13,8 +14,10 @@ export class Wall extends Entity {
     configuredHolds: HoldInterface[];
     isPublic: boolean;
     owner: string
-    
-    constructor({ name, gym, image, angle, configuredHolds, isPublic, owner, ...props }: WallProps) {
+    lat?: number;
+    lng?: number;
+
+    constructor({ name, gym, image, angle, configuredHolds, isPublic, owner, lat, lng, ...props }: WallProps) {
         super(props);
         this.name = name;
         this.gym = gym;
@@ -23,10 +26,12 @@ export class Wall extends Entity {
         this.configuredHolds = configuredHolds || [];
         this.isPublic = Boolean(isPublic ?? false);
         this.owner = owner
+        this.lat = lat;
+        this.lng = lng;
     }
 
     public toRemoteDoc(): { [key: string]: any} {
-        return {
+        const doc: { [key: string]: any } = {
             ...super.toRemoteDoc(),
             name: this.name,
             gym: this.gym,
@@ -34,7 +39,11 @@ export class Wall extends Entity {
             configuredHolds: this.configuredHolds.map(hold => { return {...hold}}),
             owner: this.owner,
             isPublic: this.isPublic
+        };
+        if (this.lat !== undefined && this.lng !== undefined) {
+            doc.location = new GeoPoint(this.lat, this.lng);
         }
+        return doc;
     }
 
     protected async uploadAssets(data: { [key: string]: any }): Promise<{ [key: string]: any }> {
@@ -69,7 +78,9 @@ export class Wall extends Entity {
             configuredHolds: data.configuredHolds,
             owner: data.owner,
             isPublic: Boolean(data.isPublic),
-            image: image
+            image: image,
+            lat: data.location?.latitude,
+            lng: data.location?.longitude,
         });
     };
 

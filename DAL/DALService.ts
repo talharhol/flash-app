@@ -190,12 +190,12 @@ class DalService extends EventEmitter {
         return compressed.uri;
     }
 
-    public async signin(params: {email?: string, password?: string, googleCredential?: OAuthCredential}) {
+    public async signin(params: {email?: string, password?: string, oauthCredential?: OAuthCredential}) {
         try {
             if (params.email && params.password)
                 await signInWithEmailAndPassword(this._remoteAuth, params.email, params.password);
-            else if (params.googleCredential)
-                await signInWithCredential(this._remoteAuth, params.googleCredential);
+            else if (params.oauthCredential)
+                await signInWithCredential(this._remoteAuth, params.oauthCredential);
         } catch (e) {
             console.error("failed to login to firebase", e);
             alert("failed to login");
@@ -207,11 +207,11 @@ class DalService extends EventEmitter {
         this._currentUser = undefined;
     }
 
-    public async signup(params: {email?: string, password?: string, googleCredential?: OAuthCredential}) {
+    public async signup(params: {email?: string, password?: string, oauthCredential?: OAuthCredential}) {
         if (params.email && params.password)
             await createUserWithEmailAndPassword(this._remoteAuth, params.email, params.password);
-        else if (params.googleCredential) 
-            signInWithCredential(this._remoteAuth, params.googleCredential);
+        else if (params.oauthCredential)
+            signInWithCredential(this._remoteAuth, params.oauthCredential);
     }
 
     public onAuthStateChanged(callback: NextOrObserver<AuthUser | null>) {

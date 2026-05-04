@@ -133,16 +133,18 @@ export class Query {
     private filters: Filter[];
     private joins: { table: typeof BaseTable, on: Filter, joinType: string }[];
     private distinct: boolean;
+    private sorts: { target: Field | Filter, direction: "ASC" | "DESC" }[];
 
     constructor({ table, selectedFields, filters }: { table: typeof BaseTable, selectedFields?: Field[], filters?: Filter[] }) {
         this.table = table;
         this.selectedFields = selectedFields || [];
-        if (filters === undefined || filters.length == 0) 
+        if (filters === undefined || filters.length == 0)
             this.filters = [new Filter({sql: "1 = 1", value: []})];
-        else 
+        else
             this.filters = filters;
         this.joins = [];
         this.distinct = false;
+        this.sorts = [];
     }
 
     public Filter(filter: Filter): Query {
@@ -169,6 +171,11 @@ export class Query {
         return this;
     }
 
+    public Sort(target: Field | Filter, direction: "ASC" | "DESC" = "ASC"): Query {
+        this.sorts.push({ target, direction });
+        return this;
+    }
+
     public ToSQL(): [string, any[]] {
         if (this.selectedFields.length == 0) {
             this.table.fields.map(f => {
@@ -184,14 +191,19 @@ export class Query {
             join += ` ${j.joinType} ${j.table.tableName} ON ${j.on.sql}`
         });
         let joinValues = this.joins.map(j => j.on.value);
+        let orderBy = this.sorts.length > 0
+            ? `ORDER BY ${this.sorts.map(s => `${s.target instanceof Field ? s.target.toSQL() : s.target.sql} ${s.direction}`).join(", ")}`
+            : "";
+        let sortValues = this.sorts.map(s => s.target instanceof Field ? [] : s.target.value);
         return [
             `
-SELECT${this.distinct ? ' DISTINCT' : ''} ${select} 
+SELECT${this.distinct ? ' DISTINCT' : ''} ${select}
 FROM ${this.table.tableName}
 ${join}
 WHERE ${filters}
+${orderBy}
 `,
-            joinValues.concat(filtersValues).flat(Infinity)
+            joinValues.concat(filtersValues).concat(sortValues).flat(Infinity)
         ]
     }
 

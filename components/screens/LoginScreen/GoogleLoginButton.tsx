@@ -22,7 +22,7 @@ const GoogleLoginButton: React.FC<{
           await GoogleSignin.hasPlayServices();
           const resp = await GoogleSignin.signIn();
           if (isSuccessResponse(resp)) 
-              await dal.signin({googleCredential: GoogleAuthProvider.credential(resp.data.idToken)});
+              await dal.signin({oauthCredential: GoogleAuthProvider.credential(resp.data.idToken)});
         } catch (error) {
           console.error(error);
           alert("google login failed");

@@ -5,6 +5,7 @@ import { ThemedText } from "../../general/ThemedText";
 import { Colors } from "@/constants/Colors";
 import BasicButton from "../../general/Button";
 import GoogleLoginButton from "./GoogleLoginButton";
+import AppleLoginButton from "./AppleLoginButton";
 
 
 const LoginView: React.FC
@@ -54,6 +55,7 @@ const LoginView: React.FC
            selected/>
           
           <GoogleLoginButton dal={dal} />
+          <AppleLoginButton dal={dal} />
 
           <BasicButton
             text={`Switch to ${isSignUp ? "Login" : "Sign Up"}`}
