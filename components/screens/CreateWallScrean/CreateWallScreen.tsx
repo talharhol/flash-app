@@ -6,7 +6,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import * as Location from "expo-location";
+import { getCurrentLocation } from "@/utils/location";
 import ParallaxScrollView from "@/components/general/ParallaxScrollView";
 import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
@@ -51,15 +51,12 @@ const CreateWallScreen: React.FC = ({ }) => {
     const useCurrentLocation = async () => {
         try {
             setFetchingLocation(true);
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                alert('Location permission denied');
-                return;
+            const location = await getCurrentLocation();
+            if (location) {
+                setLat(String(location.lat));
+                setLng(String(location.lng));
             }
-            const pos = await Location.getCurrentPositionAsync({});
-            setLat(String(pos.coords.latitude));
-            setLng(String(pos.coords.longitude));
-        } catch (e) {
+        } catch {
             alert('Failed to get location');
         } finally {
             setFetchingLocation(false);

@@ -171,7 +171,7 @@ export class Query {
         return this;
     }
 
-    public Sort(target: Field | Filter, direction: "ASC" | "DESC" = "ASC"): Query {
+    public Sort(target: Field | {sql: string, value: any}, direction: "ASC" | "DESC" = "ASC"): Query {
         this.sorts.push({ target, direction });
         return this;
     }

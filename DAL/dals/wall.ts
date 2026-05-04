@@ -56,13 +56,13 @@ export class WallDAL extends BaseDAL<Wall> {
             let latField = WallTable.getField("lat")!.toSQL();
             let lngField = WallTable.getField("lng")!.toSQL();
             let cosLat = Math.cos(params.lat * Math.PI / 180);
-            query.Sort(new Filter({
+            let f = {
                 sql: `IFNULL((${latField} - ?) * (${latField} - ?) + (${lngField} - ?) * (${lngField} - ?) * ? * ?, 9e18)`,
                 value: [params.lat, params.lat, params.lng, params.lng, cosLat, cosLat]
-            }), "ASC");
+            };
+            query.Sort(f, "ASC");
         }
         let results = query.All<{ [key: string]: any }>(this._dal.db!);
-
         return results.map(r => {
             let entity = WallTable.toEntity(r, Wall);
             entity.setDAL(this._dal);
