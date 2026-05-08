@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, useState, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import {
     Canvas, Circle, Fill, Group,
@@ -12,6 +12,32 @@ import { useCanvasRef } from '@shopify/react-native-skia';
 
 export type CornerPoint = { x: number; y: number };
 export type AnchorPoint = { x: number; y: number; tx: number; ty: number };
+
+const MAX_DISPLAY_PX = 1024;
+
+function useResizedImage(uri: string): ReturnType<typeof useImage> {
+    const [image, setImage] = useState<ReturnType<typeof useImage>>(null);
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            const data = await Skia.Data.fromURI(uri);
+            if (cancelled) return;
+            const src = Skia.Image.MakeImageFromEncoded(data);
+            if (!src || cancelled) return;
+            const w = src.width(), h = src.height();
+            const scale = Math.min(1, MAX_DISPLAY_PX / Math.max(w, h));
+            if (scale >= 1) { if (!cancelled) setImage(src); return; }
+            const dw = Math.round(w * scale), dh = Math.round(h * scale);
+            const surf = Skia.Surface.Make(dw, dh);
+            if (!surf || cancelled) { if (!cancelled) setImage(src); return; }
+            surf.getCanvas().drawImageRect(src, { x: 0, y: 0, width: w, height: h }, { x: 0, y: 0, width: dw, height: dh }, Skia.Paint());
+            surf.flush();
+            if (!cancelled) setImage(surf.makeImageSnapshot());
+        })();
+        return () => { cancelled = true; };
+    }, [uri]);
+    return image;
+}
 
 // corners order: [TL, TR, BL, BR]
 const DISPLAY_SCALE = 0.75;
@@ -141,7 +167,7 @@ const CornerAdjustCanvas = forwardRef<CornerAdjustRef, Props>(({
     anchors = [], onAnchorsChange, showOverlay = true,
 }, ref) => {
     const oldImage = useImage(oldImageUri);
-    const newImage = useImage(newImageUri);
+    const newImage = useResizedImage(newImageUri);
     const canvasRef = useCanvasRef();
     const activeRef = useRef<number | null>(null);
     const cornersRef = useRef(corners);
@@ -155,8 +181,14 @@ const CornerAdjustCanvas = forwardRef<CornerAdjustRef, Props>(({
 
             const oldW = oldImage.width();
             const oldH = oldImage.height();
-            const iW = newImage.width();
-            const iH = newImage.height();
+
+            const captureData = await Skia.Data.fromURI(newImageUri);
+            const captureImg = captureData ? Skia.Image.MakeImageFromEncoded(captureData) : newImage;
+            if (!captureImg) return null;
+
+            const iW = captureImg.width();
+            const iH = captureImg.height();
+            const texScale = captureImg.width() / newImage.width();
 
             const maxW = width * DISPLAY_SCALE;
             const maxH = height * DISPLAY_SCALE;
@@ -180,7 +212,7 @@ const CornerAdjustCanvas = forwardRef<CornerAdjustRef, Props>(({
             const skTex = texCoords.map((t, i) =>
                 i < 4
                     ? vec([0, iW, 0, iW][i], [0, 0, iH, iH][i])
-                    : vec(t.tx, t.ty)
+                    : vec(t.tx * texScale, t.ty * texScale)
             );
 
             const vertices = Skia.MakeVertices(
@@ -193,7 +225,7 @@ const CornerAdjustCanvas = forwardRef<CornerAdjustRef, Props>(({
             if (!vertices) return null;
 
             const paint = Skia.Paint();
-            const shader = newImage.makeShaderOptions(
+            const shader = captureImg.makeShaderOptions(
                 TileMode.Clamp, TileMode.Clamp,
                 FilterMode.Linear, MipmapMode.None,
             );
