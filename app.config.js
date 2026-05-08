@@ -34,6 +34,7 @@ export default {
       "favicon": "./assets/images/loggo.png"
     },
     "plugins": [
+      "./plugins/withOnnxRuntimeVersion",
       "expo-router",
       "expo-apple-authentication",
       "expo-font",

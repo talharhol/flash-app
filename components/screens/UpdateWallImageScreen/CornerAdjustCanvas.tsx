@@ -11,9 +11,9 @@ import * as FileSystem from 'expo-file-system';
 import { useCanvasRef } from '@shopify/react-native-skia';
 
 export type CornerPoint = { x: number; y: number };
+export type AnchorPoint = { x: number; y: number; tx: number; ty: number };
 
 // corners order: [TL, TR, BL, BR]
-// Letterboxes the image inside the canvas maintaining aspect ratio.
 const DISPLAY_SCALE = 0.75;
 
 export function defaultCorners(canvasW: number, canvasH: number, imgW?: number, imgH?: number): CornerPoint[] {
@@ -34,6 +34,87 @@ export function defaultCorners(canvasW: number, canvasH: number, imgW?: number, 
     ];
 }
 
+// Returns barycentric coords [wa, wb, wc] of point P in triangle ABC
+function baryCoords(
+    px: number, py: number,
+    ax: number, ay: number,
+    bx: number, by: number,
+    cx: number, cy: number,
+): [number, number, number] {
+    const denom = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy);
+    if (Math.abs(denom) < 1e-10) return [1 / 3, 1 / 3, 1 / 3];
+    const wa = ((by - cy) * (px - cx) + (cx - bx) * (py - cy)) / denom;
+    const wb = ((cy - ay) * (px - cx) + (ax - cx) * (py - cy)) / denom;
+    return [wa, wb, 1 - wa - wb];
+}
+
+function pointInTriangle(
+    px: number, py: number,
+    ax: number, ay: number,
+    bx: number, by: number,
+    cx: number, cy: number,
+): boolean {
+    const [wa, wb, wc] = baryCoords(px, py, ax, ay, bx, by, cx, cy);
+    return wa >= -1e-6 && wb >= -1e-6 && wc >= -1e-6;
+}
+
+type Vec2 = { x: number; y: number };
+type TexCoord = { tx: number; ty: number };
+
+function buildMesh(corners: CornerPoint[], anchors: AnchorPoint[]): {
+    positions: Vec2[];
+    texCoords: TexCoord[];
+    indices: number[];
+} {
+    const positions: Vec2[] = [
+        ...corners.map(c => ({ x: c.x, y: c.y })),
+        ...anchors.map(a => ({ x: a.x, y: a.y })),
+    ];
+    // Tex coords for corners are placeholders — caller fills iW/iH ratios
+    // We store raw values; corners use 0/1 normalized, anchors use stored tx/ty
+    // Actually we store raw pixel coords: corners = (0,0),(iW,0),(0,iH),(iW,iH)
+    // but we don't know iW/iH here, so return anchors tex and let caller supply corners
+    const texCoords: TexCoord[] = [
+        { tx: 0, ty: 0 },   // TL — caller overwrites with iW/iH
+        { tx: 1, ty: 0 },   // TR
+        { tx: 0, ty: 1 },   // BL
+        { tx: 1, ty: 1 },   // BR
+        ...anchors.map(a => ({ tx: a.tx, ty: a.ty })),
+    ];
+
+    // Start with quad's 2 triangles: TL=0,TR=1,BL=2,BR=3
+    let triangles: [number, number, number][] = [[0, 1, 2], [1, 3, 2]];
+
+    // Insert each anchor via triangle subdivision
+    for (let ai = 0; ai < anchors.length; ai++) {
+        const vi = 4 + ai;
+        const px = anchors[ai].x;
+        const py = anchors[ai].y;
+
+        let found = -1;
+        for (let ti = 0; ti < triangles.length; ti++) {
+            const [i0, i1, i2] = triangles[ti];
+            if (pointInTriangle(
+                px, py,
+                positions[i0].x, positions[i0].y,
+                positions[i1].x, positions[i1].y,
+                positions[i2].x, positions[i2].y,
+            )) {
+                found = ti;
+                break;
+            }
+        }
+        if (found === -1) continue;
+        const [i0, i1, i2] = triangles[found];
+        triangles.splice(found, 1, [i0, i1, vi], [i1, i2, vi], [i2, i0, vi]);
+    }
+
+    const indices: number[] = [];
+    for (const [a, b, c] of triangles) indices.push(a, b, c);
+
+    return { positions, texCoords, indices };
+}
+
 interface Props {
     oldImageUri: string;
     newImageUri: string;
@@ -41,6 +122,8 @@ interface Props {
     height: number;
     corners: CornerPoint[];
     onCornersChange: (corners: CornerPoint[]) => void;
+    anchors?: AnchorPoint[];
+    onAnchorsChange?: (anchors: AnchorPoint[]) => void;
     showOverlay?: boolean;
 }
 
@@ -50,10 +133,12 @@ export interface CornerAdjustRef {
 
 const SNAP_RADIUS = 52;
 const HANDLE_R = 14;
-const HANDLE_COLORS = ['#FF5252', '#4CAF50', '#2196F3', '#FF9800'] as const;
+const CORNER_COLORS = ['#FF5252', '#4CAF50', '#2196F3', '#FF9800'] as const;
+const ANCHOR_COLOR = '#CE93D8';
 
 const CornerAdjustCanvas = forwardRef<CornerAdjustRef, Props>(({
-    oldImageUri, newImageUri, width, height, corners, onCornersChange, showOverlay = true,
+    oldImageUri, newImageUri, width, height, corners, onCornersChange,
+    anchors = [], onAnchorsChange, showOverlay = true,
 }, ref) => {
     const oldImage = useImage(oldImageUri);
     const newImage = useImage(newImageUri);
@@ -61,6 +146,8 @@ const CornerAdjustCanvas = forwardRef<CornerAdjustRef, Props>(({
     const activeRef = useRef<number | null>(null);
     const cornersRef = useRef(corners);
     cornersRef.current = corners;
+    const anchorsRef = useRef(anchors);
+    anchorsRef.current = anchors;
 
     useImperativeHandle(ref, () => ({
         async capture() {
@@ -71,7 +158,6 @@ const CornerAdjustCanvas = forwardRef<CornerAdjustRef, Props>(({
             const iW = newImage.width();
             const iH = newImage.height();
 
-            // Old image display rect on canvas (same as defaultCorners logic)
             const maxW = width * DISPLAY_SCALE;
             const maxH = height * DISPLAY_SCALE;
             const dispScale = Math.min(maxW / oldW, maxH / oldH);
@@ -80,22 +166,29 @@ const CornerAdjustCanvas = forwardRef<CornerAdjustRef, Props>(({
             const ox = (width - fw) / 2;
             const oy = (height - fh) / 2;
 
-            // Off-screen surface at old image pixel dimensions
             const surface = Skia.Surface.Make(oldW, oldH);
             if (!surface) return null;
             const skCanvas = surface.getCanvas();
 
-            // Transform corners: canvas display space -> old image pixel space
-            const positions = cornersRef.current.map(c =>
-                vec((c.x - ox) / fw * oldW, (c.y - oy) / fh * oldH)
+            const cur = cornersRef.current;
+            const anc = anchorsRef.current;
+            const { positions, texCoords, indices } = buildMesh(cur, anc);
+
+            const skPositions = positions.map(p =>
+                vec((p.x - ox) / fw * oldW, (p.y - oy) / fh * oldH)
             );
-            const texCoords = [vec(0, 0), vec(iW, 0), vec(0, iH), vec(iW, iH)];
+            const skTex = texCoords.map((t, i) =>
+                i < 4
+                    ? vec([0, iW, 0, iW][i], [0, 0, iH, iH][i])
+                    : vec(t.tx, t.ty)
+            );
+
             const vertices = Skia.MakeVertices(
                 VertexMode.Triangles,
-                positions,
-                texCoords,
+                skPositions,
+                skTex,
                 undefined,
-                [0, 1, 2, 1, 3, 2],
+                indices,
             );
             if (!vertices) return null;
 
@@ -105,7 +198,6 @@ const CornerAdjustCanvas = forwardRef<CornerAdjustRef, Props>(({
                 FilterMode.Linear, MipmapMode.None,
             );
             paint.setShader(shader);
-
             skCanvas.drawVertices(vertices, BlendMode.SrcOver, paint);
             surface.flush();
 
@@ -122,27 +214,24 @@ const CornerAdjustCanvas = forwardRef<CornerAdjustRef, Props>(({
     const iW = newImage.width();
     const iH = newImage.height();
 
-    // 4-point quad: [TL, TR, BL, BR]
-    const verts = [
-        vec(corners[0].x, corners[0].y),
-        vec(corners[1].x, corners[1].y),
-        vec(corners[2].x, corners[2].y),
-        vec(corners[3].x, corners[3].y),
-    ];
-    const tex = [
-        vec(0, 0),
-        vec(iW, 0),
-        vec(0, iH),
-        vec(iW, iH),
-    ];
-    // Two triangles: (TL,TR,BL) and (TR,BR,BL)
-    const indices = [0, 1, 2, 1, 3, 2];
+    const { positions, texCoords, indices } = buildMesh(corners, anchors);
+
+    const skPositions = positions.map(p => vec(p.x, p.y));
+    const skTex = texCoords.map((t, i) =>
+        i < 4
+            ? vec([0, iW, 0, iW][i], [0, 0, iH, iH][i])
+            : vec(t.tx, t.ty)
+    );
 
     const nearest = (x: number, y: number): number | null => {
         let best = -1, bestD = SNAP_RADIUS;
         cornersRef.current.forEach((c, i) => {
             const d = Math.hypot(c.x - x, c.y - y);
             if (d < bestD) { best = i; bestD = d; }
+        });
+        anchorsRef.current.forEach((a, i) => {
+            const d = Math.hypot(a.x - x, a.y - y);
+            if (d < bestD) { best = 4 + i; bestD = d; }
         });
         return best === -1 ? null : best;
     };
@@ -151,18 +240,64 @@ const CornerAdjustCanvas = forwardRef<CornerAdjustRef, Props>(({
         .runOnJS(true)
         .onBegin((e) => { activeRef.current = nearest(e.x, e.y); })
         .onUpdate((e) => {
-            const i = activeRef.current;
-            if (i === null) return;
-            onCornersChange(cornersRef.current.map((c, j) =>
-                j === i
-                    ? { x: Math.max(0, Math.min(width, e.x)), y: Math.max(0, Math.min(height, e.y)) }
-                    : c
-            ));
+            const active = activeRef.current;
+            if (active === null) return;
+            const x = Math.max(0, Math.min(width, e.x));
+            const y = Math.max(0, Math.min(height, e.y));
+            if (active < 4) {
+                onCornersChange(cornersRef.current.map((c, j) =>
+                    j === active ? { x, y } : c
+                ));
+            } else {
+                const ai = active - 4;
+                onAnchorsChange?.(anchorsRef.current.map((a, j) =>
+                    j === ai ? { ...a, x, y } : a
+                ));
+            }
         })
         .onEnd(() => { activeRef.current = null; });
 
+    const longPress = Gesture.LongPress()
+        .runOnJS(true)
+        .minDuration(450)
+        .onStart((e) => {
+            if (nearest(e.x, e.y) !== null) return;
+
+            const cur = cornersRef.current;
+            const anc = anchorsRef.current;
+            const { positions: pts, texCoords: tcs, indices: idx } = buildMesh(cur, anc);
+            const skTcs = tcs.map((t, i) =>
+                i < 4
+                    ? { tx: [0, iW, 0, iW][i], ty: [0, 0, iH, iH][i] }
+                    : t
+            );
+
+            for (let i = 0; i < idx.length; i += 3) {
+                const i0 = idx[i], i1 = idx[i + 1], i2 = idx[i + 2];
+                if (pointInTriangle(
+                    e.x, e.y,
+                    pts[i0].x, pts[i0].y,
+                    pts[i1].x, pts[i1].y,
+                    pts[i2].x, pts[i2].y,
+                )) {
+                    const [wa, wb, wc] = baryCoords(
+                        e.x, e.y,
+                        pts[i0].x, pts[i0].y,
+                        pts[i1].x, pts[i1].y,
+                        pts[i2].x, pts[i2].y,
+                    );
+                    const tx = wa * skTcs[i0].tx + wb * skTcs[i1].tx + wc * skTcs[i2].tx;
+                    const ty = wa * skTcs[i0].ty + wb * skTcs[i1].ty + wc * skTcs[i2].ty;
+                    onAnchorsChange?.([...anc, { x: e.x, y: e.y, tx, ty }]);
+                    break;
+                }
+            }
+        });
+
+    const gesture = Gesture.Race(longPress, pan);
+
     return (
-        <GestureDetector gesture={pan}>
+        <GestureDetector gesture={gesture}>
             <View style={{ width, height }}>
                 <Canvas ref={canvasRef} style={StyleSheet.absoluteFill}>
                     <Fill color="#000" />
@@ -178,14 +313,20 @@ const CornerAdjustCanvas = forwardRef<CornerAdjustRef, Props>(({
                         />
                     )}
                     <Group opacity={0.5}>
-                        <Vertices vertices={verts} textures={tex} indices={indices} mode="triangles">
+                        <Vertices vertices={skPositions} textures={skTex} indices={indices} mode="triangles">
                             <ImageShader image={newImage} fit="fill" rect={rect(0, 0, iW, iH)} />
                         </Vertices>
                     </Group>
                     {showOverlay && corners.map((c, i) => (
                         <React.Fragment key={i}>
                             <Circle cx={c.x} cy={c.y} r={HANDLE_R + 4} color="rgba(255,255,255,0.85)" />
-                            <Circle cx={c.x} cy={c.y} r={HANDLE_R} color={HANDLE_COLORS[i]} />
+                            <Circle cx={c.x} cy={c.y} r={HANDLE_R} color={CORNER_COLORS[i]} />
+                        </React.Fragment>
+                    ))}
+                    {showOverlay && anchors.map((a, i) => (
+                        <React.Fragment key={`anchor-${i}`}>
+                            <Circle cx={a.x} cy={a.y} r={HANDLE_R + 4} color="rgba(255,255,255,0.85)" />
+                            <Circle cx={a.x} cy={a.y} r={HANDLE_R} color={ANCHOR_COLOR} />
                         </React.Fragment>
                     ))}
                 </Canvas>

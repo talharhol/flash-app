@@ -1,5 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { autoAlignLightGlue } from './autoAlign';
+import { isModelDownloaded, downloadModel } from './lightGlueLocal';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useDal } from '@/DAL/DALService';
@@ -7,7 +9,7 @@ import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/general/ThemedText';
 import { Image } from 'react-native';
-import CornerAdjustCanvas, { CornerAdjustRef, CornerPoint, defaultCorners } from './CornerAdjustCanvas';
+import CornerAdjustCanvas, { AnchorPoint, CornerAdjustRef, CornerPoint, defaultCorners } from './CornerAdjustCanvas';
 import { CameraWithOverlay } from './CameraWithOverlay';
 
 type Step = 'pick' | 'camera' | 'adjust' | 'saving';
@@ -21,14 +23,28 @@ const UpdateWallImageScreen: React.FC = () => {
     const [step, setStep] = useState<Step>('pick');
     const [newImageUri, setNewImageUri] = useState('');
     const [corners, setCorners] = useState<CornerPoint[]>([]);
+    const [anchors, setAnchors] = useState<AnchorPoint[]>([]);
     const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+    const [oldImageSize, setOldImageSize] = useState<{ width: number; height: number } | null>(null);
+    const [isAligning, setIsAligning] = useState(false);
+    const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
+    const [originalNewImageUri, setOriginalNewImageUri] = useState<string | null>(null);
     const adjustRef = useRef<CornerAdjustRef>(null);
 
     const oldImageUri = wall.image.uri;
 
+    useEffect(() => {
+        Image.getSize(oldImageUri, (w, h) => setOldImageSize({ width: w, height: h }));
+    }, [oldImageUri]);
+
     const onImagePicked = (uri: string) => {
         setNewImageUri(uri);
-        setCorners(defaultCorners(canvasSize.width, canvasSize.height));
+        setOriginalNewImageUri(null);
+        setTimeout(() => {
+        console.log(defaultCorners(canvasSize.width, canvasSize.height, oldImageSize?.width, oldImageSize?.height));
+        setCorners(defaultCorners(canvasSize.width, canvasSize.height, oldImageSize?.width, oldImageSize?.height));
+        }, 1000);
+        setAnchors([]);
         setStep('adjust');
     };
 
@@ -42,8 +58,46 @@ const UpdateWallImageScreen: React.FC = () => {
 
     const onCanvasLayout = (w: number, h: number) => {
         if (canvasSize.width === w && canvasSize.height === h) return;
+        const firstLayout = canvasSize.width === 0;
         setCanvasSize({ width: w, height: h });
-        setCorners(defaultCorners(w, h));
+        if (firstLayout) setCorners(defaultCorners(w, h, oldImageSize?.width, oldImageSize?.height));
+    };
+
+    const handleAutoAlign = async () => {
+        if (!canvasSize.width || !newImageUri) return;
+        if (originalNewImageUri) {
+            setNewImageUri(originalNewImageUri);
+            setOriginalNewImageUri(null);
+            setCorners(defaultCorners(canvasSize.width, canvasSize.height, oldImageSize?.width, oldImageSize?.height));
+            return;
+        }
+        const ready = await isModelDownloaded();
+        if (!ready) {
+            setDownloadProgress(0);
+            try {
+                await downloadModel(setDownloadProgress);
+            } catch {
+                setDownloadProgress(null);
+                return;
+            }
+            setDownloadProgress(null);
+        }
+        setIsAligning(true);
+        try {
+            const warpedUri = await autoAlignLightGlue(oldImageUri, newImageUri, canvasSize.width, canvasSize.height);
+            console.log(defaultCorners(canvasSize.width, canvasSize.height, oldImageSize?.width, oldImageSize?.height));
+            setCorners(defaultCorners(canvasSize.width, canvasSize.height, oldImageSize?.width, oldImageSize?.height));
+            if (warpedUri) {
+                setOriginalNewImageUri(newImageUri);
+                setNewImageUri(warpedUri);
+                console.log(defaultCorners(canvasSize.width, canvasSize.height, oldImageSize?.width, oldImageSize?.height));
+                setCorners(defaultCorners(canvasSize.width, canvasSize.height, oldImageSize?.width, oldImageSize?.height));
+            }
+        } catch (error) {
+            console.error('Error in autoAlignLightGlue:', error);
+        } finally {
+            setIsAligning(false);
+        }
     };
 
     const save = async () => {
@@ -105,6 +159,8 @@ const UpdateWallImageScreen: React.FC = () => {
                         height={canvasSize.height}
                         corners={corners}
                         onCornersChange={setCorners}
+                        anchors={anchors}
+                        onAnchorsChange={setAnchors}
                         showOverlay
                     />
                 )}
@@ -118,6 +174,8 @@ const UpdateWallImageScreen: React.FC = () => {
                         height={canvasSize.height}
                         corners={corners}
                         onCornersChange={setCorners}
+                        anchors={anchors}
+                        onAnchorsChange={setAnchors}
                         showOverlay={false}
                     />
                 )}
@@ -143,11 +201,39 @@ const UpdateWallImageScreen: React.FC = () => {
             )}
             {step === 'adjust' && (
                 <View style={styles.hintBar}>
-                    <ThemedText style={styles.hint}>Drag corners to align new image with old wall</ThemedText>
-                    <TouchableOpacity onPress={() => setStep('pick')} style={styles.rePickBtn}>
-                        <Ionicons name="refresh-outline" size={18} color={Colors.backgroundExtraLite} />
-                        <ThemedText style={styles.hint}>Re-pick</ThemedText>
-                    </TouchableOpacity>
+                    {downloadProgress !== null ? (
+                        <View style={styles.aligningRow}>
+                            <ActivityIndicator size="small" color="#7DF9FF" />
+                            <ThemedText style={[styles.hint, { color: '#7DF9FF' }]}>
+                                Downloading model… {Math.round(downloadProgress * 100)}%
+                            </ThemedText>
+                        </View>
+                    ) : isAligning ? (
+                        <View style={styles.aligningRow}>
+                            <ActivityIndicator size="small" color={Colors.backgroundExtraLite} />
+                            <ThemedText style={styles.hint}>Auto-aligning…</ThemedText>
+                        </View>
+                    ) : (
+                        <>
+                            <ThemedText style={styles.hint}>Drag corners to align</ThemedText>
+                            <View style={styles.hintActions}>
+                                <TouchableOpacity onPress={handleAutoAlign} style={styles.magicBtn}>
+                                    <Ionicons
+                                        name={originalNewImageUri ? 'checkmark-circle' : 'scan-outline'}
+                                        size={16}
+                                        color={originalNewImageUri ? '#7DF9FF' : '#7DF9FF'}
+                                    />
+                                    <ThemedText style={[styles.hint, { color: '#7DF9FF' }]}>
+                                        {originalNewImageUri ? 'Undo Align' : 'Auto Align'}
+                                    </ThemedText>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setStep('pick')} style={styles.rePickBtn}>
+                                    <Ionicons name="refresh-outline" size={18} color={Colors.backgroundExtraLite} />
+                                    <ThemedText style={styles.hint}>Re-pick</ThemedText>
+                                </TouchableOpacity>
+                            </View>
+                        </>
+                    )}
                 </View>
             )}
         </View>
@@ -186,5 +272,8 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.backgroundExtraDark,
     },
     hint: { color: Colors.backgroundExtraLite, fontSize: 13, opacity: 0.8 },
+    hintActions: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    magicBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    aligningRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     rePickBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
 });
