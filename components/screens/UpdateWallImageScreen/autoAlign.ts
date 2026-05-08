@@ -3,26 +3,8 @@ import * as FileSystem from 'expo-file-system';
 import { type LightGlueMatch, matchLightGlueLocal } from './lightGlueLocal';
 
 const FINE = 512;
+const WARP = 2048;
 
-// ── Debug ────────────────────────────────────────────────────────────────────
-
-async function saveGrayDebug(gray: Uint8Array, name: string): Promise<void> {
-    const rgba = new Uint8Array(FINE * FINE * 4);
-    for (let i = 0; i < FINE * FINE; i++) {
-        rgba[i * 4] = rgba[i * 4 + 1] = rgba[i * 4 + 2] = gray[i];
-        rgba[i * 4 + 3] = 255;
-    }
-    const img = Skia.Image.MakeImage(
-        { width: FINE, height: FINE, colorType: ColorType.RGBA_8888, alphaType: AlphaType.Unpremul },
-        Skia.Data.fromBytes(rgba),
-        FINE * 4,
-    );
-    if (!img) { console.log(`[AutoAlign] saveGrayDebug: MakeImage failed (${name})`); return; }
-    const b64 = img.encodeToBase64();
-    const path = FileSystem.documentDirectory + `debug_gray_${name}.png`;
-    await FileSystem.writeAsStringAsync(path, b64, { encoding: FileSystem.EncodingType.Base64 });
-    console.log(`[AutoAlign] gray debug saved: ${path}`);
-}
 
 async function loadGray(
     uri: string,
@@ -299,44 +281,45 @@ async function warpNewImage(
         if (!model) { console.log('[AutoAlign] TPS solve failed'); return null; }
         console.log(`[AutoAlign] TPS solved with ${model.n} control points`);
 
-        // Scale new image to FINE×FINE
+        // Scale new image to WARP×WARP
         const imgData = await Skia.Data.fromURI(newUri);
         const imgSrc = Skia.Image.MakeImageFromEncoded(imgData);
         if (!imgSrc) return null;
         const rawW = imgSrc.width(), rawH = imgSrc.height();
 
-        const fineSurf = Skia.Surface.Make(FINE, FINE);
+        const fineSurf = Skia.Surface.Make(WARP, WARP);
         if (!fineSurf) return null;
         fineSurf.getCanvas().drawImageRect(
             imgSrc,
             { x: 0, y: 0, width: rawW, height: rawH },
-            { x: 0, y: 0, width: FINE, height: FINE },
+            { x: 0, y: 0, width: WARP, height: WARP },
             Skia.Paint(),
         );
         fineSurf.flush();
         const fineRgba = fineSurf.makeImageSnapshot().readPixels(0, 0, {
-            width: FINE, height: FINE,
+            width: WARP, height: WARP,
             colorType: ColorType.RGBA_8888,
             alphaType: AlphaType.Unpremul,
         });
         if (!(fineRgba instanceof Uint8Array)) return null;
 
-        // TPS warp in FINE space: each output pixel (old space) → sample new image
-        const warpedRgba = new Uint8Array(FINE * FINE * 4);
-        for (let py = 0; py < FINE; py++) {
-            for (let px = 0; px < FINE; px++) {
-                const [nx, ny] = evalTps(model, px + 0.5, py + 0.5);
-                const [r, g, b, a] = bilinearSample(fineRgba, nx - 0.5, ny - 0.5, FINE, FINE);
-                const idx = (py * FINE + px) * 4;
+        // TPS warp: iterate WARP space, map to FINE for TPS query, map result back to WARP for sampling
+        const fineToWarp = WARP / FINE;
+        const warpedRgba = new Uint8Array(WARP * WARP * 4);
+        for (let py = 0; py < WARP; py++) {
+            for (let px = 0; px < WARP; px++) {
+                const [nx, ny] = evalTps(model, (px + 0.5) / fineToWarp, (py + 0.5) / fineToWarp);
+                const [r, g, b, a] = bilinearSample(fineRgba, nx * fineToWarp - 0.5, ny * fineToWarp - 0.5, WARP, WARP);
+                const idx = (py * WARP + px) * 4;
                 warpedRgba[idx] = r; warpedRgba[idx+1] = g; warpedRgba[idx+2] = b; warpedRgba[idx+3] = a;
             }
         }
 
         // Make Skia image and scale to oldW×oldH
         const warpedImg = Skia.Image.MakeImage(
-            { width: FINE, height: FINE, colorType: ColorType.RGBA_8888, alphaType: AlphaType.Unpremul },
+            { width: WARP, height: WARP, colorType: ColorType.RGBA_8888, alphaType: AlphaType.Unpremul },
             Skia.Data.fromBytes(warpedRgba),
-            FINE * 4,
+            WARP * 4,
         );
         if (!warpedImg) return null;
 
@@ -344,7 +327,7 @@ async function warpNewImage(
         if (!outSurf) return null;
         outSurf.getCanvas().drawImageRect(
             warpedImg,
-            { x: 0, y: 0, width: FINE, height: FINE },
+            { x: 0, y: 0, width: WARP, height: WARP },
             { x: 0, y: 0, width: oldW, height: oldH },
             Skia.Paint(),
         );
@@ -375,7 +358,6 @@ export async function autoAlignLightGlue(
             return null;
         }
         console.log(`[AutoAlign] images loaded: old=${oldInfo.w}x${oldInfo.h} new=${newInfo.w}x${newInfo.h} (${Date.now()-t0}ms)`);
-        await Promise.all([saveGrayDebug(oldInfo.gray, 'old'), saveGrayDebug(newInfo.gray, 'new')]);
 
         const matches = await matchLightGlueLocal(oldInfo.gray, newInfo.gray, FINE);
         console.log(`[AutoAlign] matches: ${matches.length} (${Date.now()-t0}ms)`);
