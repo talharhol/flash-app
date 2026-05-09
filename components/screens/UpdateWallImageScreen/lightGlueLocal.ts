@@ -8,7 +8,7 @@ const MODEL_URL =
     'https://github.com/fabio-sim/LightGlue-ONNX/releases/download/v2.0/superpoint_lightglue_pipeline.ort.onnx';
 const MODEL_PATH = FileSystem.documentDirectory + 'superpoint_lightglue_pipeline.ort.onnx';
 
-const SCORE_THRESHOLD = 0.7; // drop matches below this confidence
+const SCORE_THRESHOLD = 0.9; // drop matches below this confidence
 
 export interface LightGlueMatch {
     x0: number; // normalized [0,1] in old image
@@ -47,18 +47,11 @@ async function getSession(): Promise<InferenceSession> {
     if (pendingSession) { console.log('[LightGlue] session load in progress, awaiting'); return pendingSession; }
     const info = await FileSystem.getInfoAsync(MODEL_PATH);
     // @ts-ignore - size field exists when exists=true
-    console.log(`[LightGlue] model file size: ${info.exists ? info.size : 'MISSING'} bytes (expect ~51182095)`);
-    console.log('[LightGlue] loading ONNX session, provider=', Platform.OS === 'ios' ? 'coreml+cpu' : 'cpu');
     const t0 = Date.now();
     pendingSession = InferenceSession.create(MODEL_PATH, {
         executionProviders: Platform.OS === 'ios' ? ['coreml', 'cpu'] : ['cpu'],
     }).then(s => {
         console.log(`[LightGlue] session loaded in ${Date.now() - t0}ms`);
-        console.log(`[LightGlue] inputNames=${JSON.stringify(s.inputNames)} outputNames=${JSON.stringify(s.outputNames)}`);
-        // @ts-ignore - inputMetadata may exist on InferenceSession
-        try { console.log(`[LightGlue] inputMeta=${JSON.stringify(s.inputMetadata)}`); } catch {}
-        // @ts-ignore
-        try { console.log(`[LightGlue] outputMeta=${JSON.stringify(s.outputMetadata)}`); } catch {}
         cachedSession = s;
         pendingSession = null;
         return s;
@@ -79,8 +72,6 @@ export async function matchLightGlueLocal(
         float[i]               = oldGray[i] / 255.0;
         float[size * size + i] = newGray[i] / 255.0;
     }
-    console.log(float.slice(0, 20));
-    console.log(session.inputNames);
     const results = await session.run({
         images: new Tensor('float32', float, [2, 1, size, size]),
     });
