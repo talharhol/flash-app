@@ -65,7 +65,6 @@ export async function matchLightGlueLocal(
     size: number, // must be multiple of 8 — FINE (256) works
 ): Promise<LightGlueMatch[]> {
     const session = await getSession();
-    console.log(oldGray.slice(0, 20));
     // Batch both images: [2, 1, size, size]
     const float = new Float32Array(2 * size * size);
     for (let i = 0; i < size * size; i++) {

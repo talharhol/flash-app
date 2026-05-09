@@ -14,11 +14,15 @@ import { Problem } from '@/DAL/entities/problem';
 import { useDal } from '@/DAL/DALService';
 import { Colors } from '@/constants/Colors';
 import { ProblemFilter } from '@/DAL/IDAL';
+import { usePathname } from 'expo-router';
+
 
 const ViewWallScreen: React.FC = () => {
+    const pathname = usePathname();
+    
     const router = useRouter();
     const { id, problemId } = useLocalSearchParams<{ id: string; problemId?: string }>();
-
+    
     // Declare updateGUI before useDal so we can pass it as the update callback.
     // This ensures auth state changes (updateScreen) trigger a re-render here.
     const [_, updateGUI] = useReducer(i => i + 1, 0);
@@ -28,7 +32,7 @@ const ViewWallScreen: React.FC = () => {
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
     const [filters, setFilters] = useState<ProblemFilter>({});
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
-
+    
     useEffect(() => {
         if (problemId) setDisplayedProblem(problemId);
     }, [problemId]);
@@ -38,19 +42,22 @@ const ViewWallScreen: React.FC = () => {
             setFilters(dal.currentUser.getLastFilters({ id }));
         }
     }, [dal.currentUser.name]);
-
+    
+    if (pathname !== "/ViewWall") {
+        return null;
+    }
     // Wait for Firebase auth — currentUser is "tmp" until login completes
     if (dal.currentUser.name === "tmp") {
         return <ActivityIndicator style={{ flex: 1 }} />;
     }
-
+    
     const isInUserWalls = dal.currentUser.walls.some(w => w.id === id);
 
     if (!isInUserWalls) {
         return (
             <ActionValidationModal
                 closeModal={() => {}}
-                cancelAction={() => router.navigate("/")}
+                cancelAction={() => { console.log("Cancel action triggered", pathname); router.navigate("/"); }}
                 approveAction={() => { dal.currentUser.addWall(id).then(updateGUI); }}
                 text="This wall isn't in your collection. Would you like to add it?"
             />

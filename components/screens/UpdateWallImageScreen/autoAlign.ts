@@ -136,6 +136,64 @@ function applyH(
     ];
 }
 
+function sampleIndicesSpatial(
+    pts: InlierPt[],
+    k: number,
+    grid = 8,
+): InlierPt[] {
+    if (pts.length <= k) {
+        return pts;
+    }
+
+    // buckets
+    const cells: number[][] = Array.from(
+        { length: grid * grid },
+        () => [],
+    );
+
+    for (let i = 0; i < pts.length; i++) {
+        const p = pts[i];
+
+        const gx = Math.min(
+            grid - 1,
+            Math.max(0, ((p.dx / FINE) * grid) | 0),
+        );
+
+        const gy = Math.min(
+            grid - 1,
+            Math.max(0, ((p.dy / FINE) * grid) | 0),
+        );
+
+        cells[gy * grid + gx].push(i);
+    }
+
+    // shuffle each bucket
+    for (const bucket of cells) {
+        for (let i = bucket.length - 1; i > 0; i--) {
+            const j = (Math.random() * (i + 1)) | 0;
+            [bucket[i], bucket[j]] = [bucket[j], bucket[i]];
+        }
+    }
+
+    const result: InlierPt[] = [];
+
+    // round-robin sampling across cells
+    let added = true;
+
+    while (result.length < k && added) {
+        added = false;
+
+        for (const bucket of cells) {
+            if (bucket.length > 0 && result.length < k) {
+                result.push(pts[bucket.pop()!]);
+                added = true;
+            }
+        }
+    }
+
+    return result;
+}
+
 function sampleIndices(n: number, k: number): number[] {
     const arr = Array.from({ length: n }, (_, i) => i);
 
@@ -423,12 +481,9 @@ async function warpNewImage(
     const matIds: string[] = [];
     const t0 = Date.now();
     try {
-        const MAX_CP = 128;
+        const MAX_CP = 256;
 
-        const pts =
-            inliers.length > MAX_CP
-                ? sampleIndices(inliers.length, MAX_CP).map(i => inliers[i])
-                : inliers;
+        const pts = sampleIndicesSpatial(inliers, MAX_CP, 10);
 
         console.log(`Using ${pts.length} control points for TPS warp {${Date.now() - t0}ms}`);
         const model = solveTps(
