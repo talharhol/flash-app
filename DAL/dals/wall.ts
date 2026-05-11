@@ -17,6 +17,7 @@ export class WallDAL extends BaseDAL<Wall> {
         lat?: number,
         lng?: number,
         latest?: boolean,
+        activeWallId?: string,
     }): Query {
         let filters: Filter[] = [];
         let selectedIds: string[] = [];
@@ -58,7 +59,12 @@ export class WallDAL extends BaseDAL<Wall> {
                 WallTable.getField("active_wall_id")!.isNull()
             );
         }
-        
+        if (params.activeWallId !== undefined) {
+            filters.push(
+                WallTable.getField("active_wall_id")!.eq(params.activeWallId)
+            );
+        }
+
         let query = WallTable.query(filters);
         if (params.lat !== undefined && params.lng !== undefined) {
             let latField = WallTable.getField("lat")!.toSQL();
@@ -82,6 +88,7 @@ export class WallDAL extends BaseDAL<Wall> {
         lat?: number,
         lng?: number,
         latest?: boolean,
+        activeWallId?: string,
     }): Wall[] {
         let query = this.GetListQuery(params);
         let results = query.All<{ [key: string]: any }>(this._dal.db!);

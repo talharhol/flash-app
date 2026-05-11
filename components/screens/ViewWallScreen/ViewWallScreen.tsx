@@ -1,4 +1,4 @@
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
@@ -31,6 +31,7 @@ const ViewWallScreen: React.FC = () => {
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
     const [filters, setFilters] = useState<ProblemFilter>({});
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+    const [selectedVersionId, setSelectedVersionId] = useState<string | null>(null);
     
     useEffect(() => {
         if (problemId) setDisplayedProblem(problemId);
@@ -65,6 +66,13 @@ const ViewWallScreen: React.FC = () => {
 
     const wall = dal.walls.Get({ id });
 
+    const archivedVersions = dal.walls.List({ activeWallId: wall.id });
+    const allVersions = [...archivedVersions, wall].sort((a, b) => a.version - b.version);
+    const hasVersions = allVersions.length > 1;
+    const selectedWall = (selectedVersionId ? allVersions.find(v => v.id === selectedVersionId) : undefined) ?? wall;
+
+    const problems = dal.problems.List({ wallId: wall.id, wallVersion: selectedWall.version, ...filters });
+
     const handleFiltersChange = (f: ProblemFilter) => {
         setFilters(f);
         dal.currentUser.setFilters({ id: wall.id, filters: f });
@@ -96,8 +104,7 @@ const ViewWallScreen: React.FC = () => {
                         </View>
                     </ThemedView>
                 }>
-                {
-                    filterProblemsModal &&
+                {filterProblemsModal &&
                     <FilterProblemssModal
                         dal={dal}
                         closeModal={() => setFilterProblemsModal(false)}
@@ -106,28 +113,47 @@ const ViewWallScreen: React.FC = () => {
                         wallId={wall.id}
                     />
                 }
-                {
-                    displayedProblem &&
+                {displayedProblem &&
                     <DisplayBolderProblemModal
                         problem={dal.problems.Get({ id: displayedProblem })}
                         closeModal={setDisplayedProblem.bind(this, null)} />
                 }
-                <View style={viewMode === 'grid' ? { flexDirection: 'row', flexWrap: 'wrap', rowGap: 12 } : {rowGap: 12}}>
-                    {
-                        dal.problems.List({ wallId: wall.id, ...filters }).map(problem =>
+{hasVersions &&
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.versionRow}>
+                        {allVersions.map(v => {
+                            const isSelected = v.id === selectedWall.id;
+                            const isCurrent = v.id === wall.id;
+                            return (
+                                <TouchableOpacity
+                                    key={v.id}
+                                    onPress={() => setSelectedVersionId(v.id)}
+                                    style={[styles.versionPill, isSelected && styles.versionPillSelected]}>
+                                    <ThemedText style={[styles.versionPillText, isSelected && styles.versionPillTextSelected]}>
+                                        v{v.version}{isCurrent ? ' (current)' : ''}
+                                    </ThemedText>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </ScrollView>
+                }
+                {problems.length === 0 ? (
+                    <ThemedText style={styles.emptyText}>No problems for version {selectedWall.version}</ThemedText>
+                ) : (
+                    <View style={viewMode === 'grid' ? { flexDirection: 'row', flexWrap: 'wrap', rowGap: 12 } : { rowGap: 12 }}>
+                        {problems.map(problem =>
                             <View key={problem.id} style={viewMode === 'grid' ? { width: '50%', alignItems: 'center' } : {}}>
                                 <BolderProblemPreview
                                     dal={dal}
                                     compact={viewMode === 'grid'}
                                     onPress={() => setDisplayedProblem(problem.id)}
-                                    wall={wall}
+                                    wall={selectedWall}
                                     problem={problem}
                                     deleteProblem={deleteProblem}
                                 />
                             </View>
-                        )
-                    }
-                </View>
+                        )}
+                    </View>
+                )}
             </ParallaxScrollView>
             <View style={styles.fab}>
                 <MaterialCommunityIcons
@@ -147,7 +173,7 @@ const styles = StyleSheet.create({
         width: "100%",
         flexDirection: "row",
     },
-    fab: {
+fab: {
         position: 'absolute',
         bottom: 24,
         right: 24,
@@ -159,6 +185,35 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.4,
         shadowRadius: 6,
+    },
+    versionRow: {
+        gap: 8,
+        paddingVertical: 4,
+    },
+    versionPill: {
+        paddingHorizontal: 14,
+        paddingVertical: 6,
+        borderRadius: 16,
+        backgroundColor: Colors.backgroundDark,
+        borderWidth: 1,
+        borderColor: Colors.border,
+    },
+    versionPillSelected: {
+        backgroundColor: Colors.backgroundExtraDark,
+        borderColor: Colors.backgroundExtraLite,
+    },
+    versionPillText: {
+        fontSize: 13,
+        color: Colors.textDark,
+    },
+    versionPillTextSelected: {
+        color: Colors.backgroundExtraLite,
+        fontWeight: '600',
+    },
+    emptyText: {
+        textAlign: 'center',
+        color: Colors.textDark,
+        marginTop: 24,
     },
 });
 

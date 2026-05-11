@@ -7,7 +7,7 @@ import { ProblemFilter } from "../IDAL";
 
 
 export class ProblemDAL extends BaseDAL<Problem> {
-    public List(params: { wallId?: string, groupId?: string, id?: string } & ProblemFilter): Problem[] {
+    public List(params: { wallId?: string, wallVersion?: number, groupId?: string, id?: string } & ProblemFilter): Problem[] {
         let filters: Filter[] = [];
         if (params.id !== undefined) filters.push(ProblemTable.getField("id")!.eq(params.id));
         if (params.minGrade !== undefined) filters.push(ProblemTable.getField("grade")!.ge(params.minGrade));
@@ -15,8 +15,8 @@ export class ProblemDAL extends BaseDAL<Problem> {
         if (params.name !== undefined) filters.push(ProblemTable.getField("name")!.like(params.name));
         if (params.wallId !== undefined) {
             filters.push(ProblemTable.getField("wall_id")!.eq(params.wallId));
-            const wall = this._dal.walls.Get({ id: params.wallId });
-            filters.push(ProblemTable.getField("wall_version")!.eq(wall.version));
+            const version = params.wallVersion ?? this._dal.walls.Get({ id: params.wallId }).version;
+            filters.push(ProblemTable.getField("wall_version")!.eq(version));
         }
         if (params.setters !== undefined && params.setters.length > 0) filters.push(ProblemTable.getField("owner_id")!.in(params.setters));
         if (params.type !== undefined) filters.push(ProblemTable.getField("type")!.eq(params.type));
