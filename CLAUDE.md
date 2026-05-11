@@ -66,6 +66,28 @@ Two-stage TFLite pipeline (models in `assets/ml/`):
 
 Grades are 0-indexed integers; `constants/consts.ts` maps them to display strings (5A–9A).
 
+## UI Guidelines
+
+Always use the app color palette from `@/constants/Colors` — never hardcode hex values in components. Available tokens:
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `backgroundExtraLite` | `#E3D6B2` | Lightest surfaces |
+| `backgroundLite` | `#C2B798` | Borders, dividers, subtle fills |
+| `backgroundDark` | `#A89070` | Secondary elements |
+| `backgroundExtraDark` | `#826F57` | Emphasized UI |
+| `backgroundDeep` | `#5C4A36` | Titles, strong text |
+| `surface` | `#F5EDD8` | Modal/card backgrounds |
+| `border` | `#A89070` | Borders |
+| `textLite` | `white` | Text on dark backgrounds |
+| `textDark` | `black` | Text on light backgrounds |
+| `danger` | `#C0392B` | Delete / destructive actions |
+| `confirm` | `#2E7D32` | Confirm / success actions |
+| `tickSent` | `#4CAF50` | Sent tick indicator |
+| `tickProject` | `#E8A838` | Project tick indicator |
+
+Import: `import { Colors } from "@/constants/Colors";`
+
 ## Environment
 
 Firebase credentials live in `.env` as `EXPO_PUBLIC_*` vars. `firebaseConfig.js` initializes Firestore, Auth, and Storage. `app.config.js` reads `.env` and passes values to Expo's config plugin.

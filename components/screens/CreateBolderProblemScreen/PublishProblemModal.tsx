@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import BasicModal from "@/components/general/modals/BasicModal";
-import { Picker } from '@react-native-picker/picker';
-import { TextInput } from "react-native";
+import { Slider } from '@miblanchard/react-native-slider';
+import { StyleSheet, Text, TextInput, View } from "react-native";
 import { getRandomName } from "@/scripts/randomNames";
 import BasicButton from "@/components/general/Button";
 import { grades } from "@/constants/consts";
+import { Colors } from "@/constants/Colors";
 
 const PublishProblemModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     publishProblem: ({ name, grade }: { name: string, grade: number }) => void;
@@ -17,33 +18,95 @@ const PublishProblemModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     }
 
     return (
-        <BasicModal {...props}>
-            <TextInput
-                style={{ paddingLeft: 20, height: 50, width: "90%", borderColor: "black", borderWidth: 2, borderRadius: 8 }}
-                placeholder="Enter name"
-                value={name}
-                onChangeText={setName}
-            />
-            <Picker
-                style={{ paddingLeft: 20, height: 50, width: "90%", borderColor: "black", borderWidth: 2, borderRadius: 8, backgroundColor: "gray" }}
-                selectedValue={selectedGrade}
-                onValueChange={(itemValue, itemIndex) =>
-                    setSelectedGrade(itemValue)
-                }>
-                {
-                    Object.keys(grades).map((key) => (
-                        <Picker.Item
-                            key={key}
-                            label={grades[parseInt(key)]}
-                            value={parseInt(key)}
-                        />
-                    ))
-                }
-            </Picker>
-            <BasicButton text="Publish" onPress={onPublish} />
+        <BasicModal {...props} style={styles.modal}>
+            <Text style={styles.title}>Publish Problem</Text>
 
+            <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Name</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Leave blank for random name"
+                    placeholderTextColor={Colors.backgroundDark}
+                    value={name}
+                    onChangeText={setName}
+                />
+            </View>
+
+            <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Grade</Text>
+                <Text style={styles.gradeValue}>{grades[selectedGrade]}</Text>
+                <Slider
+                    minimumValue={0}
+                    maximumValue={Object.keys(grades).length - 1}
+                    step={1}
+                    value={selectedGrade}
+                    onValueChange={(value) => setSelectedGrade(Array.isArray(value) ? value[0] : value)}
+                    minimumTrackTintColor={Colors.backgroundDeep}
+                    maximumTrackTintColor={Colors.backgroundLite}
+                    thumbTintColor={Colors.backgroundExtraDark}
+                />
+            </View>
+
+            <BasicButton
+                text="Publish"
+                onPress={onPublish}
+                color={Colors.confirm}
+                selected
+                style={styles.publishButton}
+            />
         </BasicModal>
     );
 };
+
+const styles = StyleSheet.create({
+    modal: {
+        width: "85%",
+        backgroundColor: Colors.surface,
+        borderRadius: 20,
+        paddingHorizontal: 24,
+        paddingVertical: 28,
+        gap: 18,
+        alignItems: "stretch",
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: "700",
+        color: Colors.backgroundDeep,
+        textAlign: "center",
+        marginBottom: 4,
+    },
+    fieldGroup: {
+        gap: 6,
+    },
+    label: {
+        fontSize: 13,
+        fontWeight: "600",
+        color: Colors.backgroundExtraDark,
+        letterSpacing: 0.5,
+        textTransform: "uppercase",
+    },
+    input: {
+        height: 48,
+        borderColor: Colors.border,
+        borderWidth: 1.5,
+        borderRadius: 10,
+        paddingHorizontal: 14,
+        color: Colors.backgroundDeep,
+        backgroundColor: Colors.backgroundExtraLite,
+        fontSize: 15,
+    },
+    gradeValue: {
+        fontSize: 22,
+        fontWeight: "700",
+        color: Colors.backgroundDeep,
+        textAlign: "center",
+    },
+    publishButton: {
+        width: "100%",
+        marginTop: 4,
+        borderRadius: 12,
+        height: 48,
+    },
+});
 
 export default PublishProblemModal;
