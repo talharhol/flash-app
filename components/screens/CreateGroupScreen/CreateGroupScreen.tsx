@@ -91,14 +91,12 @@ const ConfigGroupScreen: React.FC = ({ }) => {
     };
 
     return (
+        <View style={{ flex: 1 }}>
         <ParallaxScrollView
             headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
             headerImage={
                 <ThemedView style={styles.headerContainer}>
                     <ThemedText type="title">Create Group</ThemedText>
-                    <Ionicons
-                        onPress={createGroup}
-                        name='checkmark-circle-outline' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", right: 0, padding: 10 }} />
                 </ThemedView>
             }>
             {
@@ -150,6 +148,13 @@ const ConfigGroupScreen: React.FC = ({ }) => {
                 <Text style={styles.addWallButtonText}>Add Wall</Text>
             </TouchableOpacity>
         </ParallaxScrollView>
+        <TouchableOpacity
+            onPress={createGroup}
+            style={{ position: "absolute", bottom: 30, right: 20, backgroundColor: Colors.backgroundExtraLite, borderRadius: 50, padding: 14 }}
+        >
+            <Ionicons name="save" size={28} color="black" />
+        </TouchableOpacity>
+        </View>
     );
 };
 

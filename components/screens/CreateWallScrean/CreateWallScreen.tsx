@@ -102,6 +102,7 @@ const CreateWallScreen: React.FC = ({ }) => {
     };
 
     return (
+        <View style={{ flex: 1 }}>
         <ParallaxScrollView
             headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
             headerImage={
@@ -112,10 +113,6 @@ const CreateWallScreen: React.FC = ({ }) => {
                     width: "100%"
                 }}>
                     <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>CreateWall</ThemedText>
-                    <Ionicons
-                        onPress={createWall}
-                        name='checkmark-circle-outline' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", right: 0, padding: 10 }} />
-
                 </ThemedView>
             }>
             {selectImageModal &&
@@ -155,35 +152,43 @@ const CreateWallScreen: React.FC = ({ }) => {
                 placeholderTextColor={Colors.backgroundExtraDark}
                 style={{ fontSize: 20, height: 56, width: "100%", borderRadius: 12, borderWidth: 2, borderColor: Colors.backgroundExtraDark, backgroundColor: Colors.backgroundLite, paddingHorizontal: 14, color: Colors.textDark, fontFamily: 'Nunito' }}
             />
-            <View style={{ flexDirection: "row", gap: 8, width: "100%" }}>
-                <TextInput
-                    value={lat}
-                    onChangeText={setLat}
-                    placeholder="Latitude"
-                    placeholderTextColor={Colors.backgroundExtraDark}
-                    keyboardType="numbers-and-punctuation"
-                    style={{ flex: 1, fontSize: 18, height: 56, borderRadius: 12, borderWidth: 2, borderColor: Colors.backgroundExtraDark, backgroundColor: Colors.backgroundLite, paddingHorizontal: 14, color: Colors.textDark, fontFamily: 'Nunito' }}
-                />
-                <TextInput
-                    value={lng}
-                    onChangeText={setLng}
-                    placeholder="Longitude"
-                    placeholderTextColor={Colors.backgroundExtraDark}
-                    keyboardType="numbers-and-punctuation"
-                    style={{ flex: 1, fontSize: 18, height: 56, borderRadius: 12, borderWidth: 2, borderColor: Colors.backgroundExtraDark, backgroundColor: Colors.backgroundLite, paddingHorizontal: 14, color: Colors.textDark, fontFamily: 'Nunito' }}
-                />
+            <View style={{ borderRadius: 14, borderWidth: 2, borderColor: Colors.backgroundExtraDark, backgroundColor: Colors.backgroundLite, padding: 12, gap: 10 }}>
+                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                        <Ionicons name="location" size={18} color={Colors.textDark} />
+                        <ThemedText style={{ fontSize: 15, fontFamily: 'Nunito', color: Colors.textDark }}>Location</ThemedText>
+                    </View>
+                    <TouchableOpacity
+                        onPress={useCurrentLocation}
+                        disabled={fetchingLocation}
+                        style={{ flexDirection: "row", alignItems: "center", gap: 5, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.backgroundExtraDark, opacity: fetchingLocation ? 0.5 : 1 }}
+                    >
+                        <Ionicons name="navigate" size={13} color={Colors.backgroundDark} />
+                        <ThemedText style={{ fontSize: 13, color: Colors.backgroundDark, fontFamily: 'Nunito' }}>
+                            {fetchingLocation ? "Getting..." : "Use current"}
+                        </ThemedText>
+                    </TouchableOpacity>
+                </View>
+                <View style={{ flexDirection: "row", gap: 8 }}>
+                    <TextInput
+                        value={lat}
+                        onChangeText={setLat}
+                        placeholder="Latitude"
+                        placeholderTextColor={Colors.backgroundExtraDark}
+                        keyboardType="numbers-and-punctuation"
+                        style={{ flex: 1, fontSize: 16, height: 46, borderRadius: 10, borderWidth: 1.5, borderColor: Colors.backgroundExtraDark, backgroundColor: Colors.backgroundExtraLite, paddingHorizontal: 12, color: Colors.textDark, fontFamily: 'Nunito' }}
+                    />
+                    <TextInput
+                        value={lng}
+                        onChangeText={setLng}
+                        placeholder="Longitude"
+                        placeholderTextColor={Colors.backgroundExtraDark}
+                        keyboardType="numbers-and-punctuation"
+                        style={{ flex: 1, fontSize: 16, height: 46, borderRadius: 10, borderWidth: 1.5, borderColor: Colors.backgroundExtraDark, backgroundColor: Colors.backgroundExtraLite, paddingHorizontal: 12, color: Colors.textDark, fontFamily: 'Nunito' }}
+                    />
+                </View>
             </View>
-            <TouchableOpacity
-                onPress={useCurrentLocation}
-                disabled={fetchingLocation}
-                style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, height: 44, borderRadius: 12, borderWidth: 2, borderColor: Colors.backgroundExtraDark, backgroundColor: Colors.backgroundLite, opacity: fetchingLocation ? 0.6 : 1 }}
-            >
-                <Ionicons name="location-outline" size={20} color={Colors.textDark} />
-                <ThemedText style={{ color: Colors.textDark }}>
-                    {fetchingLocation ? "Getting location..." : "Use current location"}
-                </ThemedText>
-            </TouchableOpacity>
-            <View style={{ alignSelf: "center", height: 50, width: "50%", marginTop: 50 }}>
+            <View style={{ alignSelf: "center", height: 50, width: "50%", marginTop: 0 }}>
                 <SwitchSelector
                     initial={0}
                     textColor={Colors.backgroundDark}
@@ -199,6 +204,13 @@ const CreateWallScreen: React.FC = ({ }) => {
                 />
             </View>
         </ParallaxScrollView>
+        <TouchableOpacity
+            onPress={createWall}
+            style={{ position: "absolute", bottom: 30, right: 20, backgroundColor: Colors.backgroundExtraLite, borderRadius: 50, padding: 14 }}
+        >
+            <Ionicons name="save" size={28} color="black" />
+        </TouchableOpacity>
+        </View>
     );
 };
 
