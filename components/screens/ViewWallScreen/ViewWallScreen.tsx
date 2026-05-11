@@ -4,7 +4,7 @@ import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import ThemedView from "@/components/general/ThemedView";
 import React, { useEffect, useReducer, useState } from 'react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, usePathname, useRouter } from 'expo-router';
 import BolderProblemPreview from '../../general/BolderProblemPreview';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import DisplayBolderProblemModal from '../../general/modals/DisplayBolderProblemModal';
@@ -14,7 +14,6 @@ import { Problem } from '@/DAL/entities/problem';
 import { useDal } from '@/DAL/DALService';
 import { Colors } from '@/constants/Colors';
 import { ProblemFilter } from '@/DAL/IDAL';
-import { usePathname } from 'expo-router';
 
 
 const ViewWallScreen: React.FC = () => {

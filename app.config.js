@@ -16,13 +16,16 @@ export default {
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "icon": "./assets/images/loggo-ios.png",
+      "icon": {
+        "dark": "./assets/images/ios-dark.png",
+        "light": "./assets/images/ios-light.png"
+      },
       "supportsTablet": true,
       "googleServicesFile": process.env.GOOGLE_SERVICES_PLIST ?? "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/loggo-android.png",
+        "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "googleServicesFile": process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
