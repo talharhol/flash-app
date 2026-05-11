@@ -47,8 +47,9 @@ const SelectWallModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                             >
                                 <PreviewItem
                                     image={wall.image}
-                                    title={`${wall.name}@${wall.gym}`}
-                                    subTitle={wall.angle && `${wall.angle}°` || undefined}
+                                    title={wall.name}
+                                    subTitle={wall.gym}
+                                    descriprion={wall.angle ? `${wall.angle}°` : undefined}
                                     style={{ height: 70 }}
                                 />
                                 {

@@ -73,8 +73,9 @@ const SelectWallScreen: React.FC = () => {
                         >
                             <PreviewItem
                                 image={wall.image}
-                                title={`${wall.name}@${wall.gym}`}
-                                subTitle={wall.angle && `${wall.angle}°` || undefined}
+                                title={wall.name}
+                                subTitle={wall.gym}
+                                descriprion={wall.angle ? `${wall.angle}°` : undefined}
                                 onImagePress={() => createProblem(wall)}
                             />
                         </TouchableOpacity>

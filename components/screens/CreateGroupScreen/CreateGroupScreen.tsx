@@ -35,7 +35,8 @@ const WallItem = ({ wall, onRemove }: { wall: Wall, onRemove: (id: string) => vo
 const ConfigGroupScreen: React.FC = ({ }) => {
     const router = useRouter();
     const dal = useDal();
-    const group = useLocalSearchParams().id !== undefined ? dal.groups.Get({ id: useLocalSearchParams().id as string }) : undefined;
+    const { id } = useLocalSearchParams();
+    const group = id !== undefined ? dal.groups.Get({ id: id as string }) : undefined;
 
     const [selectedImage, setSelectedImage] = useState<string>(group?.image.uri || '');
     const [selectImageModal, setSelectImageModal] = useState(group === undefined);
@@ -43,6 +44,8 @@ const ConfigGroupScreen: React.FC = ({ }) => {
     const [groupName, setGroupName] = useState(group ? group.name : '');
     const [selectedUsers, setSelectedUsers] = useState<string[]>(group ? group.members.filter(u => u !== dal.currentUser.id) : []);
     const [selectedWalls, setSelectedWalls] = useState<string[]>(group ? group.walls : []);
+
+    const allUsers = useMemo(() => dal.users.List({}).filter(u => u.id !== dal.currentUser.id), []);
 
     useFocusEffect(
         useCallback(
@@ -127,7 +130,7 @@ const ConfigGroupScreen: React.FC = ({ }) => {
             </TouchableWithoutFeedback>
             <TextInput value={groupName} onChangeText={setGroupName} placeholder="Group's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: Colors.backgroundDark, padding: 10 }} />
             <UserPicker
-                users={useMemo(() => dal.users.List({}).filter(u => u.id !== dal.currentUser.id), [])}
+                users={allUsers}
                 selectedIds={selectedUsers}
                 onChange={setSelectedUsers}
             />

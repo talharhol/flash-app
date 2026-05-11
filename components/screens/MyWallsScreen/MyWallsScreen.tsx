@@ -61,8 +61,9 @@ const MyWallsScreen: React.FC = () => {
                 {
                     viewWalls.map(wall =>
                         <SwipablePreviewItem key={wall.id} image={wall.image}
-                            title={`${wall.name}@${wall.gym}`}
-                            subTitle={wall.angle && `${wall.angle}°` || undefined}
+                            title={wall.name}
+                            subTitle={wall.gym}
+                            descriprion={wall.angle ? `${wall.angle}°` : undefined}
                             onPress={() => router.push({ pathname: "/ViewWall", params: { id: wall.id } })}
                             hiddenComponent={() => {
                                 return (
@@ -88,8 +89,9 @@ const MyWallsScreen: React.FC = () => {
                 {
                     ownedWalls.map(wall =>
                         <SwipablePreviewItem key={wall.id} image={wall.image}
-                            title={`${wall.name}@${wall.gym}`}
-                            subTitle={wall.angle && `${wall.angle}°` || undefined}
+                            title={wall.name}
+                            subTitle={wall.gym}
+                            descriprion={wall.angle ? `${wall.angle}°` : undefined}
                             onPress={() => router.push({ pathname: "/ViewWall", params: { id: wall.id } })}
                             hiddenComponent={() => {
                                 return (
