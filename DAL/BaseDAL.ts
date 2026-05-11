@@ -126,25 +126,32 @@ export class BaseDAL<
         console.log(`fetching ${this.remoteCollection}`)
         const q = this.getRemoteFetchQuery(since, extraData);
         let docs = await getDocs(q);
-        docs.forEach(
-            doc => {
-                try {
-                    let remoteData = doc.data();
-                    let existingEntity = this.List({ id: doc.id })[0];
-                    if (remoteData.is_deleted === true) {
-                        if (existingEntity) this.Remove(existingEntity).catch(console.error);
-                    } else {
-                        let entityObj = this.table.entity.fromRemoteDoc(remoteData, existingEntity);
-                        if (existingEntity !== undefined)
-                            this.UpdateLocal(entityObj as ObjType).catch(console.error);
-                        else
-                            this.AddToLocal(entityObj as ObjType).catch(console.error);
-                    }
-                } catch (e) {
-                    console.error(e);
+
+        const toUpdate: ObjType[] = [];
+        const toAdd: ObjType[] = [];
+        const toDelete: ObjType[] = [];
+
+        docs.forEach(doc => {
+            try {
+                let remoteData = doc.data();
+                let existingEntity = this.List({ id: doc.id })[0];
+                if (remoteData.is_deleted === true) {
+                    if (existingEntity) toDelete.push(existingEntity);
+                } else {
+                    let entityObj = this.table.entity.fromRemoteDoc(remoteData, existingEntity) as ObjType;
+                    if (existingEntity !== undefined)
+                        toUpdate.push(entityObj);
+                    else
+                        toAdd.push(entityObj);
                 }
+            } catch (e) {
+                console.error(e);
             }
-        );
+        });
+
+        await Promise.all(toUpdate.map(e => this.UpdateLocal(e).catch(console.error)));
+        await Promise.all(toAdd.map(e => this.AddToLocal(e).catch(console.error)));
+        await Promise.all(toDelete.map(e => this.RemoveLocal(e).catch(console.error)));
     }
 
     public dropCache(id: string) {
