@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Image, StyleSheet, TextInput, View } from "react-native";
+import { Image, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { useDal } from "@/DAL/DALService";
 import { ThemedText } from "../../general/ThemedText";
 import { Colors } from "@/constants/Colors";
@@ -8,99 +8,176 @@ import GoogleLoginButton from "./GoogleLoginButton";
 import AppleLoginButton from "./AppleLoginButton";
 
 
-const LoginView: React.FC
-  = () => {
-    const dal = useDal();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [isSignUp, setIsSignUp] = useState(false);
+const LoginView: React.FC = () => {
+  const dal = useDal();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSignUp, setIsSignUp] = useState(false);
 
-    const handleAuth = async () => {
-      try {
-        if (isSignUp) {
-          await dal.signup({email, password});
-        } else {
-          await dal.signin({email, password});
-        }
-      } catch (error) {
-        console.log(error);
+  const handleAuth = async () => {
+    try {
+      if (isSignUp) {
+        await dal.signup({ email, password });
+      } else {
+        await dal.signin({ email, password });
       }
-    };
-
-    return (
-        <View style={styles.container}>
-          <Image style={styles.loggo} source={require("../../../assets/images/loggo.png")}/>
-          <ThemedText type="subtitle" style={styles.loggoText}>Flash app</ThemedText>
-          <ThemedText type="title" style={styles.title}>{isSignUp ? "Sign Up" : "Login"}</ThemedText>
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-          <BasicButton 
-          text={isSignUp ? "Sign Up" : "Login"}
-           onPress={handleAuth} 
-           style={styles.button}
-           color={Colors.backgroundDark} 
-           selected/>
-          
-          <GoogleLoginButton dal={dal} />
-          <AppleLoginButton dal={dal} />
-
-          <BasicButton
-            text={`Switch to ${isSignUp ? "Login" : "Sign Up"}`}
-            onPress={() => setIsSignUp(!isSignUp)}
-           style={styles.button}
-            color={Colors.backgroundDark}
-          />
-        </View>
-    );
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Image style={styles.logo} source={require("../../../assets/images/loggo.png")} />
+        <ThemedText type="title" style={styles.appName}>Flash</ThemedText>
+        <ThemedText type="default" style={styles.tagline}>Track your climbs</ThemedText>
+      </View>
+
+      <View style={styles.card}>
+        <ThemedText type="subtitle" style={styles.cardTitle}>
+          {isSignUp ? "Create account" : "Welcome back"}
+        </ThemedText>
+
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          placeholderTextColor={Colors.backgroundDark}
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          placeholderTextColor={Colors.backgroundDark}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+
+        <BasicButton
+          text={isSignUp ? "Sign Up" : "Log In"}
+          onPress={handleAuth}
+          style={styles.primaryButton}
+          color={Colors.backgroundDeep}
+          selected
+        />
+
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <ThemedText type="default" style={styles.dividerText}>or</ThemedText>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <GoogleLoginButton dal={dal} />
+        <AppleLoginButton dal={dal} />
+
+        <TouchableOpacity style={styles.switchRow} onPress={() => setIsSignUp(!isSignUp)}>
+          <ThemedText type="default" style={styles.switchText}>
+            {isSignUp ? "Already have an account? " : "Don't have an account? "}
+          </ThemedText>
+          <ThemedText type="defaultSemiBold" style={styles.switchLink}>
+            {isSignUp ? "Log In" : "Sign Up"}
+          </ThemedText>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
 
 export default LoginView;
 
 const styles = StyleSheet.create({
-  loggo: {
-    height: 100,
-    width: 100,
-    alignSelf: "center"
-  },
   container: {
     flex: 1,
     width: "100%",
-    height: "100%",
+    backgroundColor: Colors.backgroundLite,
     justifyContent: "center",
-    padding: 20,
-    backgroundColor: Colors.backgroundLite
+    padding: 24,
   },
-  loggoText: {
-    textAlign: "center",
-    marginBottom: 40,
+  header: {
+    alignItems: "center",
+    marginBottom: 32,
   },
-  title: {
+  logo: {
+    height: 80,
+    width: 80,
+    borderRadius: 20,
+    marginBottom: 12,
+  },
+  appName: {
+    color: Colors.backgroundDeep,
+    fontSize: 32,
+    fontWeight: "800",
+    letterSpacing: 1,
+  },
+  tagline: {
+    color: Colors.backgroundExtraDark,
+    marginTop: 4,
+    fontSize: 14,
+  },
+  card: {
+    backgroundColor: Colors.surface,
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: Colors.backgroundDeep,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  cardTitle: {
     textAlign: "center",
+    color: Colors.backgroundDeep,
     marginBottom: 20,
+    fontSize: 18,
   },
   input: {
+    backgroundColor: Colors.backgroundExtraLite,
     borderWidth: 1,
-    borderColor: Colors.backgroundExtraDark,
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 15,
+    borderColor: Colors.backgroundLite,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 12,
+    fontSize: 15,
+    color: Colors.textDark,
   },
-  button: {
+  primaryButton: {
     width: "100%",
-    marginTop: 15,
-    marginBottom: 15
-  }
+    marginTop: 4,
+    height: 48,
+    borderRadius: 10,
+  },
+  divider: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 20,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: Colors.backgroundLite,
+  },
+  dividerText: {
+    color: Colors.backgroundExtraDark,
+    marginHorizontal: 12,
+    fontSize: 13,
+  },
+  switchRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 20,
+  },
+  switchText: {
+    color: Colors.backgroundExtraDark,
+    fontSize: 14,
+  },
+  switchLink: {
+    color: Colors.backgroundDeep,
+    fontSize: 14,
+    textDecorationLine: "underline",
+  },
 });
