@@ -1,9 +1,8 @@
 import { ThemedText } from "@/components/general/ThemedText";
-import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import React, { useState } from "react";
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import BasicModal from "./BasicModal";
 import BasicButton from "../Button";
-import MultiSelect from "react-native-multiple-select";
 import SwitchSelector from "react-native-switch-selector";
 import { grades } from "@/constants/consts";
 import { RangeSlider } from "../RangeSlider";
@@ -21,74 +20,79 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     const [minGrade, setMinGrade] = useState(initialFilters.minGrade);
     const [maxGrade, setMaxGrade] = useState(initialFilters.maxGrade);
     const [name, setName] = useState(initialFilters.name);
-    const [setters, setSetters] = useState<string[]>([]);
+    const [setters, setSetters] = useState<string[]>(initialFilters.setters ?? []);
     const [problemType, setProblemType] = useState(initialFilters.type);
     const [tag, setTag] = useState(initialFilters.tag);
+    const [setterSearch, setSetterSearch] = useState("");
 
-    useEffect(() => setSetters(initialFilters.setters ?? []), []); // in order to load selected setters
-    const usersMultiSelect = useRef<MultiSelect>()
+    const users = dal.users.List({ groupId, wallId });
+    const selectedUsers = users.filter(u => setters.includes(u.id));
+    const filteredUsers = users.filter(u =>
+        !setters.includes(u.id) &&
+        u.name.toLowerCase().includes(setterSearch.toLowerCase())
+    );
+
+    const toggleSetter = (id: string) =>
+        setSetters(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
+
     const Submit = () => {
-        onFiltersChange(
-            {
-                minGrade,
-                maxGrade,
-                name,
-                setters,
-                isPublic: initialFilters.isPublic,
-                type: problemType,
-                tag,
-            }
-        );
+        onFiltersChange({ minGrade, maxGrade, name, setters, isPublic: initialFilters.isPublic, type: problemType, tag });
         props.closeModal();
-    }
+    };
 
     return (
         <BasicModal
             {...props}
-            closeModal={() => { }}
+            closeModal={() => {}}
             onRequestClose={props.closeModal}
             style={[{
-                width: "80%",
-                height: 600,
-                backgroundColor: "#E8E8E8",
+                width: "88%",
+                backgroundColor: Colors.surface,
                 borderRadius: 20,
-                opacity: 0.97,
-                justifyContent: "space-around",
-                alignItems: "center",
-            }, props.style]} >
-            <ThemedText type="subtitle">Filter Problems</ThemedText>
+                padding: 18,
+                maxHeight: "90%",
+            }, props.style]}
+        >
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+                <ThemedText type="subtitle" style={styles.title}>Filter Problems</ThemedText>
 
-            <View style={{ flex: 1, width: "100%", padding: 10, justifyContent: "space-around" }}>
-                <RangeSlider
-                    maxValue={24}
-                    minValue={0}
-                    maxInitialValue={isNaN(Number(initialFilters.maxGrade)) ? 24 : initialFilters.maxGrade}
-                    minInitialValue={isNaN(Number(initialFilters.minGrade)) ? 0 : initialFilters.minGrade}
-                    valueToLable={v => grades[v]}
-                    onMaxValueChange={setMaxGrade}
-                    onMinValueChange={setMinGrade}
-                />
-                <View style={styles.filterContainer}>
+                <View style={styles.section}>
+                    <Text style={styles.label}>GRADE RANGE</Text>
+                    <RangeSlider
+                        maxValue={24}
+                        minValue={0}
+                        maxInitialValue={isNaN(Number(initialFilters.maxGrade)) ? 24 : initialFilters.maxGrade}
+                        minInitialValue={isNaN(Number(initialFilters.minGrade)) ? 0 : initialFilters.minGrade}
+                        valueToLable={v => grades[v]}
+                        onMaxValueChange={setMaxGrade}
+                        onMinValueChange={setMinGrade}
+                    />
+                </View>
+
+                <View style={styles.section}>
+                    <Text style={styles.label}>TYPE</Text>
                     <SwitchSelector
                         initial={initialFilters.type === "bolder" ? 0 : (initialFilters.type === "cycle" ? 2 : 1)}
-                        textColor={Colors.backgroundDark}
-                        selectedColor={Colors.backgroundExtraLite}
+                        textColor={Colors.backgroundDeep}
+                        selectedColor={Colors.textLite}
                         buttonColor={Colors.backgroundDark}
                         borderColor={Colors.backgroundDark}
                         backgroundColor={Colors.backgroundExtraLite}
                         onPress={(value: string | undefined) => setProblemType(value)}
                         options={[
-                            { label: "Bolder", value: "bolder" },
+                            { label: "Boulder", value: "bolder" },
                             { label: "Both", value: undefined },
-                            { label: "Cycle", value: "cycle" },
+                            { label: "Route", value: "cycle" },
                         ]}
                     />
                 </View>
-                <View style={styles.filterContainer}>
+
+                <View style={styles.section}>
+                    <Text style={styles.label}>STATUS</Text>
                     <SwitchSelector
                         initial={initialFilters.tag === "project" ? 1 : (initialFilters.tag === "sent" ? 2 : (initialFilters.tag === "unsent" ? 3 : 0))}
-                        textColor={Colors.backgroundDark}
-                        selectedColor={Colors.backgroundExtraLite}
+                        textColor={Colors.backgroundDeep}
+                        selectedColor={Colors.textLite}
                         buttonColor={Colors.backgroundDark}
                         borderColor={Colors.backgroundDark}
                         backgroundColor={Colors.backgroundExtraLite}
@@ -101,50 +105,61 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                         ]}
                     />
                 </View>
-                <View style={styles.filterContainer}>
+
+                <View style={styles.section}>
+                    <Text style={styles.label}>NAME</Text>
                     <TextInput
-                        style={{ borderRadius: 8, height: 45, borderWidth: 2, borderColor: "#555", width: "90%", fontSize: 16, margin: 5 }}
-                        placeholder="Problem's name" value={name} onChangeText={(text) => {
-                            setName(text)
-                        }} />
+                        style={styles.textInput}
+                        placeholder="Search by name..."
+                        placeholderTextColor={Colors.backgroundDark}
+                        value={name}
+                        onChangeText={setName}
+                    />
                 </View>
-                <View style={styles.filterContainer}>
-                    <View>
-                        {usersMultiSelect.current?.getSelectedItemsExt(setters)}
-                    </View>
-                    <View style={{ width: "100%" }}>
-                        <MultiSelect
-                            fixedHeight
-                            hideTags
-                            ref={(component) => { usersMultiSelect.current = component || undefined }}
-                            items={dal.users.List({ groupId, wallId })}
-                            uniqueKey="id"
-                            onSelectedItemsChange={(v) => {
-                                setSetters(v);
-                            }}
-                            selectedItems={setters}
-                            selectText="Pick setters"
-                            searchInputPlaceholderText="Search Setters..."
-                            altFontFamily="ProximaNova-Light"
-                            tagRemoveIconColor="black"
-                            tagBorderColor="black"
-                            tagTextColor="black"
-                            selectedItemTextColor="#CCC"
-                            selectedItemIconColor="#CCC"
-                            itemTextColor="black"
-                            displayKey="name"
-                            searchInputStyle={{ color: '#CCC' }}
-                            submitButtonColor="black"
-                            styleDropdownMenu={{ margin: 5, borderRadius: 8, overflow: "hidden" }}
-                            styleSelectorContainer={{ margin: 5, borderRadius: 8, overflow: "hidden" }}
-                            submitButtonText="Submit"
+
+                {users.length > 0 && (
+                    <View style={styles.section}>
+                        <Text style={styles.label}>SETTERS</Text>
+                        {selectedUsers.length > 0 && (
+                            <View style={[styles.chipsContainer, { marginBottom: 8 }]}>
+                                {selectedUsers.map(user => (
+                                    <TouchableOpacity
+                                        key={user.id}
+                                        style={[styles.chip, styles.chipSelected]}
+                                        onPress={() => toggleSetter(user.id)}
+                                    >
+                                        <Text style={[styles.chipText, styles.chipTextSelected]}>
+                                            {user.name} ✕
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        )}
+                        <TextInput
+                            style={styles.textInput}
+                            placeholder="Search setters..."
+                            placeholderTextColor={Colors.backgroundDark}
+                            value={setterSearch}
+                            onChangeText={setSetterSearch}
                         />
+                        {filteredUsers.length > 0 && (
+                            <View style={[styles.chipsContainer, { marginTop: 8 }]}>
+                                {filteredUsers.map(user => (
+                                    <TouchableOpacity
+                                        key={user.id}
+                                        style={styles.chip}
+                                        onPress={() => toggleSetter(user.id)}
+                                    >
+                                        <Text style={styles.chipText}>{user.name}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        )}
                     </View>
+                )}
+            </ScrollView>
 
-                </View>
-            </View>
-            <BasicButton text="Submit" color="green" style={{ margin: 10 }} onPress={Submit} />
-
+            <BasicButton text="Apply Filters" color="green" style={styles.submitBtn} onPress={Submit} />
         </BasicModal>
     );
 };
@@ -152,10 +167,63 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
 export default FilterProblemssModal;
 
 const styles = StyleSheet.create({
-    filterContainer: {
-        // backgroundColor: Colors.backgroundLite,
-        alignItems: "center",
-        borderRadius: 8,
-        margin: 5,
-    }
-})
+    scrollContent: {
+        paddingBottom: 4,
+    },
+    title: {
+        textAlign: "center",
+        marginBottom: 18,
+    },
+    section: {
+        marginBottom: 16,
+    },
+    label: {
+        fontSize: 11,
+        fontWeight: "700",
+        color: Colors.backgroundExtraDark,
+        marginBottom: 7,
+        letterSpacing: 0.8,
+        fontFamily: "Nunito",
+    },
+    textInput: {
+        borderRadius: 10,
+        height: 44,
+        borderWidth: 1.5,
+        borderColor: Colors.backgroundDark,
+        paddingHorizontal: 12,
+        fontSize: 15,
+        color: Colors.textDark,
+        backgroundColor: "white",
+        fontFamily: "Nunito",
+    },
+    chipsContainer: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 8,
+    },
+    chip: {
+        paddingHorizontal: 14,
+        paddingVertical: 7,
+        borderRadius: 20,
+        borderWidth: 1.5,
+        borderColor: Colors.backgroundDark,
+        backgroundColor: "white",
+    },
+    chipSelected: {
+        backgroundColor: Colors.backgroundDark,
+        borderColor: Colors.backgroundDark,
+    },
+    chipText: {
+        fontSize: 13,
+        color: Colors.backgroundExtraDark,
+        fontFamily: "Nunito",
+    },
+    chipTextSelected: {
+        color: Colors.textLite,
+        fontWeight: "600",
+    },
+    submitBtn: {
+        marginTop: 10,
+        alignSelf: "center",
+    },
+});
