@@ -2,6 +2,7 @@ import { Image, ImageResolvedAssetSource, ImageSourcePropType } from "react-nati
 import { HoldInterface } from "../hold";
 import { Entity, EntityProps } from "./BaseEntity";
 import { GeoPoint } from "firebase/firestore";
+import { IDAL } from "../IDAL";
 
 
 export type WallProps = EntityProps & { name: string, gym: string, image: ImageSourcePropType, angle?: number, configuredHolds?: HoldInterface[], isPublic?: boolean, owner: string, lat?: number, lng?: number, remoteImage?: {[key: string]: string}, version?: number, activeWallId?: string }
@@ -79,20 +80,23 @@ export class Wall extends Entity {
     get walls(): Wall[] {
         return this.dal!.users.GetWalls({user_id: this.id});
     }
-    public static fromRemoteDoc(data: {[key: string]: any}, old?: Wall): Wall {
+    public static fromRemoteDoc(data: {[key: string]: any}, old?: Wall, dal?: IDAL): Wall {
         const imageChanged = old?.remoteImage
             ? data.image.full !== old.remoteImage.full || data.image.commpressed !== old.remoteImage.commpressed
             : false;
         let image = {uri: data.image.commpressed};
-        if (imageChanged) {
-            console.log("Image changed for wall", data.id, "fetching full image. ", "Old remote image:", old?.remoteImage, "New remote image:", data.image);
-            
+        if (imageChanged) {           
             let isInWalls = old?.dal!.currentUser.walls.some(w => w.id === old.id);
             if (isInWalls) {
                 image = {uri: data.image.full};
             }
         } else {
             image = old?.image ?? {uri: data.image.commpressed};
+        }
+
+        if (data.activeWallId) {
+            let arciveWall = dal?.walls.List({ id: data.activeWallId })[0];
+            image = arciveWall?.image ?? image;
         }
         
         return new this({

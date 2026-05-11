@@ -1,6 +1,6 @@
 import { ImageSourcePropType, Image } from "react-native";
 import { Entity, EntityProps } from "./BaseEntity";
-import { ProblemFilter } from "../IDAL";
+import { IDAL, ProblemFilter } from "../IDAL";
 import { TickTag } from "./userTick";
 
 export type UserProps = EntityProps & { name?: string, image?: ImageSourcePropType }
@@ -71,7 +71,7 @@ export class User extends Entity {
         }
     }
 
-    public static fromRemoteDoc(data: { [key: string]: any }, old?: User): Entity {
+    public static fromRemoteDoc(data: { [key: string]: any }, old?: User, dal?: IDAL): Entity {
         let image: ImageSourcePropType | undefined = undefined;
         if (!!data.image.commpressed) image = { uri: data.image.commpressed }
         if (!!old) image = old._image ?? image;

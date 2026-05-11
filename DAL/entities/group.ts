@@ -4,7 +4,7 @@ import { Problem } from "./problem";
 import { Wall } from "./wall";
 import { BaseTable } from "../tables/BaseTable";
 import { doc, serverTimestamp, updateDoc, arrayRemove, arrayUnion } from "firebase/firestore";
-import { ProblemFilter } from "../IDAL";
+import { IDAL, ProblemFilter } from "../IDAL";
 
 export type UpdatedData = {
     walls: {
@@ -121,7 +121,7 @@ export class Group extends Entity {
         return this.publicWalls;
     }
 
-    public static fromRemoteDoc(data: { [key: string]: any }, old?: Group): Group {
+    public static fromRemoteDoc(data: { [key: string]: any }, old?: Group, dal?: IDAL): Group {
         let image = { uri: data.image.full }; // we fetch only groups relevant to user -> we can download full quality rightaway
         if (!!old) image = old.image; // do not download image again
         return new this({

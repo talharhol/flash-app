@@ -1,3 +1,4 @@
+import { IDAL } from "../IDAL";
 import { Entity, EntityProps } from "./BaseEntity";
 
 export type TickTag = "project" | "sent";
@@ -26,7 +27,7 @@ export class UserTick extends Entity {
         };
     }
 
-    public static fromRemoteDoc(data: { [key: string]: any }, old?: Entity): UserTick {
+    public static fromRemoteDoc(data: { [key: string]: any }, old?: Entity, dal?: IDAL): UserTick {
         return new this({
             id: data.id,
             userId: data.userId,

@@ -138,7 +138,7 @@ export class BaseDAL<
                 if (remoteData.is_deleted === true) {
                     if (existingEntity) toDelete.push(existingEntity);
                 } else {
-                    let entityObj = this.table.entity.fromRemoteDoc(remoteData, existingEntity) as ObjType;
+                    let entityObj = this.table.entity.fromRemoteDoc(remoteData, existingEntity, this._dal) as ObjType;
                     if (existingEntity !== undefined)
                         toUpdate.push(entityObj);
                     else
@@ -148,9 +148,8 @@ export class BaseDAL<
                 console.error(e);
             }
         });
-
-        await Promise.all(toUpdate.map(e => this.UpdateLocal(e).catch(console.error)));
         await Promise.all(toAdd.map(e => this.AddToLocal(e).catch(console.error)));
+        await Promise.all(toUpdate.map(e => this.UpdateLocal(e).catch(console.error)));
         await Promise.all(toDelete.map(e => this.RemoveLocal(e).catch(console.error)));
     }
 

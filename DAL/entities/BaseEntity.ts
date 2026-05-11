@@ -1,7 +1,7 @@
 import uuid from "react-native-uuid";
 import { IDAL } from "../IDAL";
 import { BaseTable } from "../tables/BaseTable";
-import { collection, serverTimestamp, updateDoc, setDoc, doc } from "firebase/firestore"; 
+import { serverTimestamp, updateDoc, setDoc, doc } from "firebase/firestore"; 
 import { ImageResolvedAssetSource } from "react-native";
 
 
@@ -145,7 +145,7 @@ export class Entity {
         }
     }
 
-    public static fromRemoteDoc(data: {[key: string]: any}, old?: Entity): Entity {
+    public static fromRemoteDoc(data: {[key: string]: any}, old?: Entity, dal?: IDAL): Entity {
         return new this(data);
     }
 

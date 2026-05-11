@@ -1,4 +1,5 @@
 import { HoldInterface } from "../hold";
+import { IDAL } from "../IDAL";
 import { Entity, EntityProps } from "./BaseEntity";
 import { Wall } from "./wall";
 
@@ -47,7 +48,7 @@ export class Problem extends Entity {
         return this.dal!.walls.Get({id: this.wallId})
     }
 
-    public static fromRemoteDoc(data: {[key: string]: any}, old?: Entity): Problem {
+    public static fromRemoteDoc(data: {[key: string]: any}, old?: Entity, dal?: IDAL): Problem {
         return new this({
             id: data.id,
             name: data.name,
