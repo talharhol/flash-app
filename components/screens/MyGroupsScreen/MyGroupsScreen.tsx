@@ -1,17 +1,16 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
 import ThemedView from '@/components/general/ThemedView';
-import React, { useCallback, useReducer, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import ActionValidationModal from '@/components/general/modals/ActionValidationModal';
 import { Group } from '@/DAL/entities/group';
 import { useFocusEffect, useRouter } from 'expo-router';
 import SwipablePreviewItem from '@/components/general/SwipeablePreviewItem';
-import BasicButton from '@/components/general/Button';
 import { useDal } from '@/DAL/DALService';
 import ManagmantModal, { ManagmentModalProps } from '@/components/general/modals/ManagmantModal';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 
 const MyGroupsScreen: React.FC = () => {
@@ -35,67 +34,75 @@ const MyGroupsScreen: React.FC = () => {
         setGroupToRemove(null);
     };
     return (
-        <ParallaxScrollView
-            headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-            headerImage={
-                <ThemedView style={styles.title}>
-                    <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>My Groups</ThemedText>
-                </ThemedView>
-            }>
-            {
-                groupManagment &&
-                <ManagmantModal
-                    closeModal={() => setGroupManagment(null)}
-                    {
-                    ...groupManagment
-                    }
-                />
-            }
-            {
-                groupToRemove &&
-                <ActionValidationModal
-                    closeModal={setGroupToRemove.bind(this, null)}
-                    approveAction={RemoveGroup.bind(this, groupToRemove)}
-                    text={`Exit ${groupToRemove.name}?`}
-                />
-            }
-            {
-                groupToDelete &&
-                <ActionValidationModal
-                    closeModal={setGroupToDelete.bind(this, null)}
-                    approveAction={DeleteGroup.bind(this, groupToDelete)}
-                    text={`Delete ${groupToDelete.name}?`}
-                />
-            }
-            {
-                groups.map(group =>
-                    <SwipablePreviewItem
-                        key={group.id}
-                        onPress={() => router.push({ pathname: "/ViewGroupScreen", params: { id: group.id } })}
-                        image={group.image}
-                        title={group.name}
-                        descriprion={group.getDescription()}
-                        hiddenComponent={() => {
-                            return (
-                                <View style={{ height: "100%", flexDirection: "column", alignItems: 'center', justifyContent: "space-evenly" }}>
-                                    <Ionicons name='options-outline' size={35} 
-                                    color={Colors.backgroundExtraLite}
-                                    onPress={
-                                        () => setGroupManagment(
-                                            {
-                                                leave: () => setGroupToRemove(group),
-                                                deleteObj: group.admins.includes(dal.currentUser.id) ? () => setGroupToDelete(group) : undefined,
-                                                edit: group.admins.includes(dal.currentUser.id) ? () => router.navigate({ pathname: "/CreateGroup", params: { id: group.id } }) : undefined,
-                                            }
-                                        )
-                                    } />
-                                </View>
-                            )
-                        }}
+        <View style={{ flex: 1 }}>
+            <ParallaxScrollView
+                headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+                headerImage={
+                    <ThemedView style={styles.title}>
+                        <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>My Groups</ThemedText>
+                    </ThemedView>
+                }>
+                {
+                    groupManagment &&
+                    <ManagmantModal
+                        closeModal={() => setGroupManagment(null)}
+                        {
+                        ...groupManagment
+                        }
                     />
-                )
-            }
-        </ParallaxScrollView>
+                }
+                {
+                    groupToRemove &&
+                    <ActionValidationModal
+                        closeModal={setGroupToRemove.bind(this, null)}
+                        approveAction={RemoveGroup.bind(this, groupToRemove)}
+                        text={`Exit ${groupToRemove.name}?`}
+                    />
+                }
+                {
+                    groupToDelete &&
+                    <ActionValidationModal
+                        closeModal={setGroupToDelete.bind(this, null)}
+                        approveAction={DeleteGroup.bind(this, groupToDelete)}
+                        text={`Delete ${groupToDelete.name}?`}
+                    />
+                }
+                {
+                    groups.map(group =>
+                        <SwipablePreviewItem
+                            key={group.id}
+                            onPress={() => router.push({ pathname: "/ViewGroupScreen", params: { id: group.id } })}
+                            image={group.image}
+                            title={group.name}
+                            descriprion={group.getDescription()}
+                            hiddenComponent={() => {
+                                return (
+                                    <View style={{ height: "100%", flexDirection: "column", alignItems: 'center', justifyContent: "space-evenly" }}>
+                                        <Ionicons name='options-outline' size={35}
+                                            color={Colors.backgroundExtraLite}
+                                            onPress={
+                                                () => setGroupManagment(
+                                                    {
+                                                        leave: () => setGroupToRemove(group),
+                                                        deleteObj: group.admins.includes(dal.currentUser.id) ? () => setGroupToDelete(group) : undefined,
+                                                        edit: group.admins.includes(dal.currentUser.id) ? () => router.navigate({ pathname: "/CreateGroup", params: { id: group.id } }) : undefined,
+                                                    }
+                                                )
+                                            } />
+                                    </View>
+                                )
+                            }}
+                        />
+                    )
+                }
+            </ParallaxScrollView>
+            <TouchableOpacity
+                style={styles.fab}
+                onPress={() => router.push({ pathname: "/CreateGroup" })}
+            >
+                <MaterialCommunityIcons name='plus' size={30} color={Colors.textLite} />
+            </TouchableOpacity>
+        </View>
     );
 }
 
@@ -103,6 +110,22 @@ const styles = StyleSheet.create({
     title: {
         alignItems: 'center',
         backgroundColor: 'transparent',
+    },
+    fab: {
+        position: 'absolute',
+        bottom: 24,
+        right: 24,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: Colors.backgroundDeep,
+        alignItems: 'center',
+        justifyContent: 'center',
+        elevation: 6,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
     },
 });
 
