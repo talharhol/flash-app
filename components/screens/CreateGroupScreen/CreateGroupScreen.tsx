@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
     Image,
     Text,
@@ -13,8 +13,8 @@ import SelectImageModal from "@/components/general/modals/SelectImageModal";
 import BasicButton from "@/components/general/Button";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Group } from "@/DAL/entities/group";
-import MultiSelect from "react-native-multiple-select";
-import { FlatList, ScrollView, TouchableOpacity, TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { FlatList, TouchableOpacity, TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { UserPicker } from "./UserPicker";
 import { Wall } from "@/DAL/entities/wall";
 import { useDal } from "@/DAL/DALService";
 import SelectWallModal from "@/components/general/modals/SelectWallsModal";
@@ -37,7 +37,6 @@ const ConfigGroupScreen: React.FC = ({ }) => {
     const router = useRouter();
     const dal = useDal();
     const group = useLocalSearchParams().id !== undefined ? dal.groups.Get({ id: useLocalSearchParams().id as string }) : undefined;
-    const usersMultiSelect = useRef<MultiSelect>()
 
     const [selectedImage, setSelectedImage] = useState<string>(group?.image.uri || '');
     const [selectImageModal, setSelectImageModal] = useState(group === undefined);
@@ -130,46 +129,20 @@ const ConfigGroupScreen: React.FC = ({ }) => {
                 }
             </TouchableWithoutFeedback>
             <TextInput value={groupName} onChangeText={setGroupName} placeholder="Group's name" style={{ fontSize: 30, height: 60, width: "100%", borderRadius: 8, borderWidth: 2, backgroundColor: Colors.backgroundDark, padding: 10 }} />
-            <View>
-                {usersMultiSelect.current?.getSelectedItemsExt(selectedUsers)}
-            </View>
-            <ScrollView contentContainerStyle={{ flexGrow: 1 }} horizontal={true} style={{ width: "100%" }}>
-                <View style={{ flexDirection: "column", width: "100%" }} >
-                    <MultiSelect
-                        fixedHeight={true}
-                        hideTags
-                        ref={(component) => { usersMultiSelect.current = component || undefined }}
-                        items={dal.users.List({}).filter(u => u.id !== dal.currentUser.id)}
-                        uniqueKey="id"
-                        onSelectedItemsChange={setSelectedUsers}
-                        selectedItems={selectedUsers}
-                        selectText="Pick members"
-                        searchInputPlaceholderText="Search Items..."
-                        onChangeInput={(text) => console.log(text)}
-                        altFontFamily="ProximaNova-Light"
-                        tagRemoveIconColor={Colors.backgroundExtraDark}
-                        tagBorderColor={Colors.backgroundExtraDark}
-                        tagTextColor={Colors.backgroundExtraDark}
-                        selectedItemTextColor={Colors.backgroundExtraDark}
-                        selectedItemIconColor={Colors.backgroundExtraDark}
-                        itemTextColor={Colors.backgroundExtraDark}
-                        displayKey="name"
-                        searchInputStyle={{ color: Colors.backgroundExtraDark }}
-                        submitButtonColor={Colors.backgroundExtraDark}
-                        submitButtonText="Submit"
-                    />
-                    <FlatList
-                        data={selectedWalls}
-                        keyExtractor={(item) => item}
-                        renderItem={({ item }) => (
-                            <WallItem wall={dal.walls.Get({ id: item })}
-                                onRemove={(id) => setSelectedWalls(selectedWalls.filter(w => w !== id))} />)
-                        }
-                        numColumns={1} // Set the number of columns
-                        contentContainerStyle={{}}
-                    />
-                </View>
-            </ScrollView>
+            <UserPicker
+                users={useMemo(() => dal.users.List({}).filter(u => u.id !== dal.currentUser.id), [])}
+                selectedIds={selectedUsers}
+                onChange={setSelectedUsers}
+            />
+            <FlatList
+                data={selectedWalls}
+                keyExtractor={(item) => item}
+                renderItem={({ item }) => (
+                    <WallItem wall={dal.walls.Get({ id: item })}
+                        onRemove={(id) => setSelectedWalls(selectedWalls.filter(w => w !== id))} />
+                )}
+                scrollEnabled={false}
+            />
             <BasicButton onPress={() => setSelectWallModal(true)} style={{ alignSelf: "center" }} text="Add wall" selected color={Colors.backgroundDark} />
         </ParallaxScrollView>
     );
