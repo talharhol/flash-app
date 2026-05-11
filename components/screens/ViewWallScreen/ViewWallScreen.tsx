@@ -18,10 +18,9 @@ import { ProblemFilter } from '@/DAL/IDAL';
 
 const ViewWallScreen: React.FC = () => {
     const pathname = usePathname();
-    
+
     const router = useRouter();
     const { id, problemId } = useLocalSearchParams<{ id: string; problemId?: string }>();
-    console.log("Viewing wall with id:", id);
     // Declare updateGUI before useDal so we can pass it as the update callback.
     // This ensures auth state changes (updateScreen) trigger a re-render here.
     const [_, updateGUI] = useReducer(i => i + 1, 0);
@@ -29,10 +28,13 @@ const ViewWallScreen: React.FC = () => {
 
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(problemId ?? null);
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
+    const [deleteWallModal, setDeleteWallModal] = useState(false);
     const [filters, setFilters] = useState<ProblemFilter>({});
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
     const [selectedVersionId, setSelectedVersionId] = useState<string | null>(null);
-    
+    const [actionsOpen, setActionsOpen] = useState(false);
+    const [versionPickerOpen, setVersionPickerOpen] = useState(false);
+
     useEffect(() => {
         if (problemId) setDisplayedProblem(problemId);
     }, [problemId]);
@@ -42,7 +44,7 @@ const ViewWallScreen: React.FC = () => {
             setFilters(dal.currentUser.getLastFilters({ id }));
         }
     }, [dal.currentUser.name]);
-    
+
     if (pathname !== "/ViewWall") {
         return null;
     }
@@ -50,7 +52,7 @@ const ViewWallScreen: React.FC = () => {
     if (dal.currentUser.name === "tmp") {
         return <ActivityIndicator style={{ flex: 1 }} />;
     }
-    
+
     const isInUserWalls = dal.currentUser.walls.some(w => w.id === id);
 
     if (!isInUserWalls) {
@@ -65,6 +67,7 @@ const ViewWallScreen: React.FC = () => {
     }
 
     const wall = dal.walls.Get({ id });
+    const isOwner = wall.owner === dal.currentUser.id;
 
     const archivedVersions = dal.walls.List({ activeWallId: wall.id });
     const allVersions = [...archivedVersions, wall].sort((a, b) => a.version - b.version);
@@ -82,26 +85,76 @@ const ViewWallScreen: React.FC = () => {
         dal.problems.Remove(problem).then(updateGUI);
     };
 
+    const closeActions = () => {
+        setActionsOpen(false);
+        setVersionPickerOpen(false);
+    };
+
+    type ActionItem = {
+        icon: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
+        label: string;
+        onPress: () => void;
+    };
+
+    const actions: ActionItem[] = [
+        {
+            icon: 'plus-thick',
+            label: 'New problem',
+            onPress: () => { closeActions(); router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id } }); },
+        },
+        {
+            icon: 'filter-plus',
+            label: 'Edit filters',
+            onPress: () => { closeActions(); setFilterProblemsModal(true); },
+        },
+        ...(hasVersions ? [{
+            icon: 'layers-triple' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
+            label: `Version: v${selectedWall.version}`,
+            onPress: () => setVersionPickerOpen(v => !v),
+        }] : []),
+        ...(isOwner ? [
+            {
+                icon: 'image-edit-outline' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
+                label: 'Replace image',
+                onPress: () => { closeActions(); router.push({ pathname: "/ReplaceWallImage", params: { id: wall.id } }); },
+            },
+            {
+                icon: 'camera-retake-outline' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
+                label: 'Update image',
+                onPress: () => { closeActions(); router.push({ pathname: "/UpdateWallImage", params: { id: wall.id } }); },
+            },
+            {
+                icon: 'view-grid-plus-outline' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
+                label: 'Config holds',
+                onPress: () => { closeActions(); router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } }); },
+            },
+            {
+                icon: 'trash-can-outline' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
+                label: 'Delete wall',
+                onPress: () => { closeActions(); setDeleteWallModal(true); },
+            },
+        ] : []),
+        {
+            icon: viewMode === 'grid' ? 'view-list' : 'view-grid',
+            label: viewMode === 'grid' ? 'List layout' : 'Grid layout',
+            onPress: () => { setViewMode(v => v === 'list' ? 'grid' : 'list'); closeActions(); },
+        },
+    ];
+
     return (
         <View style={{ flex: 1 }}>
+            {actionsOpen && (
+                <TouchableOpacity
+                    style={[StyleSheet.absoluteFill, { zIndex: 10 }]}
+                    activeOpacity={1}
+                    onPress={closeActions}
+                />
+            )}
             <ParallaxScrollView
                 headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
                 headerImage={
                     <ThemedView style={styles.headerContainer}>
-                        <MaterialCommunityIcons
-                            onPress={() => router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id } })}
-                            name='plus-thick' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", left: 10, padding: 5, zIndex: 1 }} />
                         <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{wall.name}@{wall.gym}</ThemedText>
-                        <View style={{ position: "absolute", right: 10, flexDirection: "row", alignItems: "center", gap: 4 }}>
-                            {wall.owner === dal.currentUser.id && (
-                                <MaterialCommunityIcons
-                                    onPress={() => router.push({ pathname: "/ReplaceWallImage", params: { id: wall.id } })}
-                                    name='image-edit-outline' size={32} color={Colors.backgroundExtraLite} style={{ padding: 5 }} />
-                            )}
-                            <MaterialCommunityIcons
-                                onPress={() => setFilterProblemsModal(true)}
-                                name='filter-plus' size={35} color={Colors.backgroundExtraLite} style={{ padding: 5 }} />
-                        </View>
                     </ThemedView>
                 }>
                 {filterProblemsModal &&
@@ -113,28 +166,20 @@ const ViewWallScreen: React.FC = () => {
                         wallId={wall.id}
                     />
                 }
+                {deleteWallModal && (
+                    <ActionValidationModal
+                        closeModal={() => setDeleteWallModal(false)}
+                        cancelAction={() => setDeleteWallModal(false)}
+                        approveAction={() => {
+                            dal.walls.Remove(wall).then(() => router.navigate("/"));
+                        }}
+                        text="Delete this wall? This cannot be undone."
+                    />
+                )}
                 {displayedProblem &&
                     <DisplayBolderProblemModal
                         problem={dal.problems.Get({ id: displayedProblem })}
                         closeModal={setDisplayedProblem.bind(this, null)} />
-                }
-{hasVersions &&
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.versionRow}>
-                        {allVersions.map(v => {
-                            const isSelected = v.id === selectedWall.id;
-                            const isCurrent = v.id === wall.id;
-                            return (
-                                <TouchableOpacity
-                                    key={v.id}
-                                    onPress={() => setSelectedVersionId(v.id)}
-                                    style={[styles.versionPill, isSelected && styles.versionPillSelected]}>
-                                    <ThemedText style={[styles.versionPillText, isSelected && styles.versionPillTextSelected]}>
-                                        v{v.version}{isCurrent ? ' (current)' : ''}
-                                    </ThemedText>
-                                </TouchableOpacity>
-                            );
-                        })}
-                    </ScrollView>
                 }
                 {problems.length === 0 ? (
                     <ThemedText style={styles.emptyText}>No problems for version {selectedWall.version}</ThemedText>
@@ -155,11 +200,51 @@ const ViewWallScreen: React.FC = () => {
                     </View>
                 )}
             </ParallaxScrollView>
-            <View style={styles.fab}>
-                <MaterialCommunityIcons
-                    onPress={() => setViewMode(v => v === 'list' ? 'grid' : 'list')}
-                    name={viewMode === 'grid' ? 'view-list' : 'view-grid'}
-                    size={28} color={Colors.backgroundExtraLite} />
+
+            <View style={styles.fabContainer}>
+                {actionsOpen && (
+                    <View style={styles.actionsStack}>
+                        {versionPickerOpen && hasVersions && (
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={styles.versionRow}
+                                style={styles.versionPicker}>
+                                {allVersions.map(v => {
+                                    const isSelected = v.id === selectedWall.id;
+                                    const isCurrent = v.id === wall.id;
+                                    return (
+                                        <TouchableOpacity
+                                            key={v.id}
+                                            onPress={() => { setSelectedVersionId(v.id); setVersionPickerOpen(false); }}
+                                            style={[styles.versionPill, isSelected && styles.versionPillSelected]}>
+                                            <ThemedText style={[styles.versionPillText, isSelected && styles.versionPillTextSelected]}>
+                                                v{v.version}{isCurrent ? ' (current)' : ''}
+                                            </ThemedText>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </ScrollView>
+                        )}
+                        {actions.map(action => (
+                            <TouchableOpacity key={action.label} style={styles.actionRow} onPress={action.onPress}>
+                                <View style={styles.actionLabelPill}>
+                                    <ThemedText style={styles.actionLabelText}>{action.label}</ThemedText>
+                                </View>
+                                <View style={styles.actionIcon}>
+                                    <MaterialCommunityIcons name={action.icon} size={24} color={Colors.backgroundExtraLite} />
+                                </View>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                )}
+                <TouchableOpacity style={styles.fab} onPress={() => setActionsOpen(v => !v)}>
+                    <MaterialCommunityIcons
+                        name={actionsOpen ? 'close' : 'dots-vertical'}
+                        size={28}
+                        color={Colors.backgroundExtraLite}
+                    />
+                </TouchableOpacity>
             </View>
         </View>
     );
@@ -173,10 +258,50 @@ const styles = StyleSheet.create({
         width: "100%",
         flexDirection: "row",
     },
-fab: {
+    fabContainer: {
         position: 'absolute',
         bottom: 24,
         right: 24,
+        alignItems: 'flex-end',
+        zIndex: 20,
+    },
+    actionsStack: {
+        alignItems: 'flex-end',
+        gap: 10,
+        marginBottom: 12,
+    },
+    actionRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    actionLabelPill: {
+        backgroundColor: Colors.backgroundExtraDark,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 16,
+        elevation: 4,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+    },
+    actionLabelText: {
+        fontSize: 14,
+        color: Colors.backgroundExtraLite,
+        fontWeight: '500',
+    },
+    actionIcon: {
+        backgroundColor: Colors.backgroundExtraDark,
+        borderRadius: 22,
+        padding: 9,
+        elevation: 4,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+    },
+    fab: {
         backgroundColor: Colors.backgroundExtraDark,
         borderRadius: 28,
         padding: 10,
@@ -185,6 +310,9 @@ fab: {
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.4,
         shadowRadius: 6,
+    },
+    versionPicker: {
+        maxWidth: 280,
     },
     versionRow: {
         gap: 8,
