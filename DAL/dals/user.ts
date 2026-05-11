@@ -46,10 +46,11 @@ export class UserDAL extends BaseDAL<User> {
 
     }
 
-    public GetWalls(params: { user_id: string, role?: string, isPublic?: boolean }): Wall[] {
+    public GetWalls(params: { user_id: string, role?: string, isPublic?: boolean, latest?: boolean }): Wall[] {
         let filters = [
             UserWallTable.getField("user_id")!.eq(params.user_id),
         ];
+        if (params.latest === undefined) params.latest = true;
         if (params.role !== undefined) filters.push(UserWallTable.getField("role")!.eq(params.role));
         let results = UserWallTable.getAll<{ wall_id: string }>(
             ...UserWallTable.filter(
@@ -57,10 +58,10 @@ export class UserDAL extends BaseDAL<User> {
                 [UserWallTable.getField("wall_id")!]
             ), this._dal.db!
         );
-
         return this._dal.walls.List({
             ids: results.map(w => w.wall_id),
             isPublic: params.isPublic,
+            latest: params.latest,
         });
     }
 

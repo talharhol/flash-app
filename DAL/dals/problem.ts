@@ -13,7 +13,11 @@ export class ProblemDAL extends BaseDAL<Problem> {
         if (params.minGrade !== undefined) filters.push(ProblemTable.getField("grade")!.ge(params.minGrade));
         if (params.maxGrade !== undefined) filters.push(ProblemTable.getField("grade")!.le(params.maxGrade));
         if (params.name !== undefined) filters.push(ProblemTable.getField("name")!.like(params.name));
-        if (params.wallId !== undefined) filters.push(ProblemTable.getField("wall_id")!.eq(params.wallId));
+        if (params.wallId !== undefined) {
+            filters.push(ProblemTable.getField("wall_id")!.eq(params.wallId));
+            const wall = this._dal.walls.Get({ id: params.wallId });
+            filters.push(ProblemTable.getField("wall_version")!.eq(wall.version));
+        }
         if (params.setters !== undefined && params.setters.length > 0) filters.push(ProblemTable.getField("owner_id")!.in(params.setters));
         if (params.type !== undefined) filters.push(ProblemTable.getField("type")!.eq(params.type));
         let query = ProblemTable.query(filters);
@@ -64,11 +68,18 @@ export class ProblemDAL extends BaseDAL<Problem> {
 
         if (walls.length === 0) walls.push("");
 
-        return query(
+        const baseQuery = query(
             collection(this._dal.remoteDB, this.remoteCollection!),
             where("updated_at", ">=", since),
             where("isPublic", "==", true),
             where("wallId", "in", walls)
         );
+
+        if (extraData?.wallId) {
+            const wall = this._dal.walls.Get({ id: extraData.wallId });
+            return query(baseQuery, where("wallVersion", "==", wall.version));
+        }
+
+        return baseQuery;
     }
 }

@@ -161,4 +161,10 @@ const migrations = [
         await db.execAsync(`ALTER TABLE wall ADD COLUMN remote_image TEXT;`);
     },
 
+    async (db: SQLite.SQLiteDatabase) => {
+        await db.execAsync(`ALTER TABLE wall ADD COLUMN version INTEGER NOT NULL DEFAULT 1;`);
+        await db.execAsync(`ALTER TABLE wall ADD COLUMN active_wall_id TEXT;`);
+        await db.execAsync(`ALTER TABLE problem ADD COLUMN wall_version INTEGER NOT NULL DEFAULT 1;`);
+    },
+
 ];

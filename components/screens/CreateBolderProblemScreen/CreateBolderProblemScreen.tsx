@@ -102,6 +102,7 @@ const CreateProblemScreen: React.FC = () => {
       setter: dal.currentUser.id,
       isPublic: targetGroup === undefined,
       type: isCycle ? "cycle" : "bolder",
+      wallVersion: wall.version,
     });
     dal.problems.Add(problem).then(
       () => {

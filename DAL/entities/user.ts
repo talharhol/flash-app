@@ -19,7 +19,7 @@ export class User extends Entity {
     }
 
     public get walls() {
-        return this.dal!.walls.List({ userId: this.id })
+        return this.dal!.users.GetWalls({ user_id: this.id })
     }
 
     public get ownedWalls() {

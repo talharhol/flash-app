@@ -2,7 +2,7 @@ import { HoldInterface } from "../hold";
 import { Entity, EntityProps } from "./BaseEntity";
 import { Wall } from "./wall";
 
-export type ProblemProps = EntityProps &  { name: string, wallId: string, grade: number, holds: HoldInterface[], setter: string, isPublic?: boolean, type: string};
+export type ProblemProps = EntityProps &  { name: string, wallId: string, grade: number, holds: HoldInterface[], setter: string, isPublic?: boolean, type: string, wallVersion?: number };
 
 export class Problem extends Entity {
     name: string;
@@ -12,7 +12,8 @@ export class Problem extends Entity {
     setter: string;
     isPublic: boolean;
     type: string;
-    constructor({ name, wallId, grade, holds, setter, isPublic, type, ...props }: ProblemProps) {
+    wallVersion: number;
+    constructor({ name, wallId, grade, holds, setter, isPublic, type, wallVersion, ...props }: ProblemProps) {
         super(props);
         this.name = name;
         this.wallId = wallId;
@@ -21,6 +22,7 @@ export class Problem extends Entity {
         this.setter = setter;
         this.isPublic = isPublic ?? true;
         this.type = type;
+        this.wallVersion = wallVersion ?? 1;
     }
 
     public toRemoteDoc(): { [key: string]: any} {
@@ -33,6 +35,7 @@ export class Problem extends Entity {
             setter: this.setter,
             isPublic: this.isPublic,
             type: this.type,
+            wallVersion: this.wallVersion,
         }
     }
 
@@ -53,7 +56,8 @@ export class Problem extends Entity {
             holds: data.holds,
             setter: data.setter,
             isPublic: data.isPublic,
-            type: data.type
+            type: data.type,
+            wallVersion: data.wallVersion ?? 1,
         })
     }
 };

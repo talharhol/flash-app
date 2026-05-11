@@ -102,6 +102,8 @@ export class WallTable extends BaseTable {
         new Field({ name: "lat", type: "REAL" }),
         new Field({ name: "lng", type: "REAL" }),
         new Field({ name: "remote_image", type: "TEXT", dumper: JSON.stringify, loader: JSON.parse, alias: "remoteImage" }),
+        new Field({ name: "version", type: "INTEGER", notNull: true, default_: () => 1 }),
+        new Field({ name: "active_wall_id", type: "TEXT", alias: "activeWallId" }),
     ];
 }
 
@@ -121,6 +123,7 @@ export class ProblemTable extends BaseTable {
         }),
         new Field({ name: "grade", type: "INTEGER", notNull: true }),
         new Field({ name: "type", type: "TEXT", notNull: true }),
+        new Field({ name: "wall_version", type: "INTEGER", notNull: true, default_: () => 1, alias: "wallVersion" }),
     ];
 }
 

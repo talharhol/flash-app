@@ -112,6 +112,12 @@ export default function TabLayout() {
           href: null,
         }}
       />
+      <Tabs.Screen
+        name="ReplaceWallImage"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

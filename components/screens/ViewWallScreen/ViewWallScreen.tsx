@@ -21,7 +21,7 @@ const ViewWallScreen: React.FC = () => {
     
     const router = useRouter();
     const { id, problemId } = useLocalSearchParams<{ id: string; problemId?: string }>();
-    
+    console.log("Viewing wall with id:", id);
     // Declare updateGUI before useDal so we can pass it as the update callback.
     // This ensures auth state changes (updateScreen) trigger a re-render here.
     const [_, updateGUI] = useReducer(i => i + 1, 0);
@@ -84,9 +84,16 @@ const ViewWallScreen: React.FC = () => {
                             onPress={() => router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id } })}
                             name='plus-thick' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", left: 10, padding: 5, zIndex: 1 }} />
                         <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{wall.name}@{wall.gym}</ThemedText>
-                        <MaterialCommunityIcons
-                            onPress={() => setFilterProblemsModal(true)}
-                            name='filter-plus' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", right: 10, padding: 5 }} />
+                        <View style={{ position: "absolute", right: 10, flexDirection: "row", alignItems: "center", gap: 4 }}>
+                            {wall.owner === dal.currentUser.id && (
+                                <MaterialCommunityIcons
+                                    onPress={() => router.push({ pathname: "/ReplaceWallImage", params: { id: wall.id } })}
+                                    name='image-edit-outline' size={32} color={Colors.backgroundExtraLite} style={{ padding: 5 }} />
+                            )}
+                            <MaterialCommunityIcons
+                                onPress={() => setFilterProblemsModal(true)}
+                                name='filter-plus' size={35} color={Colors.backgroundExtraLite} style={{ padding: 5 }} />
+                        </View>
                     </ThemedView>
                 }>
                 {
