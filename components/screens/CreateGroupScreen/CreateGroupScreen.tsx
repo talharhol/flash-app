@@ -10,7 +10,6 @@ import ParallaxScrollView from "@/components/general/ParallaxScrollView";
 import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
 import SelectImageModal from "@/components/general/modals/SelectImageModal";
-import BasicButton from "@/components/general/Button";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Group } from "@/DAL/entities/group";
 import { FlatList, TouchableOpacity, TouchableWithoutFeedback } from "react-native-gesture-handler";
@@ -23,11 +22,11 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 const WallItem = ({ wall, onRemove }: { wall: Wall, onRemove: (id: string) => void }) => {
     return (
-        <View style={{ flexDirection: "row", borderRadius: 17, backgroundColor: Colors.backgroundDark, justifyContent: "space-between", margin: 5 }}>
-            <Image source={wall.image} style={{ height: 30, width: 30, borderRadius: 15, margin: 2 }} />
-            <Text style={{ alignSelf: "center", fontSize: 18, padding: 5 }}>{wall.fullName}</Text>
-            <TouchableOpacity onPress={() => onRemove(wall.id)} style={{ height: 30, width: 30, borderRadius: 15, margin: 2, justifyContent: "center", backgroundColor: Colors.backgroundExtraLite }}>
-                <Text style={{ alignSelf: "center", fontSize: 18 }}>X</Text>
+        <View style={{ flexDirection: "row", borderRadius: 12, backgroundColor: Colors.backgroundDark, alignItems: "center", marginVertical: 3, borderWidth: 1, borderColor: Colors.backgroundExtraDark }}>
+            <Image source={wall.image} style={{ height: 48, width: 48, borderRadius: 8, margin: 4 }} />
+            <Text style={{ flex: 1, color: Colors.textLite, fontSize: 16, fontWeight: "500", paddingHorizontal: 10 }}>{wall.fullName}</Text>
+            <TouchableOpacity onPress={() => onRemove(wall.id)} style={{ padding: 12 }}>
+                <Ionicons name="close-circle" size={22} color={Colors.backgroundExtraLite} />
             </TouchableOpacity>
         </View>
     )
@@ -143,7 +142,13 @@ const ConfigGroupScreen: React.FC = ({ }) => {
                 )}
                 scrollEnabled={false}
             />
-            <BasicButton onPress={() => setSelectWallModal(true)} style={{ alignSelf: "center" }} text="Add wall" selected color={Colors.backgroundDark} />
+            <TouchableOpacity
+                onPress={() => setSelectWallModal(true)}
+                style={styles.addWallButton}
+            >
+                <Ionicons name="add-circle-outline" size={22} color={Colors.backgroundExtraLite} />
+                <Text style={styles.addWallButtonText}>Add Wall</Text>
+            </TouchableOpacity>
         </ParallaxScrollView>
     );
 };
@@ -154,7 +159,26 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: "transparent",
         width: "100%",
-      },
+    },
+    addWallButton: {
+        flexDirection: "row",
+        alignSelf: "center",
+        width: "70%",
+        backgroundColor: Colors.backgroundDark,
+        borderRadius: 12,
+        paddingVertical: 12,
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 8,
+        marginTop: 6,
+        borderWidth: 1,
+        borderColor: Colors.backgroundExtraDark,
+    },
+    addWallButtonText: {
+        color: Colors.textLite,
+        fontSize: 16,
+        fontWeight: "bold",
+    },
 });
 
 export default ConfigGroupScreen;
