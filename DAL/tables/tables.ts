@@ -101,6 +101,7 @@ export class WallTable extends BaseTable {
         new Field({ name: "owner", type: "TEXT" }),
         new Field({ name: "lat", type: "REAL" }),
         new Field({ name: "lng", type: "REAL" }),
+        new Field({ name: "remote_image", type: "TEXT", dumper: JSON.stringify, loader: JSON.parse, alias: "remoteImage" }),
     ];
 }
 

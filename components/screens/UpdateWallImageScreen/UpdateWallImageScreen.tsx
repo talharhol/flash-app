@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { autoAlignLightGlue } from './autoAlign';
 import { isModelDownloaded, downloadModel } from './lightGlueLocal';
 import * as ImagePicker from 'expo-image-picker';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useDal } from '@/DAL/DALService';
 import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -32,7 +32,21 @@ const UpdateWallImageScreen: React.FC = () => {
     const adjustRef = useRef<CornerAdjustRef>(null);
 
     const oldImageUri = wall.image.uri;
-
+    useFocusEffect(
+        useCallback(
+          () => {
+            setStep('pick');
+            setNewImageUri('');
+            setCorners([]);
+            setAnchors([]);
+            setCanvasSize({ width: 0, height: 0 });
+            setOldImageSize(null);
+            setIsAligning(false);
+            setDownloadProgress(null);
+            setOriginalNewImageUri(null);
+          }, []
+        )
+    );
     useEffect(() => {
         Image.getSize(oldImageUri, (w, h) => setOldImageSize({ width: w, height: h }));
     }, [oldImageUri]);
@@ -106,6 +120,9 @@ const UpdateWallImageScreen: React.FC = () => {
             const uri = await adjustRef.current?.capture();
             if (!uri) { setStep('adjust'); return; }
             wall.image = Image.resolveAssetSource({ uri });
+            if (wall.isPublic) {
+                wall.remoteImage = await wall.uploadImage(wall.image);
+            }
             await dal.walls.Update(wall);
             router.back();
         } catch {

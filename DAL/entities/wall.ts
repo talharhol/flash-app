@@ -4,7 +4,7 @@ import { Entity, EntityProps } from "./BaseEntity";
 import { GeoPoint } from "firebase/firestore";
 
 
-export type WallProps = EntityProps & { name: string, gym: string, image: ImageSourcePropType, angle?: number, configuredHolds?: HoldInterface[], isPublic?: boolean, owner: string, lat?: number, lng?: number }
+export type WallProps = EntityProps & { name: string, gym: string, image: ImageSourcePropType, angle?: number, configuredHolds?: HoldInterface[], isPublic?: boolean, owner: string, lat?: number, lng?: number, remoteImage?: {[key: string]: string} }
 
 export class Wall extends Entity {
     name: string;
@@ -16,8 +16,9 @@ export class Wall extends Entity {
     owner: string
     lat?: number;
     lng?: number;
+    remoteImage?: {[key: string]: string};
 
-    constructor({ name, gym, image, angle, configuredHolds, isPublic, owner, lat, lng, ...props }: WallProps) {
+    constructor({ name, gym, image, angle, configuredHolds, isPublic, owner, lat, lng, remoteImage, ...props }: WallProps) {
         super(props);
         this.name = name;
         this.gym = gym;
@@ -28,6 +29,7 @@ export class Wall extends Entity {
         this.owner = owner
         this.lat = lat;
         this.lng = lng;
+        this.remoteImage = remoteImage;
     }
 
     public toRemoteDoc(): { [key: string]: any} {
@@ -47,9 +49,11 @@ export class Wall extends Entity {
     }
 
     protected async uploadAssets(data: { [key: string]: any }): Promise<{ [key: string]: any }> {
+        this.remoteImage = await this.uploadImage(this.image);
+        this.dal!.walls.UpdateLocal(this);
         return {
             ...data,
-            image: await this.uploadImage(this.image),
+            image: this.remoteImage,
         }
     }
 
@@ -68,8 +72,17 @@ export class Wall extends Entity {
         return this.dal!.users.GetWalls({user_id: this.id});
     }
     public static fromRemoteDoc(data: {[key: string]: any}, old?: Wall): Wall {
+        const imageChanged = old?.remoteImage ? JSON.stringify(data.image) !== JSON.stringify(old.remoteImage) : false;
         let image = {uri: data.image.commpressed};
-        if (!!old) image = old.image;
+        if (imageChanged) {
+            let isInWalls = old?.dal!.currentUser.walls.some(w => w.id === old.id);
+            if (isInWalls) {
+                image = {uri: data.image.full};
+            }
+        } else {
+            image = old?.image ?? {uri: data.image.commpressed};
+        }
+        
         return new this({
             id: data.id,
             name: data.name,
@@ -81,15 +94,15 @@ export class Wall extends Entity {
             image: image,
             lat: data.location?.latitude,
             lng: data.location?.longitude,
+            remoteImage: data.image,
         });
     };
 
     public async fetchFullImage(): Promise<void> {
-        let remote = await this.dal!.walls.FetchSingleDoc(this.id);
-        if (remote === undefined) return;
+        if (this.remoteImage === undefined || !this.remoteImage.full) return;
         this.image = Image.resolveAssetSource(
             { 
-                uri: await this.dal!.convertToLocalImage({uri: remote.image.full})
+                uri: await this.dal!.convertToLocalImage({uri: this.remoteImage.full})
             }
         );
         await this.dal!.walls.Update(this);

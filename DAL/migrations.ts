@@ -155,6 +155,10 @@ const migrations = [
         await UserWall.createTable(db);
         await UserConfigTable.createTable(db);
         await UserTicks.createTable(db);
-    }
-    
+    },
+
+    async (db: SQLite.SQLiteDatabase) => {
+        await db.execAsync(`ALTER TABLE wall ADD COLUMN remote_image TEXT;`);
+    },
+
 ];

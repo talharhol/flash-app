@@ -49,11 +49,11 @@ export class Entity {
         return { "id": this.id, "isPublic": true };
     }
 
-    protected async uploadImage(image: ImageResolvedAssetSource): Promise<{ commpressed: string, full: string }> {
+    public async uploadImage(image: ImageResolvedAssetSource): Promise<{ commpressed: string, full: string }> {
         let commpressed = "";
         try {
             commpressed = await this.dal!.remoteStorage.uploadFile(
-                await this.dal!.compressImage(image.uri), `wall/${this.id}/compresses`
+                await this.dal!.compressImage(image.uri), `wall/${this.id}/compressed`
             );
         }
         catch (e) {
