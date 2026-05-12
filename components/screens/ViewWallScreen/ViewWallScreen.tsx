@@ -154,7 +154,8 @@ const ViewWallScreen: React.FC = () => {
                 headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
                 headerImage={
                     <ThemedView style={styles.headerContainer}>
-                        <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>{wall.name}@{wall.gym}</ThemedText>
+                        <ThemedText type="title" style={styles.headerTitle}>{wall.name}</ThemedText>
+                        <ThemedText type="default1" style={styles.headerSubtitle}>{wall.gym}</ThemedText>
                     </ThemedView>
                 }>
                 {filterProblemsModal &&
@@ -256,7 +257,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: 'transparent',
         width: "100%",
-        flexDirection: "row",
+        flexDirection: "column",
+    },
+    headerTitle: {
+        color: Colors.textDark,
+        backgroundColor: 'transparent',
+    },
+    headerSubtitle: {
+        color: Colors.textDark,
+        backgroundColor: 'transparent',
     },
     fabContainer: {
         position: 'absolute',
