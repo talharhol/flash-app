@@ -30,6 +30,10 @@ const UpdateWallImageScreen: React.FC = () => {
     const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
     const [originalNewImageUri, setOriginalNewImageUri] = useState<string | null>(null);
     const adjustRef = useRef<CornerAdjustRef>(null);
+    const canvasSizeRef = useRef(canvasSize);
+    canvasSizeRef.current = canvasSize;
+    const oldImageSizeRef = useRef(oldImageSize);
+    oldImageSizeRef.current = oldImageSize;
 
     const oldImageUri = wall.image.uri;
     useFocusEffect(
@@ -50,16 +54,22 @@ const UpdateWallImageScreen: React.FC = () => {
     useEffect(() => {
         Image.getSize(oldImageUri, (w, h) => setOldImageSize({ width: w, height: h }));
     }, [oldImageUri]);
+    useEffect(() => {
+        if (oldImageSize && canvasSize.width > 0) {
+            setCorners(defaultCorners(canvasSize.width, canvasSize.height, oldImageSize.width, oldImageSize.height));
+        }
+    }, [oldImageSize]);
 
     const onImagePicked = (uri: string) => {
         setNewImageUri(uri);
         setOriginalNewImageUri(null);
-        setTimeout(() => {
-        console.log(defaultCorners(canvasSize.width, canvasSize.height, oldImageSize?.width, oldImageSize?.height));
-        setCorners(defaultCorners(canvasSize.width, canvasSize.height, oldImageSize?.width, oldImageSize?.height));
-        }, 1000);
         setAnchors([]);
         setStep('adjust');
+        setTimeout(() => {
+            const { width, height } = canvasSizeRef.current;
+            const ois = oldImageSizeRef.current;
+            setCorners(defaultCorners(width, height, ois?.width, ois?.height));
+        }, 100);
     };
 
     const pickFromLibrary = async () => {
@@ -99,12 +109,10 @@ const UpdateWallImageScreen: React.FC = () => {
         setIsAligning(true);
         try {
             const warpedUri = await autoAlignLightGlue(oldImageUri, newImageUri, canvasSize.width, canvasSize.height);
-            console.log(defaultCorners(canvasSize.width, canvasSize.height, oldImageSize?.width, oldImageSize?.height));
             setCorners(defaultCorners(canvasSize.width, canvasSize.height, oldImageSize?.width, oldImageSize?.height));
             if (warpedUri) {
                 setOriginalNewImageUri(newImageUri);
                 setNewImageUri(warpedUri);
-                console.log(defaultCorners(canvasSize.width, canvasSize.height, oldImageSize?.width, oldImageSize?.height));
                 setCorners(defaultCorners(canvasSize.width, canvasSize.height, oldImageSize?.width, oldImageSize?.height));
             }
         } catch (error) {

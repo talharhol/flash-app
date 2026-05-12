@@ -3,12 +3,9 @@ import React, { useRef, useState } from "react";
 import BasicModal from "./BasicModal";
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from "@expo/vector-icons";
-import { View, TouchableOpacity, StyleSheet, Dimensions, Modal, Text, SafeAreaView } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Modal, Text, useWindowDimensions } from "react-native";
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Colors } from "@/constants/Colors";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const CAMERA_HEIGHT = (SCREEN_WIDTH * 4) / 3;
 
 const SelectImageModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     getImage: (uri: string) => void;
@@ -17,14 +14,16 @@ const SelectImageModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     const [showCamera, setShowCamera] = useState(false);
     const [permission, requestPermission] = useCameraPermissions();
     const cameraRef = useRef<CameraView>(null);
+    const { width: screenW, height: screenH } = useWindowDimensions();
+    const camW = screenW;
+    const camH = screenW * (4 / 3);
+    const camTop = (screenH - camH) / 2;
 
     const pickImageAsync = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
             allowsMultipleSelection: false,
             mediaTypes: 'images',
             quality: 1,
-            aspect: [3, 4],
-            allowsEditing: true,
         });
         if (!result.canceled) {
             getImage(result.assets[0].uri);
@@ -53,13 +52,9 @@ const SelectImageModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     if (showCamera) {
         return (
             <Modal animationType="slide" transparent={false} visible statusBarTranslucent>
-                <SafeAreaView style={styles.cameraContainer}>
-                    <View style={styles.cameraWrapper}>
-                        <CameraView
-                            ref={cameraRef}
-                            style={styles.camera}
-                            facing="back"
-                        />
+                <View style={[StyleSheet.absoluteFill, { backgroundColor: '#000' }]}>
+                    <View style={{ position: 'absolute', top: camTop, left: 0, width: camW, height: camH }}>
+                        <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="back" />
                     </View>
                     <View style={styles.cameraControls}>
                         <TouchableOpacity style={styles.backButton} onPress={() => setShowCamera(false)}>
@@ -70,7 +65,7 @@ const SelectImageModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                         </TouchableOpacity>
                         <View style={{ width: 52 }} />
                     </View>
-                </SafeAreaView>
+                </View>
             </Modal>
         );
     }
@@ -142,27 +137,14 @@ const styles = StyleSheet.create({
         height: 70,
         backgroundColor: Colors.backgroundLite,
     },
-    // Camera screen
-    cameraContainer: {
-        flex: 1,
-        backgroundColor: Colors.backgroundDeep,
-        justifyContent: "space-between",
-    },
-    cameraWrapper: {
-        width: SCREEN_WIDTH,
-        height: CAMERA_HEIGHT,
-        overflow: "hidden",
-        alignSelf: "center",
-    },
-    camera: {
-        flex: 1,
-    },
     cameraControls: {
-        flex: 1,
+        position: 'absolute',
+        bottom: 48,
+        left: 0,
+        right: 0,
         flexDirection: "row",
+        justifyContent: "space-around",
         alignItems: "center",
-        justifyContent: "space-between",
-        paddingHorizontal: 32,
     },
     backButton: {
         width: 52,

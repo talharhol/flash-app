@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Image, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useDal } from '@/DAL/DALService';
 import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,6 +17,15 @@ const ReplaceWallImageScreen: React.FC = () => {
 
     const [step, setStep] = useState<Step>('pick');
     const [newImageUri, setNewImageUri] = useState('');
+
+    useFocusEffect(
+        useCallback(
+            () => {
+            setStep('pick');
+            setNewImageUri('');
+            }, []
+        )
+    );
 
     const pickFromLibrary = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
