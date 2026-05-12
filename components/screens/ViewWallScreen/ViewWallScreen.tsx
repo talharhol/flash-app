@@ -94,6 +94,7 @@ const ViewWallScreen: React.FC = () => {
         icon: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
         label: string;
         onPress: () => void;
+        isAdmin?: boolean;
     };
 
     const actions: ActionItem[] = [
@@ -112,33 +113,37 @@ const ViewWallScreen: React.FC = () => {
             label: `Version: v${selectedWall.version}`,
             onPress: () => setVersionPickerOpen(v => !v),
         }] : []),
-        ...(isOwner ? [
-            {
-                icon: 'image-edit-outline' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
-                label: 'Replace image',
-                onPress: () => { closeActions(); router.push({ pathname: "/ReplaceWallImage", params: { id: wall.id } }); },
-            },
-            {
-                icon: 'camera-retake-outline' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
-                label: 'Update image',
-                onPress: () => { closeActions(); router.push({ pathname: "/UpdateWallImage", params: { id: wall.id } }); },
-            },
-            {
-                icon: 'view-grid-plus-outline' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
-                label: 'Config holds',
-                onPress: () => { closeActions(); router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } }); },
-            },
-            {
-                icon: 'trash-can-outline' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
-                label: 'Delete wall',
-                onPress: () => { closeActions(); setDeleteWallModal(true); },
-            },
-        ] : []),
         {
             icon: viewMode === 'grid' ? 'view-list' : 'view-grid',
             label: viewMode === 'grid' ? 'List layout' : 'Grid layout',
             onPress: () => { setViewMode(v => v === 'list' ? 'grid' : 'list'); closeActions(); },
         },
+        ...(isOwner ? [
+            {
+                icon: 'image-edit-outline' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
+                label: 'Replace image',
+                onPress: () => { closeActions(); router.push({ pathname: "/ReplaceWallImage", params: { id: wall.id } }); },
+                isAdmin: true,
+            },
+            {
+                icon: 'camera-retake-outline' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
+                label: 'Update image',
+                onPress: () => { closeActions(); router.push({ pathname: "/UpdateWallImage", params: { id: wall.id } }); },
+                isAdmin: true,
+            },
+            {
+                icon: 'view-grid-plus-outline' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
+                label: 'Config holds',
+                onPress: () => { closeActions(); router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } }); },
+                isAdmin: true,
+            },
+            {
+                icon: 'trash-can-outline' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
+                label: 'Delete wall',
+                onPress: () => { closeActions(); setDeleteWallModal(true); },
+                isAdmin: true,
+            },
+        ] : []),
     ];
 
     return (
@@ -229,10 +234,10 @@ const ViewWallScreen: React.FC = () => {
                         )}
                         {actions.map(action => (
                             <TouchableOpacity key={action.label} style={styles.actionRow} onPress={action.onPress}>
-                                <View style={styles.actionLabelPill}>
+                                <View style={[styles.actionLabelPill, action.isAdmin && styles.actionLabelPillAdmin]}>
                                     <ThemedText style={styles.actionLabelText}>{action.label}</ThemedText>
                                 </View>
-                                <View style={styles.actionIcon}>
+                                <View style={[styles.actionIcon, action.isAdmin && styles.actionIconAdmin]}>
                                     <MaterialCommunityIcons name={action.icon} size={24} color={Colors.backgroundExtraLite} />
                                 </View>
                             </TouchableOpacity>
@@ -309,6 +314,12 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         shadowRadius: 4,
+    },
+    actionLabelPillAdmin: {
+        backgroundColor: Colors.backgroundDeep,
+    },
+    actionIconAdmin: {
+        backgroundColor: Colors.backgroundDeep,
     },
     fab: {
         backgroundColor: Colors.backgroundExtraDark,

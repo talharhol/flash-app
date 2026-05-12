@@ -48,6 +48,7 @@ const ViewGroupScreen: React.FC = () => {
         icon: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
         label: string;
         onPress: () => void;
+        isAdmin?: boolean;
     };
 
     const actions: ActionItem[] = [
@@ -75,11 +76,13 @@ const ViewGroupScreen: React.FC = () => {
             icon: 'trash-can-outline' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
             label: 'Delete group',
             onPress: () => { closeActions(); setDeleteGroupModal(true); },
+            isAdmin: true,
         },
         {
             icon: 'pencil-outline' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
             label: 'Edit group',
             onPress: () => { closeActions(); router.push({ pathname: "/CreateGroup", params: { id: group.id } }); },
+            isAdmin: true,
         }] : []),
     ];
 
@@ -155,10 +158,10 @@ const ViewGroupScreen: React.FC = () => {
                     <View style={styles.actionsStack}>
                         {actions.map(action => (
                             <TouchableOpacity key={action.label} style={styles.actionRow} onPress={action.onPress}>
-                                <View style={styles.actionLabelPill}>
+                                <View style={[styles.actionLabelPill, action.isAdmin && styles.actionLabelPillAdmin]}>
                                     <ThemedText style={styles.actionLabelText}>{action.label}</ThemedText>
                                 </View>
-                                <View style={styles.actionIcon}>
+                                <View style={[styles.actionIcon, action.isAdmin && styles.actionIconAdmin]}>
                                     <MaterialCommunityIcons name={action.icon} size={24} color={Colors.backgroundExtraLite} />
                                 </View>
                             </TouchableOpacity>
@@ -227,6 +230,12 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         shadowRadius: 4,
+    },
+    actionLabelPillAdmin: {
+        backgroundColor: Colors.backgroundDeep,
+    },
+    actionIconAdmin: {
+        backgroundColor: Colors.backgroundDeep,
     },
     fab: {
         backgroundColor: Colors.backgroundExtraDark,
