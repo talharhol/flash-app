@@ -10,7 +10,7 @@ export async function runMigrations() {
     while (currentVersion < migrations.length) {
         await migrations[currentVersion](db)
         currentVersion += 1;
-        alert("run migrtion")
+        console.log("run migration: ", currentVersion);
     }
     await db.execAsync(`PRAGMA user_version = ${migrations.length}`);
     await dalService.connect();

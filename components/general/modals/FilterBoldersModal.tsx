@@ -8,6 +8,8 @@ import { grades } from "@/constants/consts";
 import { RangeSlider } from "../RangeSlider";
 import { IDAL, ProblemFilter } from "@/DAL/IDAL";
 import { Colors } from "@/constants/Colors";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import TagFilterPickerModal from "./TagFilterPickerModal";
 
 
 const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
@@ -22,7 +24,8 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     const [name, setName] = useState(initialFilters.name);
     const [setters, setSetters] = useState<string[]>(initialFilters.setters ?? []);
     const [problemType, setProblemType] = useState(initialFilters.type);
-    const [tag, setTag] = useState(initialFilters.tag);
+    const [selectedTags, setSelectedTags] = useState<string[]>(initialFilters.tags ?? []);
+    const [tagPickerVisible, setTagPickerVisible] = useState(false);
     const [setterSearch, setSetterSearch] = useState("");
 
     const users = dal.users.List({ groupId, wallId });
@@ -35,12 +38,23 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
     const toggleSetter = (id: string) =>
         setSetters(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
 
+    const handleToggleTag = (tag: string) => {
+        setSelectedTags(prev => {
+            if (prev.includes(tag)) return prev.filter(t => t !== tag);
+            return [...prev, tag];
+        });
+    };
+
+    const removeTag = (tag: string) =>
+        setSelectedTags(prev => prev.filter(t => t !== tag));
+
     const Submit = () => {
-        onFiltersChange({ minGrade, maxGrade, name, setters, isPublic: initialFilters.isPublic, type: problemType, tag });
+        onFiltersChange({ minGrade, maxGrade, name, setters, isPublic: initialFilters.isPublic, type: problemType, tags: selectedTags.length > 0 ? selectedTags : undefined });
         props.closeModal();
     };
 
     return (
+        <>
         <BasicModal
             {...props}
             closeModal={() => {}}
@@ -89,21 +103,22 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
 
                 <View style={styles.section}>
                     <Text style={styles.label}>STATUS</Text>
-                    <SwitchSelector
-                        initial={initialFilters.tag === "project" ? 1 : (initialFilters.tag === "sent" ? 2 : (initialFilters.tag === "unsent" ? 3 : 0))}
-                        textColor={Colors.backgroundDeep}
-                        selectedColor={Colors.textLite}
-                        buttonColor={Colors.backgroundDark}
-                        borderColor={Colors.backgroundDark}
-                        backgroundColor={Colors.backgroundExtraLite}
-                        onPress={(value: string | undefined) => setTag(value)}
-                        options={[
-                            { label: "All", value: undefined },
-                            { label: "Project", value: "project" },
-                            { label: "Sent", value: "sent" },
-                            { label: "Unsent", value: "unsent" },
-                        ]}
-                    />
+                    <View style={styles.tagRow}>
+                        {selectedTags.map(tag => (
+                            <TouchableOpacity
+                                key={tag}
+                                style={styles.tagChip}
+                                onPress={() => removeTag(tag)}
+                            >
+                                <Text style={styles.tagChipText}>{tag}</Text>
+                                <MaterialCommunityIcons name="close" size={13} color={Colors.textLite} />
+                            </TouchableOpacity>
+                        ))}
+                        <TouchableOpacity style={styles.addTagBtn} onPress={() => setTagPickerVisible(true)}>
+                            <MaterialCommunityIcons name="plus" size={18} color={Colors.backgroundExtraDark} />
+                            <Text style={styles.addTagText}>Add filter</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
                 <View style={styles.section}>
@@ -161,6 +176,16 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
 
             <BasicButton text="Apply Filters" color="green" style={styles.submitBtn} onPress={Submit} />
         </BasicModal>
+
+        {tagPickerVisible && (
+            <TagFilterPickerModal
+                dal={dal}
+                selectedTags={selectedTags}
+                onToggleTag={handleToggleTag}
+                onClose={() => setTagPickerVisible(false)}
+            />
+        )}
+        </>
     );
 };
 
@@ -194,6 +219,43 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: Colors.textDark,
         backgroundColor: "white",
+        fontFamily: "Nunito",
+    },
+    tagRow: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 8,
+        alignItems: "center",
+    },
+    tagChip: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 5,
+        paddingHorizontal: 12,
+        paddingVertical: 7,
+        borderRadius: 20,
+        backgroundColor: Colors.backgroundDark,
+    },
+    tagChipText: {
+        fontSize: 13,
+        color: Colors.textLite,
+        fontWeight: "600",
+        fontFamily: "Nunito",
+    },
+    addTagBtn: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 4,
+        paddingHorizontal: 10,
+        paddingVertical: 7,
+        borderRadius: 20,
+        borderWidth: 1.5,
+        borderColor: Colors.backgroundDark,
+        borderStyle: "dashed",
+    },
+    addTagText: {
+        fontSize: 13,
+        color: Colors.backgroundExtraDark,
         fontFamily: "Nunito",
     },
     chipsContainer: {

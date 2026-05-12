@@ -21,8 +21,9 @@ export class ProblemDAL extends BaseDAL<Problem> {
         if (params.setters !== undefined && params.setters.length > 0) filters.push(ProblemTable.getField("owner_id")!.in(params.setters));
         if (params.type !== undefined) filters.push(ProblemTable.getField("type")!.eq(params.type));
         let query = ProblemTable.query(filters);
-        if (params.tag !== undefined) {
-            if (params.tag === "unsent") {
+        const activeTags = params.tags ?? [];
+        if (activeTags.length > 0) {
+            if (activeTags.includes("unsent")) {
                 query = query.Join(
                     UserTickTable,
                     And(
@@ -40,8 +41,8 @@ export class ProblemDAL extends BaseDAL<Problem> {
                 ).Filter(
                     UserTickTable.getField("user_id")!.eq(this._dal.currentUser.id)
                 ).Filter(
-                    UserTickTable.getField("tag")!.eq(params.tag)
-                );
+                    UserTickTable.getField("tag")!.in(activeTags)
+                ).Distinct();
             }
         }
         if (params.groupId !== undefined) {

@@ -40,5 +40,5 @@ export interface ProblemFilter {
     setters?: string[];
     isPublic?: boolean;
     type?: string;
-    tag?: string;
+    tags?: string[];
 }

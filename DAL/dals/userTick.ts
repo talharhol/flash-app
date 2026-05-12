@@ -3,6 +3,7 @@ import { UserTickTable } from "../tables/tables";
 import { BaseDAL } from "../BaseDAL";
 import { collection, Query, query, Timestamp, where } from "firebase/firestore";
 
+const BUILT_IN_TAGS = ["project", "sent"];
 
 export class UserTickDAL extends BaseDAL<UserTick> {
 
@@ -21,15 +22,20 @@ export class UserTickDAL extends BaseDAL<UserTick> {
         });
     }
 
-    public getForProblem(problemId: string): UserTick | undefined {
-        return this.List({ userId: this._dal.currentUser.id, problemId })[0];
+    public getTicksForProblem(problemId: string): UserTick[] {
+        return this.List({ userId: this._dal.currentUser.id, problemId });
     }
 
-    public async setTick(problemId: string, tag: TickTag): Promise<void> {
-        const existing = this.getForProblem(problemId);
+    public getUserCustomTags(): string[] {
+        const ticks = this.List({ userId: this._dal.currentUser.id });
+        const unique = [...new Set(ticks.map(t => t.tag))];
+        return unique.filter(t => !BUILT_IN_TAGS.includes(t));
+    }
+
+    public async toggleTick(problemId: string, tag: TickTag): Promise<void> {
+        const existing = this.List({ userId: this._dal.currentUser.id, problemId, tag })[0];
         if (existing) {
-            existing.tag = tag;
-            await this.Update(existing);
+            await this.Remove(existing);
         } else {
             const tick = new UserTick({
                 userId: this._dal.currentUser.id,
@@ -40,9 +46,14 @@ export class UserTickDAL extends BaseDAL<UserTick> {
         }
     }
 
-    public async removeTick(problemId: string): Promise<void> {
-        const existing = this.getForProblem(problemId);
-        if (existing) await this.Remove(existing);
+    public async removeTick(problemId: string, tag?: TickTag): Promise<void> {
+        if (tag !== undefined) {
+            const existing = this.List({ userId: this._dal.currentUser.id, problemId, tag })[0];
+            if (existing) await this.Remove(existing);
+        } else {
+            const ticks = this.getTicksForProblem(problemId);
+            for (const tick of ticks) await this.Remove(tick);
+        }
     }
 
     protected getRemoteFetchQuery(since: Timestamp): Query {

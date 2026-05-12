@@ -3,7 +3,6 @@ import { ThemedText } from "@/components/general/ThemedText";
 import ThemedView from "@/components/general/ThemedView";
 import { grades } from "@/constants/consts";
 import { Problem } from "@/DAL/entities/problem";
-import { TickTag } from "@/DAL/entities/userTick";
 import { Wall } from "@/DAL/entities/wall";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
@@ -12,6 +11,7 @@ import Share from 'react-native-share';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { IDAL } from "@/DAL/IDAL";
+import TickPickerModal from "@/components/general/modals/TickPickerModal";
 
 import React from 'react';
 import { Colors } from "@/constants/Colors";
@@ -24,8 +24,7 @@ function RightAction(
     problem: Problem,
     wall: Wall,
     dal: IDAL,
-    tag: TickTag | undefined,
-    onSetTag: (tag: TickTag | undefined) => void,
+    onOpenTickPicker: () => void,
     deleteProblem?: (problem: Problem) => void,
     compact?: boolean,
 ) {
@@ -34,7 +33,6 @@ function RightAction(
     const iconSm = compact ? 20 : 35;
     const margin = compact ? 5 : 10;
     const logoSize = compact ? 75 : 150;
-    const sentLeft = compact ? 26 : 60;
 
     return (
         <View style={{ height: h, width: w, backgroundColor: Colors.backgroundExtraDark, borderRadius: 8, alignItems: "center", justifyContent: "center" }}>
@@ -61,21 +59,12 @@ function RightAction(
             }
 
             <MaterialCommunityIcons
-                name={tag === "project" ? "flag" : "flag-outline"}
+                name="ticket-confirmation-outline"
                 size={iconMd}
-                color={tag === "project" ? Colors.tickProject : Colors.backgroundExtraLite}
-                onPress={() => onSetTag(tag === "project" ? undefined : "project")}
+                color={Colors.backgroundExtraLite}
+                onPress={onOpenTickPicker}
                 style={{ position: "absolute", bottom: 0, left: 0, margin }}
             />
-
-            <MaterialCommunityIcons
-                name={tag === "sent" ? "check-circle" : "check-circle-outline"}
-                size={iconMd}
-                color={tag === "sent" ? Colors.tickSent : Colors.backgroundExtraLite}
-                onPress={() => onSetTag(tag === "sent" ? undefined : "sent")}
-                style={{ position: "absolute", bottom: 0, left: sentLeft, margin }}
-            />
-
         </View>
     );
 }
@@ -95,7 +84,8 @@ const BolderProblemPreview: React.FC<{
     const screenDimension = useWindowDimensions();
     const [height, setHeight] = useState(0);
     const [width, setWidth] = useState(0);
-    const [tag, setTag] = useState<TickTag | undefined>(dal.currentUser.getProblemStatus(problem.id));
+    const [tags, setTags] = useState<string[]>(dal.currentUser.getProblemTags(problem.id));
+    const [tickModalVisible, setTickModalVisible] = useState(false);
 
     useEffect(() => {
         Image.getSize(Image.resolveAssetSource(wall.image).uri, (w, h) => {
@@ -113,10 +103,14 @@ const BolderProblemPreview: React.FC<{
 
     const problemRef = useRef<BolderProblemComponent>(null);
 
-    const handleSetTag = (newTag: TickTag | undefined) => {
-        dal.currentUser.setProblemStatus(problem.id, newTag);
-        setTag(newTag);
+    const handleToggleTag = (tag: string) => {
+        dal.currentUser.toggleProblemTag(problem.id, tag);
+        setTags(prev =>
+            prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+        );
     };
+
+    const customTagCount = tags.filter(t => t !== "project" && t !== "sent").length;
 
     return (
         <View style={{
@@ -132,17 +126,20 @@ const BolderProblemPreview: React.FC<{
         }}>
         <Swipeable
             containerStyle={{ height: height, width: width, alignSelf: "center" }}
-            renderRightActions={() => RightAction(height, width, problemRef, problem, wall, dal, tag, handleSetTag, deleteProblem, compact)}
+            renderRightActions={() => RightAction(height, width, problemRef, problem, wall, dal, () => setTickModalVisible(true), deleteProblem, compact)}
         >
             <TouchableWithoutFeedback onPress={onPress}>
                 <ThemedView style={{ backgroundColor: "rgba(50, 50, 50, 0.5)", flexDirection: "row", justifyContent: 'space-between', alignItems: "center", position: "absolute", width: "100%", paddingLeft: compact ? 3 : 5, paddingRight: compact ? 3 : 5, zIndex: 1, borderTopRightRadius: 8, borderTopLeftRadius: 8 }}>
                     <ThemedText lite style={{ fontSize: compact ? 10 : 16 }}>{compact && problem.name.length > 16 ? problem.name.slice(0, 16) + '…' : problem.name}</ThemedText>
                     <View style={{ flexDirection: "row", alignItems: "center", gap: compact ? 3 : 6 }}>
-                        {tag === "project" &&
+                        {tags.includes("project") &&
                             <MaterialCommunityIcons name="flag" size={compact ? 10 : 16} color={Colors.tickProject} />
                         }
-                        {tag === "sent" &&
+                        {tags.includes("sent") &&
                             <MaterialCommunityIcons name="check-circle" size={compact ? 10 : 16} color={Colors.tickSent} />
+                        }
+                        {customTagCount > 0 &&
+                            <MaterialCommunityIcons name="label" size={compact ? 10 : 16} color={Colors.backgroundExtraLite} />
                         }
                         <ThemedText lite style={{ fontSize: compact ? 10 : 16 }}>{grades[problem.grade]}</ThemedText>
                     </View>
@@ -158,6 +155,15 @@ const BolderProblemPreview: React.FC<{
                 />
             </TouchableWithoutFeedback>
         </Swipeable>
+        {tickModalVisible && (
+            <TickPickerModal
+                problemId={problem.id}
+                dal={dal}
+                activeTags={tags}
+                onToggleTag={handleToggleTag}
+                onClose={() => setTickModalVisible(false)}
+            />
+        )}
         </View>
     )
 }

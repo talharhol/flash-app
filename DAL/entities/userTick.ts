@@ -1,7 +1,8 @@
 import { IDAL } from "../IDAL";
 import { Entity, EntityProps } from "./BaseEntity";
 
-export type TickTag = "project" | "sent";
+export type TickTag = string;
+export const BUILT_IN_TAGS = ["project", "sent"] as const;
 
 export type UserTickProps = EntityProps & { userId: string; problemId: string; tag: TickTag };
 

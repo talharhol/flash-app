@@ -1,7 +1,6 @@
 import { ImageSourcePropType, Image } from "react-native";
 import { Entity, EntityProps } from "./BaseEntity";
 import { IDAL, ProblemFilter } from "../IDAL";
-import { TickTag } from "./userTick";
 
 export type UserProps = EntityProps & { name?: string, image?: ImageSourcePropType }
 
@@ -124,16 +123,12 @@ export class User extends Entity {
         this.getDAL().users.setFilters(this, filters);
     }
 
-    public getProblemStatus(problemId: string): TickTag | undefined {
-        return this.getDAL().ticks.getForProblem(problemId)?.tag;
+    public getProblemTags(problemId: string): string[] {
+        return this.getDAL().ticks.getTicksForProblem(problemId).map(t => t.tag);
     }
 
-    public setProblemStatus(problemId: string, tag: TickTag | undefined): void {
-        if (tag === undefined) {
-            this.getDAL().ticks.removeTick(problemId).catch(console.error);
-        } else {
-            this.getDAL().ticks.setTick(problemId, tag).catch(console.error);
-        }
+    public toggleProblemTag(problemId: string, tag: string): void {
+        this.getDAL().ticks.toggleTick(problemId, tag).catch(console.error);
     }
 
 };
