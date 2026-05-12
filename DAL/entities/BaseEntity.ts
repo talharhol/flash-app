@@ -59,10 +59,11 @@ export class Entity {
         catch (e) {
             console.log(e);
         }
+        const fullUri = await this.dal!.resizeImage(image.uri, image.width, image.height, 2048);
         return {
             commpressed: commpressed,
             full: await this.dal!.remoteStorage.uploadFile(
-                image.uri, `wall/${this.id}/full`
+                fullUri, `wall/${this.id}/full`
             )
         };
     }

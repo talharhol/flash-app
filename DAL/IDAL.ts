@@ -28,6 +28,7 @@ export interface IDAL extends EventEmitter {
     remoteStorage: RemoteStorage;
     isLogin: boolean;
     compressImage(uri: string): Promise<string>;
+    resizeImage(uri: string, width: number, height: number, maxSize: number): Promise<string>;
     updateScreen(): void;
     signin(params: {email?: string, password?: string, oauthCredential?: OAuthCredential}): Promise<void>
     signup(params: {email?: string, password?: string, oauthCredential?: OAuthCredential}): Promise<void>

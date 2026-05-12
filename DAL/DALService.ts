@@ -190,6 +190,18 @@ class DalService extends EventEmitter {
         return compressed.uri;
     }
 
+    public async resizeImage(uri: string, width: number, height: number, maxSize: number): Promise<string> {
+        const larger = Math.max(width, height);
+        if (larger <= maxSize) return uri;
+        const scale = maxSize / larger;
+        const resized = await ImageManipulator.manipulateAsync(
+            uri,
+            [{ resize: { width: Math.round(width * scale), height: Math.round(height * scale) } }],
+            { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
+        );
+        return resized.uri;
+    }
+
     public async signin(params: {email?: string, password?: string, oauthCredential?: OAuthCredential}) {
         try {
             if (params.email && params.password)
