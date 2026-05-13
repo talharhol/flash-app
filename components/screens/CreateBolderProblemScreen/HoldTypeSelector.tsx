@@ -96,6 +96,18 @@ const HoldTypeSelector: React.FC<Props> = ({ holdTypes, selected, onSelect }) =>
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+      <TouchableOpacity
+        style={styles.mainTouchable}
+        onPress={() => setIsExpanded(v => !v)}
+        activeOpacity={0.85}
+      >
+        <Animated.View
+          style={[styles.main, { backgroundColor: selected.color, transform: [{ scale: mainScale }] }]}
+        >
+          <Text style={styles.mainLabel}>{selected.title}</Text>
+        </Animated.View>
+      </TouchableOpacity>
+
       {satellites.map((type, i) => {
         const pos = getSatellitePos(angles[i]);
         const pressScale = dotPressScales.current[type.type] ?? new Animated.Value(1);
@@ -105,7 +117,6 @@ const HoldTypeSelector: React.FC<Props> = ({ holdTypes, selected, onSelect }) =>
         return (
           <Animated.View
             key={type.type}
-            pointerEvents={isExpanded ? 'auto' : 'none'}
             style={[
               styles.dot,
               { backgroundColor: type.color, right: pos.right, bottom: pos.bottom },
@@ -118,18 +129,6 @@ const HoldTypeSelector: React.FC<Props> = ({ holdTypes, selected, onSelect }) =>
           </Animated.View>
         );
       })}
-
-      <TouchableOpacity
-        style={styles.mainTouchable}
-        onPress={() => setIsExpanded(v => !v)}
-        activeOpacity={0.85}
-      >
-        <Animated.View
-          style={[styles.main, { backgroundColor: selected.color, transform: [{ scale: mainScale }] }]}
-        >
-          <Text style={styles.mainLabel}>{selected.title}</Text>
-        </Animated.View>
-      </TouchableOpacity>
     </View>
   );
 };
