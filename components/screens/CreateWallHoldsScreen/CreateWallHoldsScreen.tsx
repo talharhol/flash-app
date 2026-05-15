@@ -2,9 +2,10 @@ import React, { useCallback, useState, useEffect } from "react";
 import {
     Platform,
     StyleSheet,
+    TouchableOpacity,
     View,
 } from "react-native";
-import { Hold, HoldInterface, HoldType, HoldTypes, holdTypeToHoldColor } from "../../../DAL/hold";
+import { HoldInterface, HoldType, HoldTypes, holdTypeToHoldColor } from "../../../DAL/hold";
 import BolderProblem from "@/components/general/BolderProblem";
 import { Notifier, Easing } from "react-native-notifier";
 import WithCancelNotification from "@/components/general/notifications/WithCancelNotification";
@@ -14,7 +15,6 @@ import ThemedView from "@/components/general/ThemedView";
 import { ThemedText } from "@/components/general/ThemedText";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDal } from "@/DAL/DALService";
-import BasicButton from "@/components/general/Button";
 import { Colors } from "@/constants/Colors";
 
 
@@ -72,15 +72,9 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
     }
 
     return (
-        <View style={[styles.container]}>
+        <View style={styles.container}>
             <ThemedView style={styles.headerContainer}>
-                <Ionicons
-                    onPress={() => setIsExitRequest(true)}
-                    name='close-circle-outline' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", left: 0, padding: 10 }} />
                 <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Create Holds</ThemedText>
-                <Ionicons
-                    onPress={SaveHolds}
-                    name='checkmark-circle-outline' size={35} color={Colors.backgroundExtraLite} style={{ position: "absolute", right: 0, padding: 10 }} />
             </ThemedView>
             {
                 holdToDelete && <ActionValidationModal
@@ -100,7 +94,6 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
                     const { height, width } = event.nativeEvent.layout;
                     setAspectRatio(height / width);
                 }}
-
                 style={{ flex: 1, width: "100%", backgroundColor: Colors.backgroundDark }}>
                 <BolderProblem
                     wallImage={wall.image}
@@ -112,22 +105,32 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
                     aspectRatio={aspectRatio}
                     useHoldDetection={holdDetectionEnabled}
                 />
-            </View>
-            <View style={styles.buttonContainer}>
-                <BasicButton text="New Hold" color={Colors.backgroundDeep} selected onPress={startDrawingHold} />
-                <MaterialCommunityIcons
-                    name="auto-fix"
-                    size={32}
-                    color={holdDetectionEnabled ? Colors.backgroundExtraLite : Colors.backgroundDark}
-                    onPress={() => setHoldDetectionEnabled(v => !v)}
-                    style={{
-                        position: "absolute",
-                        right: 16,
-                        padding: 6,
-                        borderRadius: 20,
-                        backgroundColor: holdDetectionEnabled ? Colors.backgroundExtraDark : 'transparent',
-                    }}
-                />
+                {!isDrawingHold && (
+                    <>
+                        <TouchableOpacity
+                            style={[styles.wandFab, holdDetectionEnabled && styles.wandFabActive]}
+                            onPress={() => setHoldDetectionEnabled(v => !v)}
+                        >
+                            <Ionicons
+                                name={holdDetectionEnabled ? 'sparkles' : 'sparkles-outline'}
+                                size={15}
+                                color={holdDetectionEnabled ? Colors.backgroundExtraDark : Colors.backgroundExtraLite}
+                            />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.drawFab} onPress={startDrawingHold}>
+                            {holdDetectionEnabled
+                                ? <MaterialCommunityIcons name="auto-fix" size={26} color={Colors.backgroundExtraLite} />
+                                : <Ionicons name="brush-outline" size={26} color={Colors.backgroundExtraLite} />
+                            }
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.exitFab} onPress={() => setIsExitRequest(true)}>
+                            <Ionicons name='close' size={18} color={Colors.backgroundExtraLite} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.saveFab} onPress={SaveHolds}>
+                            <Ionicons name='checkmark' size={30} color={Colors.backgroundExtraLite} />
+                        </TouchableOpacity>
+                    </>
+                )}
             </View>
         </View>
     );
@@ -136,6 +139,10 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
 export default CreateWallHoldsScreen;
 
 const styles = StyleSheet.create({
+    container: {
+        width: "100%",
+        height: "100%",
+    },
     headerContainer: {
         alignItems: 'center',
         justifyContent: 'center',
@@ -143,21 +150,88 @@ const styles = StyleSheet.create({
         width: "100%",
         flexDirection: "row",
         paddingTop: Platform.OS === 'ios' ? 50 : 0,
-        height: 100,
+        paddingHorizontal: 8,
+        height: Platform.OS === 'ios' ? 100 : 72,
+        elevation: 6,
+        shadowColor: Colors.shadow,
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.4,
+        shadowRadius: 4,
     },
-    buttonContainer: {
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-        paddingVertical: 14,
-        paddingHorizontal: 16,
+    drawFab: {
+        position: 'absolute',
+        left: 20,
+        bottom: 20,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
         backgroundColor: Colors.backgroundExtraDark,
-        borderTopWidth: 1,
-        borderTopColor: Colors.backgroundDeep,
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.4,
+        shadowRadius: 5,
+        borderWidth: 2,
+        borderColor: Colors.backgroundLite,
     },
-    container: {
-        width: "100%",
-        backgroundColor: Colors.backgroundDark,
-        flex: 1,
+    wandFab: {
+        position: 'absolute',
+        left: 72,
+        bottom: 72,
+        width: 25,
+        height: 25,
+        borderRadius: 17,
+        backgroundColor: Colors.backgroundExtraDark,
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 6,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.35,
+        shadowRadius: 4,
+        borderWidth: 1.5,
+        borderColor: Colors.backgroundLite,
+    },
+    wandFabActive: {
+        backgroundColor: Colors.tickProject,
+        borderColor: Colors.backgroundExtraLite,
+    },
+    saveFab: {
+        position: 'absolute',
+        right: 20,
+        bottom: 20,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: Colors.backgroundExtraDark,
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.4,
+        shadowRadius: 5,
+        borderWidth: 2,
+        borderColor: Colors.backgroundLite,
+    },
+    exitFab: {
+        position: 'absolute',
+        right: 72,
+        bottom: 72,
+        width: 25,
+        height: 25,
+        borderRadius: 17,
+        backgroundColor: Colors.backgroundExtraDark,
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 6,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.35,
+        shadowRadius: 4,
+        borderWidth: 1.5,
+        borderColor: Colors.backgroundLite,
     },
 });

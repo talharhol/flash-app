@@ -53,6 +53,7 @@ const CreateProblemScreen: React.FC = () => {
         setDrawingHoldType(new HoldType(HoldTypes.start));
         setHolds([]);
         setHoldDetectionEnabled(false);
+        setIsCycle(false);
       }, []
     )
   );
