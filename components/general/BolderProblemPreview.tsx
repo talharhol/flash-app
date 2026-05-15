@@ -115,7 +115,7 @@ const BolderProblemPreview: React.FC<{
     const hasBumped = useRef(false);
 
     useEffect(() => {
-        if (height > 0 && !hasBumped.current && (dal.currentUser.loginCount <= 10 || true)) {
+        if (height > 0 && !hasBumped.current && dal.currentUser.loginCount <= 10) {
             hasBumped.current = true;
             const timer = setTimeout(() => {
                 Animated.sequence([
