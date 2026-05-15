@@ -6,7 +6,7 @@ import { Problem } from "@/DAL/entities/problem";
 import { Wall } from "@/DAL/entities/wall";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
-import { Image, useWindowDimensions, View } from "react-native";
+import { Animated, Image, useWindowDimensions, View } from "react-native";
 import Share from 'react-native-share';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
@@ -28,43 +28,68 @@ function RightAction(
     deleteProblem?: (problem: Problem) => void,
     compact?: boolean,
 ) {
-    const iconLg = compact ? 30 : 50;
-    const iconMd = compact ? 25 : 40;
-    const iconSm = compact ? 20 : 35;
-    const margin = compact ? 5 : 10;
-    const logoSize = compact ? 75 : 150;
+    const iconSize = compact ? 22 : 30;
+    const fontSize = compact ? 9 : 12;
+    const btnPad = compact ? 6 : 10;
+    const btnGap = compact ? 6 : 10;
+
+    const ActionBtn = ({ icon, label, onPress, color }: { icon: string; label: string; onPress: () => void; color?: string }) => (
+        <TouchableWithoutFeedback onPress={onPress}>
+            <View style={{
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "rgba(0,0,0,0.25)",
+                borderRadius: 10,
+                paddingVertical: btnPad,
+                paddingHorizontal: btnPad * 1.5,
+                gap: 4,
+                minWidth: compact ? 52 : 68,
+            }}>
+                <MaterialCommunityIcons name={icon as any} size={iconSize} color={color ?? Colors.backgroundExtraLite} />
+                {!compact && <ThemedText lite style={{ fontSize, fontWeight: "600", letterSpacing: 0.3 }}>{label}</ThemedText>}
+            </View>
+        </TouchableWithoutFeedback>
+    );
 
     return (
-        <View style={{ height: h, width: w, backgroundColor: Colors.backgroundExtraDark, borderRadius: 8, alignItems: "center", justifyContent: "center" }}>
-            <Image source={require("../../assets/images/loggo.png")} style={{ height: logoSize, width: logoSize }} />
-            <MaterialCommunityIcons name="share" onPress={async () => {
-                const imageUri = await problemRef.current?.getProblemUrl()!;
-                const shareUrl = `https://flash-b9950.web.app/?wallId=${wall.id}&problemId=${problem.id}`;
-                await Share.open({
-                    title: problem.name,
-                    message: `Check out "${problem.name}" (${grades[problem.grade]}) on Flash App!\n${shareUrl}`,
-                    url: imageUri,
-                    failOnCancel: false,
-                });
-            }} size={iconLg} color={Colors.backgroundExtraLite} style={{ position: "absolute", top: 0, right: 0, margin }} />
+        <View style={{
+            height: h,
+            width: w,
+            backgroundColor: Colors.backgroundExtraDark,
+            borderRadius: 8,
+        }}>
+            <Image source={require("../../assets/images/loggo.png")} style={{ position: "absolute", alignSelf: "center", top: h / 2 - (compact ? 30 : 50), height: compact ? 60 : 100, width: compact ? 60 : 100 }} />
 
-            <MaterialCommunityIcons
-                onPress={() => problemRef.current?.exportProblem()}
-                name="download" size={iconLg} color={Colors.backgroundExtraLite} style={{ position: "absolute", bottom: 0, right: 0, margin }} />
-
+            {/* top-left: delete (setter only) */}
             {problem.setter === dal.currentUser.id &&
-                <MaterialCommunityIcons
-                    onPress={() => deleteProblem?.(problem)}
-                    name="delete" size={iconSm} color={Colors.backgroundExtraLite} style={{ position: "absolute", top: 0, left: 0, margin }} />
+                <View style={{ position: "absolute", top: btnGap, left: btnGap }}>
+                    <ActionBtn icon="delete" label="Delete" onPress={() => deleteProblem?.(problem)} color={Colors.danger} />
+                </View>
             }
 
-            <MaterialCommunityIcons
-                name="ticket-confirmation-outline"
-                size={iconMd}
-                color={Colors.backgroundExtraLite}
-                onPress={onOpenTickPicker}
-                style={{ position: "absolute", bottom: 0, left: 0, margin }}
-            />
+            {/* top-right: share */}
+            <View style={{ position: "absolute", top: btnGap, right: btnGap }}>
+                <ActionBtn icon="share" label="Share" onPress={async () => {
+                    const imageUri = await problemRef.current?.getProblemUrl()!;
+                    const shareUrl = `https://flash-b9950.web.app/?wallId=${wall.id}&problemId=${problem.id}`;
+                    await Share.open({
+                        title: problem.name,
+                        message: `Check out "${problem.name}" (${grades[problem.grade]}) on Flash App!\n${shareUrl}`,
+                        url: imageUri,
+                        failOnCancel: false,
+                    });
+                }} />
+            </View>
+
+            {/* bottom-left: tick */}
+            <View style={{ position: "absolute", bottom: btnGap, left: btnGap }}>
+                <ActionBtn icon="ticket-confirmation-outline" label="Tick" onPress={onOpenTickPicker} />
+            </View>
+
+            {/* bottom-right: save */}
+            <View style={{ position: "absolute", bottom: btnGap, right: btnGap }}>
+                <ActionBtn icon="download" label="Save" onPress={() => problemRef.current?.exportProblem()} />
+            </View>
         </View>
     );
 }
@@ -86,6 +111,21 @@ const BolderProblemPreview: React.FC<{
     const [width, setWidth] = useState(0);
     const [tags, setTags] = useState<string[]>(dal.currentUser.getProblemTags(problem.id));
     const [tickModalVisible, setTickModalVisible] = useState(false);
+    const bumpAnim = useRef(new Animated.Value(0)).current;
+    const hasBumped = useRef(false);
+
+    useEffect(() => {
+        if (height > 0 && !hasBumped.current && (dal.currentUser.loginCount <= 10 || true)) {
+            hasBumped.current = true;
+            const timer = setTimeout(() => {
+                Animated.sequence([
+                    Animated.timing(bumpAnim, { toValue: -35, duration: 250, useNativeDriver: true }),
+                    Animated.timing(bumpAnim, { toValue: 0, duration: 250, useNativeDriver: true }),
+                ]).start();
+            }, 800);
+            return () => clearTimeout(timer);
+        }
+    }, [height]);
 
     useEffect(() => {
         Image.getSize(Image.resolveAssetSource(wall.image).uri, (w, h) => {
@@ -123,11 +163,13 @@ const BolderProblemPreview: React.FC<{
             shadowOpacity: 0.6,
             shadowRadius: 12,
             elevation: 16,
+            backgroundColor: Colors.backgroundExtraDark,
         }}>
         <Swipeable
             containerStyle={{ height: height, width: width, alignSelf: "center" }}
             renderRightActions={() => RightAction(height, width, problemRef, problem, wall, dal, () => setTickModalVisible(true), deleteProblem, compact)}
         >
+            <Animated.View style={{ transform: [{ translateX: bumpAnim }] }}>
             <TouchableWithoutFeedback onPress={onPress}>
                 <ThemedView style={{ backgroundColor: "rgba(50, 50, 50, 0.5)", flexDirection: "row", justifyContent: 'space-between', alignItems: "center", position: "absolute", width: "100%", paddingLeft: compact ? 3 : 5, paddingRight: compact ? 3 : 5, zIndex: 1, borderTopRightRadius: 8, borderTopLeftRadius: 8 }}>
                     <ThemedText lite style={{ fontSize: compact ? 10 : 16 }}>{compact && problem.name.length > 16 ? problem.name.slice(0, 16) + '…' : problem.name}</ThemedText>
@@ -154,6 +196,7 @@ const BolderProblemPreview: React.FC<{
                     bindToImage
                 />
             </TouchableWithoutFeedback>
+            </Animated.View>
         </Swipeable>
         {tickModalVisible && (
             <TickPickerModal

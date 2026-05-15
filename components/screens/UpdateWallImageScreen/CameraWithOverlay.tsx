@@ -40,7 +40,7 @@ export const CameraWithOverlay: React.FC<Props> = ({ oldImageUri, onCapture, onC
     }
 
     const capture = async () => {
-        const photo = await cameraRef.current?.takePictureAsync({ quality: 1 });
+        const photo = await cameraRef.current?.takePictureAsync({ quality: 1, shutterSound: false });
         if (photo) onCapture(photo.uri);
     };
 

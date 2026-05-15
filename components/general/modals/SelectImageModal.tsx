@@ -41,7 +41,7 @@ const SelectImageModal: React.FC<React.ComponentProps<typeof BasicModal> & {
 
     const takePicture = async () => {
         if (!cameraRef.current) return;
-        const photo = await cameraRef.current.takePictureAsync({ quality: 1 });
+        const photo = await cameraRef.current.takePictureAsync({ quality: 1, shutterSound: false });
         if (photo) {
             getImage(photo.uri);
             setShowCamera(false);

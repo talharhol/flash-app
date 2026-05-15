@@ -29,6 +29,7 @@ const ViewWallScreen: React.FC = () => {
     const [displayedProblem, setDisplayedProblem] = useState<string | null>(problemId ?? null);
     const [filterProblemsModal, setFilterProblemsModal] = useState(false);
     const [deleteWallModal, setDeleteWallModal] = useState(false);
+    const [removeWallModal, setRemoveWallModal] = useState(false);
     const [filters, setFilters] = useState<ProblemFilter>({});
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
     const [selectedVersionId, setSelectedVersionId] = useState<string | null>(null);
@@ -143,7 +144,14 @@ const ViewWallScreen: React.FC = () => {
                 onPress: () => { closeActions(); setDeleteWallModal(true); },
                 isAdmin: true,
             },
-        ] : []),
+        ] : [
+            {
+                icon: 'trash-can-outline' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
+                label: 'Remove wall',
+                onPress: () => { closeActions(); setRemoveWallModal(true); },
+                isAdmin: true,
+            }
+        ]),
     ];
 
     return (
@@ -180,6 +188,17 @@ const ViewWallScreen: React.FC = () => {
                             dal.walls.Remove(wall).then(() => router.navigate("/"));
                         }}
                         text="Delete this wall? This cannot be undone."
+                    />
+                )}
+                {removeWallModal && (
+                    <ActionValidationModal
+                        closeModal={() => setRemoveWallModal(false)}
+                        cancelAction={() => setRemoveWallModal(false)}
+                        approveAction={() => {
+                            dal.walls.Remove(wall).then(() => router.navigate("/"));
+                        }}
+                        text={`Remove ${wall.name} from your walls?`}
+                        subText='You can always add it later'
                     />
                 )}
                 {displayedProblem &&
