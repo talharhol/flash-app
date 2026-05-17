@@ -2,7 +2,7 @@ import { Problem } from "../entities/problem";
 import { And, Filter } from "../tables/BaseTable";
 import { GroupProblemTable, ProblemTable, UserTickTable } from "../tables/tables";
 import { BaseDAL } from "../BaseDAL";
-import { collection, Query, query, Timestamp, where } from "firebase/firestore";
+import { and, collection, Query, query, Timestamp, where, or } from "firebase/firestore";
 import { ProblemFilter } from "../IDAL";
 
 
@@ -63,24 +63,22 @@ export class ProblemDAL extends BaseDAL<Problem> {
     }
     
     protected getRemoteFetchQuery(since: Timestamp, extraData?: { wallId: string }): Query {
-        let walls: string[] = [];
-        if (extraData?.wallId) walls.push(extraData.wallId);
-        else walls = this._dal.users.GetWalls({ user_id: this._dal.currentUser.id }).map(w => w.id);
-
-        if (walls.length === 0) walls.push("");
-
-        const baseQuery = query(
-            collection(this._dal.remoteDB, this.remoteCollection!),
-            where("updated_at", ">=", since),
-            where("isPublic", "==", true),
-            where("wallId", "in", walls)
-        );
-
+        let walls = this._dal.users.GetWalls({ user_id: this._dal.currentUser.id });
         if (extraData?.wallId) {
-            const wall = this._dal.walls.Get({ id: extraData.wallId });
-            return query(baseQuery, where("wallVersion", "==", wall.version));
+            walls = walls.concat(this._dal.walls.Get({ id: extraData.wallId }));
         }
 
-        return baseQuery;
+        const wallFilters = walls.length > 0
+            ? walls.map(wall => and(where("wallId", "==", wall.id), where("wallVersion", "==", wall.version)))
+            : [and(where("wallId", "==", "This Wall Does Not Exist"), where("wallVersion", "==", -1))];
+
+        return query(
+            collection(this._dal.remoteDB, this.remoteCollection!),
+            and(
+                where("updated_at", ">=", since),
+                where("isPublic", "==", true),
+                or(...wallFilters)
+            )
+        );
     }
 }
