@@ -149,161 +149,196 @@ export class GroupDAL extends BaseDAL<Group> {
         );
     }
 
+    private fetchExistingGroupState(groupId: string): { walls: string[]; members: string[]; admins: string[]; problems: string[] } {
+        const walls = GroupWallTable.query()
+            .Filter(GroupWallTable.getField("group_id")!.eq(groupId))
+            .Select([GroupWallTable.getField("wall_id")!])
+            .All<{ wall_id: string }>(this._dal.db!)
+            .map(w => w.wall_id);
+
+        const members = GroupMemberTable.query()
+            .Filter(GroupMemberTable.getField("group_id")!.eq(groupId))
+            .Select([GroupMemberTable.getField("user_id")!])
+            .All<{ user_id: string }>(this._dal.db!)
+            .map(u => u.user_id);
+
+        const admins = GroupMemberTable.query()
+            .Filter(GroupMemberTable.getField("group_id")!.eq(groupId))
+            .Filter(GroupMemberTable.getField("role")!.eq("admin"))
+            .Select([GroupMemberTable.getField("user_id")!])
+            .All<{ user_id: string }>(this._dal.db!)
+            .map(u => u.user_id);
+
+        const problems = GroupProblemTable.query()
+            .Filter(GroupProblemTable.getField("group_id")!.eq(groupId))
+            .Select([GroupProblemTable.getField("problem_id")!])
+            .All<{ problem_id: string }>(this._dal.db!)
+            .map(p => p.problem_id);
+
+        return { walls, members, admins, problems };
+    }
+
+    private async syncWallRecords(obj: Group, existingWalls: string[]): Promise<{ added: string[]; removed: string[] }> {
+        const added = obj.walls.filter(w => !existingWalls.includes(w));
+        const removed = existingWalls.filter(w => !obj.walls.includes(w));
+
+        await Promise.all(added.map(w => this.AddWall({ wall_id: w, group_id: obj.id })));
+        if (removed.length > 0) {
+            await GroupWallTable.delete(
+                [GroupWallTable.getField("group_id")!.eq(obj.id), GroupWallTable.getField("wall_id")!.in(removed)],
+                this._dal.db!
+            ).catch(console.error);
+            const removedWalls = this._dal.walls.List({ ids: removed });
+            await Promise.all(
+                removedWalls
+                    .filter(w => !w.isPublic)
+                    .map(w => this._dal.walls.Remove(w).catch(console.error))
+            );
+        }
+        return { added, removed };
+    }
+
+    private async syncMemberRecords(obj: Group, existingMembers: string[], existingAdmins: string[]): Promise<{ added: string[]; removed: string[] }> {
+        const added = obj.members.filter(u => !existingMembers.includes(u));
+        const removed = existingMembers.filter(u => !obj.members.includes(u));
+
+        await Promise.all(added.map(u => this.AddMember({
+            user_id: u,
+            group_id: obj.id,
+            role: obj.admins.includes(u) ? "admin" : "member",
+        })));
+
+        // Update role for existing members whose admin status changed
+        const retained = obj.members.filter(u => existingMembers.includes(u));
+        await Promise.all(
+            retained
+                .filter(u => obj.admins.includes(u) !== existingAdmins.includes(u))
+                .map(u => GroupMemberTable.update(
+                    [GroupMemberTable.getField("group_id")!.eq(obj.id), GroupMemberTable.getField("user_id")!.eq(u)],
+                    { role: obj.admins.includes(u) ? "admin" : "member" },
+                    this._dal.db!
+                ).catch(console.error))
+        );
+
+        if (removed.length > 0) {
+            await GroupMemberTable.delete(
+                [GroupMemberTable.getField("group_id")!.eq(obj.id), GroupMemberTable.getField("user_id")!.in(removed)],
+                this._dal.db!
+            ).catch(console.error);
+        }
+        return { added, removed };
+    }
+
+    private async syncProblemRecords(obj: Group, existingProblems: string[]): Promise<{ added: string[]; removed: string[] }> {
+        const added = obj.problems.filter(p => !existingProblems.includes(p));
+        const removed = existingProblems.filter(p => !obj.problems.includes(p));
+
+        await Promise.all(added.map(p => this.AddProblem({ problem_id: p, group_id: obj.id })));
+        if (removed.length > 0) {
+            await GroupProblemTable.delete(
+                [GroupProblemTable.getField("group_id")!.eq(obj.id), GroupProblemTable.getField("problem_id")!.in(removed)],
+                this._dal.db!
+            ).catch(console.error);
+        }
+        return { added, removed };
+    }
+
+    private computeAdminDiff(obj: Group, existingAdmins: string[]): { added: string[]; removed: string[] } {
+        return {
+            added: obj.admins.filter(u => !existingAdmins.includes(u)),
+            removed: existingAdmins.filter(u => !obj.admins.includes(u)),
+        };
+    }
+
     public async UpdateLocal(obj: Group): Promise<UpdatedData> {
         await super.UpdateLocal(obj);
-        let updateData: UpdatedData = {
-            walls: {
-                added: [],
-                removed: []
-            },
-            problems: {
-                added: [],
-                removed: []
-            },
-            membes: {
-                added: [],
-                removed: []
-            },
-            admins: {
-                added: [],
-                removed: []
-            }
+
+        const existing = this.fetchExistingGroupState(obj.id);
+
+        const [wallDiff, memberDiff, problemDiff] = await Promise.all([
+            this.syncWallRecords(obj, existing.walls),
+            this.syncMemberRecords(obj, existing.members, existing.admins),
+            this.syncProblemRecords(obj, existing.problems),
+        ]);
+
+        return {
+            walls: wallDiff,
+            problems: problemDiff,
+            membes: memberDiff,
+            admins: this.computeAdminDiff(obj, existing.admins),
         };
-        let existingWalls = GroupWallTable.query().Filter(
-            GroupWallTable.getField("group_id")!.eq(obj.id)
-        ).Select([GroupWallTable.getField("wall_id")!])
-        .All<{wall_id: string}>(this._dal.db!)
-        .map(w => w.wall_id);
-        let existingUsers = GroupMemberTable.query().Filter(
-            GroupMemberTable.getField("group_id")!.eq(obj.id)
-        ).Select([GroupMemberTable.getField("user_id")!])
-        .All<{user_id: string}>(this._dal.db!)
-        .map(w => w.user_id);
-        let existingProblems = GroupProblemTable.query().Filter(
-            GroupProblemTable.getField("group_id")!.eq(obj.id)
-        ).Select([GroupProblemTable.getField("problem_id")!])
-        .All<{problem_id: string}>(this._dal.db!)
-        .map(p => p.problem_id);
-        
+    }
+
+    private async resolveGroupWalls(entityObj: Group): Promise<void> {
+        const wallsToRemove = new Set<string>();
         await Promise.all(
-            obj.walls.filter(w => !existingWalls.includes(w)).map(
-                w => this.AddWall({wall_id: w, group_id: obj.id})
-            )
-        );
+            entityObj.walls.map(async wall_id => {
+                if (this._dal.walls.List({ id: wall_id }).length > 0) return;
+                const remoteWall = await this._dal.walls.FetchSingleDoc(wall_id);
+                if (remoteWall === undefined || remoteWall.is_deleted) {
+                    wallsToRemove.add(wall_id);
+                } else {
+                    await this._dal.walls.AddToLocal(Wall.fromRemoteDoc(remoteWall));
+                }
+            })
+        ).catch(console.error);
+        entityObj.walls = entityObj.walls.filter(id => !wallsToRemove.has(id));
+    }
+
+    private async resolveGroupProblems(entityObj: Group): Promise<void> {
+        const problemsToRemove = new Set<string>();
         await Promise.all(
-            obj.members.filter(u => !existingUsers.includes(u)).map(
-                u => this.AddMember({
-                    user_id: u,
-                    group_id: obj.id,
-                    role: obj.admins.includes(u) ? "admin" : "member"
-                })
-            )
-        );
-        await Promise.all(
-            obj.problems.filter(p => !existingProblems.includes(p)).map(
-                p => this.AddProblem({problem_id: p, group_id: obj.id})
-            )
-        );
-        await GroupWallTable.delete(
-            [
-                GroupWallTable.getField("group_id")!.eq(obj.id),
-                GroupWallTable.getField("wall_id")!.in(
-                    existingWalls.filter(w => !obj.walls.includes(w))
-                )
-            ],
-            this._dal.db!
+            entityObj.problems.map(async pid => {
+                if (this._dal.problems.List({ id: pid }).length > 0) return;
+                const remoteProblem = await this._dal.problems.FetchSingleDoc(pid);
+                if (remoteProblem === undefined || remoteProblem.is_deleted) {
+                    problemsToRemove.add(pid);
+                } else {
+                    try {
+                        await this._dal.problems.AddToLocal(Problem.fromRemoteDoc(remoteProblem));
+                    } catch {
+                        console.log(`failed adding problem ${pid}, removing`);
+                        problemsToRemove.add(pid);
+                    }
+                }
+            })
         ).catch(console.error);
-        await GroupMemberTable.delete(
-            [
-                GroupMemberTable.getField("group_id")!.eq(obj.id),
-                GroupMemberTable.getField("user_id")!.in(
-                    existingUsers.filter(u => !obj.members.includes(u))
-                )
-            ],
-            this._dal.db!
-        ).catch(console.error);
-        await GroupProblemTable.delete(
-            [
-                GroupProblemTable.getField("group_id")!.eq(obj.id),
-                GroupProblemTable.getField("problem_id")!.in(
-                    existingProblems.filter(p => !obj.problems.includes(p))
-                )
-            ],
-            this._dal.db!
-        ).catch(console.error);
-        updateData.walls.added = obj.walls.filter(w => !existingWalls.includes(w));
-        updateData.membes.added = obj.members.filter(u => !existingUsers.includes(u));
-        updateData.admins.added = updateData.membes.added.filter(obj.admins.includes);
-        updateData.problems.added =  obj.problems.filter(p => !existingProblems.includes(p));
-        updateData.walls.removed = existingWalls.filter(w => !obj.walls.includes(w));
-        updateData.membes.removed = existingUsers.filter(u => !obj.members.includes(u));
-        updateData.problems.removed = existingProblems.filter(p => !obj.problems.includes(p));
-        return updateData;
+        entityObj.problems = entityObj.problems.filter(id => !problemsToRemove.has(id));
+    }
+
+    private async syncGroupDoc(remoteData: any, docId: string): Promise<void> {
+        const existingEntity = this.List({ id: docId })[0];
+        if (remoteData.is_deleted === true) {
+            if (existingEntity) await this.Remove(existingEntity).catch(console.error);
+            return;
+        }
+        const entityObj = Group.fromRemoteDoc(remoteData, existingEntity);
+        await this.resolveGroupWalls(entityObj);
+        await this.resolveGroupProblems(entityObj);
+        if (existingEntity !== undefined) {
+            await this.UpdateLocal(entityObj as Group);
+        } else {
+            await this.AddToLocal(entityObj as Group);
+        }
     }
 
     public async FetchFromRemote(since: Timestamp): Promise<void> {
         if (!this.remoteCollection || !this._dal.isLogin) return;
-        console.log(`fetching ${this.remoteCollection}`)
+        console.log(`fetching ${this.remoteCollection}`);
         const q = query(
-            collection(this._dal.remoteDB, this.remoteCollection), 
-            where("updated_at", ">=", since ),
-            where("isPublic", "==", true ),
+            collection(this._dal.remoteDB, this.remoteCollection),
+            where("updated_at", ">=", since),
             where("members", "array-contains", this._dal.currentUser.id)
         );
-        let docs = await getDocs(q);
-        docs.forEach(
-            async doc => {
+        const docs = await getDocs(q);
+        await Promise.all(
+            docs.docs.map(async doc => {
                 try {
-                    let remoteData = doc.data();
-                    let existingEntity = this.List({id: doc.id})[0];
-                    if (remoteData.is_deleted === true) {
-                        if (existingEntity) this.Remove(existingEntity).catch(console.error);
-                    } else {
-                        let entityObj = Group.fromRemoteDoc(remoteData, existingEntity);
-                        await Promise.all(
-                            entityObj.walls.map(
-                                async wall_id => {
-                                    let walls = this._dal.walls.List({id: wall_id});
-                                    if (walls.length === 0) {
-                                        let remoteWall = await this._dal.walls.FetchSingleDoc(wall_id);
-                                        if (remoteWall === undefined || remoteWall.is_deleted) {
-                                            entityObj.walls = entityObj.walls.filter(v => v !== wall_id)
-                                        } else {
-                                            await this._dal.walls.AddToLocal(Wall.fromRemoteDoc(remoteWall))
-                                        }
-                                    }                                 
-                                }
-                            )
-                        ).catch(console.error);
-                        await Promise.all(
-                            entityObj.problems.map(
-                                async pid => {
-                                    let problems = this._dal.problems.List({id: pid});
-                                    if (problems.length === 0) {
-                                        let remoteProblem = await this._dal.problems.FetchSingleDoc(pid);
-                                        if (remoteProblem === undefined || remoteProblem.is_deleted) {
-                                            entityObj.problems = entityObj.problems.filter(v => v !== pid)
-                                        } else {
-                                            try {
-                                                await this._dal.problems.AddToLocal(Problem.fromRemoteDoc(remoteProblem));
-                                            } catch {
-                                                console.log(`failed adding problem ${pid}, removing`);
-                                                entityObj.problems = entityObj.problems.filter(v => v !== pid);
-                                            }
-                                        }
-                                    }
-                                }
-                            )
-                        ).catch(console.error);
-                        if (existingEntity !== undefined)
-                            await this.UpdateLocal(entityObj as Group);
-                        else 
-                            await this.AddToLocal(entityObj as Group);
-                    }
+                    await this.syncGroupDoc(doc.data(), doc.id);
                 } catch (e) {
                     console.error(e);
                 }
-            }
+            })
         );
     }
 }
