@@ -29,6 +29,7 @@ const ViewGroupScreen: React.FC = () => {
     const [actionsOpen, setActionsOpen] = useState(false);
     const [deleteGroupModal, setDeleteGroupModal] = useState(false);
     const [exitGroupModal, setExitGroupModal] = useState(false);
+    const [showArchived, setShowArchived] = useState(false);
 
     const isAdmin = group.admins.includes(dal.currentUser.id);
 
@@ -66,6 +67,11 @@ const ViewGroupScreen: React.FC = () => {
             icon: viewMode === 'grid' ? 'view-list' : 'view-grid',
             label: viewMode === 'grid' ? 'List layout' : 'Grid layout',
             onPress: () => { setViewMode(v => v === 'list' ? 'grid' : 'list'); closeActions(); },
+        },
+        {
+            icon: 'history' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
+            label: showArchived ? 'Hide archived' : 'Show archived',
+            onPress: () => setShowArchived(v => !v),
         },
         {
             icon: 'exit-to-app' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
@@ -138,13 +144,13 @@ const ViewGroupScreen: React.FC = () => {
                     />
                 )}
                 <View style={viewMode === 'grid' ? { flexDirection: 'row', flexWrap: 'wrap', rowGap: 12 } : { gap: 12 }}>
-                    {group.FilterProblems(filters).map(problem => (
+                    {group.FilterProblems({ ...filters, includeArchived: showArchived }).map(problem => (
                         <View key={problem.id} style={viewMode === 'grid' ? { width: '50%', alignItems: 'center' } : {}}>
                             <BolderProblemPreview
                                 dal={dal}
                                 compact={viewMode === 'grid'}
                                 onPress={() => setDisplayedProblem(problem.id)}
-                                wall={dal.walls.Get({ id: problem.wallId })}
+                                wall={problem.wall}
                                 problem={problem}
                                 deleteProblem={deleteProblem}
                             />

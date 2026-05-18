@@ -51,6 +51,7 @@ export class Entity {
 
     public async uploadImage(image: ImageResolvedAssetSource): Promise<{ commpressed: string, full: string }> {
         let commpressed = "";
+        let full = "";
         try {
             commpressed = await this.dal!.remoteStorage.uploadFile(
                 await this.dal!.compressImage(image.uri), `wall/${this.id}/compressed`
@@ -59,13 +60,14 @@ export class Entity {
         catch (e) {
             console.log(e);
         }
-        const fullUri = await this.dal!.resizeImage(image.uri, image.width, image.height, 2048);
-        return {
-            commpressed: commpressed,
-            full: await this.dal!.remoteStorage.uploadFile(
-                fullUri, `wall/${this.id}/full`
-            )
-        };
+        try {
+            const fullUri = await this.dal!.resizeImage(image.uri, image.width, image.height, 2048);
+            full = await this.dal!.remoteStorage.uploadFile(fullUri, `wall/${this.id}/full`);
+        }
+        catch (e) {
+            console.log(e);
+        }
+        return { commpressed, full };
     }
 
     protected async uploadAssets(data: { [key: string]: any }): Promise<{ [key: string]: any }> {

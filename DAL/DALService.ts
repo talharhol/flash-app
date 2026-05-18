@@ -123,6 +123,10 @@ class DalService extends EventEmitter {
         return this._instance || (this._instance = new this());
     }
 
+    public static resetInstance(): void {
+        (DalService as any)._instance = undefined;
+    }
+
     public get currentUser() {
         if (this._currentUser) return this._currentUser;
         if (!this.isLogin) {
@@ -191,6 +195,7 @@ class DalService extends EventEmitter {
     }
 
     public async resizeImage(uri: string, width: number, height: number, maxSize: number): Promise<string> {
+        if (!(width > 0 && height > 0)) return uri;
         const larger = Math.max(width, height);
         if (larger <= maxSize) return uri;
         const scale = maxSize / larger;

@@ -45,7 +45,10 @@ export class Problem extends Entity {
     }
 
     get wall(): Wall {
-        return this.dal!.walls.Get({id: this.wallId})
+        const currentWall = this.dal!.walls.Get({ id: this.wallId });
+        if (currentWall.version === this.wallVersion) return currentWall;
+        const archives = this.dal!.walls.List({ activeWallId: this.wallId });
+        return archives.find(w => w.version === this.wallVersion) ?? currentWall;
     }
 
     public static fromRemoteDoc(data: {[key: string]: any}, old?: Entity, dal?: IDAL): Problem {

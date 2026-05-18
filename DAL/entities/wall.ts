@@ -1,16 +1,17 @@
 import { Image, ImageResolvedAssetSource, ImageSourcePropType } from "react-native";
 import { HoldInterface } from "../hold";
 import { Entity, EntityProps } from "./BaseEntity";
+import { BaseTable } from "../tables/BaseTable";
 import { GeoPoint } from "firebase/firestore";
 import { IDAL } from "../IDAL";
 
 
-export type WallProps = EntityProps & { name: string, gym: string, image: ImageSourcePropType, angle?: number, configuredHolds?: HoldInterface[], isPublic?: boolean, owner: string, lat?: number, lng?: number, remoteImage?: {[key: string]: string}, version?: number, activeWallId?: string }
+export type WallProps = EntityProps & { name: string, gym: string, image?: ImageSourcePropType | null, angle?: number, configuredHolds?: HoldInterface[], isPublic?: boolean, owner: string, lat?: number, lng?: number, remoteImage?: {[key: string]: string}, version?: number, activeWallId?: string }
 
 export class Wall extends Entity {
     name: string;
     gym: string;
-    image: ImageResolvedAssetSource;
+    private _image: ImageResolvedAssetSource | null | undefined;
     angle?: number;
     configuredHolds: HoldInterface[];
     isPublic: boolean;
@@ -25,7 +26,7 @@ export class Wall extends Entity {
         super(props);
         this.name = name;
         this.gym = gym;
-        this.image = Image.resolveAssetSource(image);
+        this._image = image ? Image.resolveAssetSource(image) : null;
         this.angle = angle;
         this.configuredHolds = configuredHolds || [];
         this.isPublic = Boolean(isPublic ?? false);
@@ -77,6 +78,20 @@ export class Wall extends Entity {
         return this.name;
     }
 
+    get image(): ImageResolvedAssetSource {
+        return this._image ?? Image.resolveAssetSource(require("../../assets/images/loggo.png"));
+    }
+
+    set image(value: ImageResolvedAssetSource) {
+        this._image = value;
+    }
+
+    public toTable(table: typeof BaseTable): { [key: string]: any } {
+        const data = super.toTable(table);
+        data.image = this.image;
+        return data;
+    }
+
     get walls(): Wall[] {
         return this.dal!.users.GetWalls({user_id: this.id});
     }
@@ -84,7 +99,7 @@ export class Wall extends Entity {
         const imageChanged = old?.remoteImage
             ? data.image.full !== old.remoteImage.full || data.image.commpressed !== old.remoteImage.commpressed
             : false;
-        let image = {uri: data.image.commpressed};
+        let image = data.image.commpressed ? {uri: data.image.commpressed} : null;
         if (imageChanged) {           
             let isInWalls = old?.dal!.currentUser.walls.some(w => w.id === old.id);
             if (isInWalls) {
@@ -94,9 +109,10 @@ export class Wall extends Entity {
             image = old?.image ?? {uri: data.image.commpressed};
         }
 
-        if (data.activeWallId) {
-            let arciveWall = dal?.walls.List({ id: data.activeWallId })[0];
-            image = arciveWall?.image ?? image;
+        if (data.activeWallId && !old) {
+            let activeWall = dal?.walls.List({ id: data.activeWallId })[0];
+            if (!!activeWall?.version && activeWall?.version === data.version) 
+                image = activeWall.image;
         }
         
         return new this({
@@ -118,7 +134,7 @@ export class Wall extends Entity {
 
     public async fetchFullImage(): Promise<void> {
         if (this.remoteImage === undefined || !this.remoteImage.full) return;
-        this.image = Image.resolveAssetSource(
+        this._image = Image.resolveAssetSource(
             { 
                 uri: await this.dal!.convertToLocalImage({uri: this.remoteImage.full})
             }

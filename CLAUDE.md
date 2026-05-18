@@ -93,3 +93,5 @@ Import: `import { Colors } from "@/constants/Colors";`
 Firebase credentials live in `.env` as `EXPO_PUBLIC_*` vars. `firebaseConfig.js` initializes Firestore, Auth, and Storage. `app.config.js` reads `.env` and passes values to Expo's config plugin.
 
 Metro is configured to handle `.cjs` source extensions and `.tflite` asset extensions (`metro.config.js`).
+
+@unit-test.md

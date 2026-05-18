@@ -1,6 +1,6 @@
 import { Problem } from "../entities/problem";
 import { And, Filter } from "../tables/BaseTable";
-import { GroupProblemTable, ProblemTable, UserTickTable } from "../tables/tables";
+import { GroupProblemTable, ProblemTable, UserTickTable, WallTable } from "../tables/tables";
 import { BaseDAL } from "../BaseDAL";
 import { and, collection, Query, query, Timestamp, where, or } from "firebase/firestore";
 import { ProblemFilter } from "../IDAL";
@@ -51,6 +51,15 @@ export class ProblemDAL extends BaseDAL<Problem> {
                 GroupProblemTable.getField("problem_id")!.eq(ProblemTable.getField("id")!)
             );
             query.Filter(GroupProblemTable.getField("group_id")!.eq(params.groupId));
+            if (!params.includeArchived) {
+                query = query.Join(
+                    WallTable,
+                    And(
+                        WallTable.getField("id")!.eq(ProblemTable.getField("wall_id")!),
+                        WallTable.getField("version")!.eq(ProblemTable.getField("wall_version")!)
+                    )
+                );
+            }
             params.isPublic = false; // group has only private problems
         }
         if (params.isPublic !== undefined) query.Filter(ProblemTable.getField("is_public")!.eq(params.isPublic));

@@ -116,7 +116,7 @@ export class WallDAL extends BaseDAL<Wall> {
             image: wall.image,
             angle: wall.angle,
             configuredHolds: [...wall.configuredHolds],
-            isPublic: false,
+            isPublic: wall.isPublic,
             owner: wall.owner,
             lat: wall.lat,
             lng: wall.lng,

@@ -42,4 +42,5 @@ export interface ProblemFilter {
     isPublic?: boolean;
     type?: string;
     tags?: string[];
+    includeArchived?: boolean;
 }

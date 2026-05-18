@@ -328,6 +328,7 @@ export class GroupDAL extends BaseDAL<Group> {
         const q = query(
             collection(this._dal.remoteDB, this.remoteCollection),
             where("updated_at", ">=", since),
+            where("isPublic", "==", true),
             where("members", "array-contains", this._dal.currentUser.id)
         );
         const docs = await getDocs(q);
