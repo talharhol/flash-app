@@ -48,6 +48,9 @@ const migrations = [
                 new Field({ name: "owner", type: "TEXT" }),
                 new Field({ name: "lat", type: "REAL" }),
                 new Field({ name: "lng", type: "REAL" }),
+                new Field({ name: "remote_image", type: "TEXT" }),
+                new Field({ name: "version", type: "INTEGER", notNull: true, default_: () => 1 }),
+                new Field({ name: "active_wall_id", type: "TEXT" }),
             ];
         }
 
@@ -62,6 +65,7 @@ const migrations = [
                 new Field({ name: "holds", type: "TEXT", notNull: true }),
                 new Field({ name: "grade", type: "INTEGER", notNull: true }),
                 new Field({ name: "type", type: "TEXT", notNull: true }),
+                new Field({ name: "wall_version", type: "INTEGER", notNull: true, default_: () => 1 }),
             ];
         }
 
@@ -120,7 +124,7 @@ const migrations = [
                 new Field({ name: "last_pulled", type: "INTEGER", notNull: true, default_: () => 0 }),
                 new Field({ name: "should_fetch_user_data", type: "BOOLEAN", notNull: true, default_: () => false }),
                 new Field({ name: "login_counter", type: "INTEGER", notNull: true, default_: () => 0 }),
-                new Field({ name: "filters", type: "TEXT",  notNull: true, dumper: JSON.stringify, loader: JSON.parse, default_: () => "{}" }),
+                new Field({ name: "filters", type: "TEXT",  notNull: true, default_: () => "{}" }),
             ];
         }
 
@@ -156,15 +160,4 @@ const migrations = [
         await UserConfigTable.createTable(db);
         await UserTicks.createTable(db);
     },
-
-    async (db: SQLite.SQLiteDatabase) => {
-        await db.execAsync(`ALTER TABLE wall ADD COLUMN remote_image TEXT;`);
-    },
-
-    async (db: SQLite.SQLiteDatabase) => {
-        await db.execAsync(`ALTER TABLE wall ADD COLUMN version INTEGER NOT NULL DEFAULT 1;`);
-        await db.execAsync(`ALTER TABLE wall ADD COLUMN active_wall_id TEXT;`);
-        await db.execAsync(`ALTER TABLE problem ADD COLUMN wall_version INTEGER NOT NULL DEFAULT 1;`);
-    },
-
 ];
