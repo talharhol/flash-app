@@ -13,7 +13,7 @@ export async function runMigrations() {
         console.log("run migration: ", currentVersion);
     }
     await db.execAsync(`PRAGMA user_version = ${migrations.length}`);
-    await dalService.connect();
+    await dalService.connect(db);
 }
 
 async function getCurrentVersion(db: SQLite.SQLiteDatabase): Promise<number> {

@@ -73,9 +73,9 @@ class DalService extends EventEmitter {
 
     }
 
-    public async connect() {
+public async connect(existingDb?: SQLite.SQLiteDatabase) {
         try {
-            let db = await SQLite.openDatabaseAsync('flashLocalDB.db');
+            let db = existingDb ?? await SQLite.openDatabaseAsync('flashLocalDB.db');
             await db.execAsync("PRAGMA foreign_keys = ON").catch(console.log);
             this._db = db;
             this.connected = true;
@@ -274,6 +274,4 @@ export const useDal = (update?: () => void) => {
     }, []);
 
     return dalService;
-
-    return useContext(DalContext);
 } 
