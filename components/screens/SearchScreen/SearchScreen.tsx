@@ -46,6 +46,7 @@ const SearchScreen: React.FC = () => {
 
     const results = dal.walls.List({
         isPublic: true,
+        latest: true,
         gym: filterGymName,
         name: filterWallName,
         lat: userLocation?.lat,

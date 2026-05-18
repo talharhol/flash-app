@@ -39,7 +39,7 @@ const SelectWallModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                     </ThemedView>
                 }>
                 {
-                    dal.walls.List({ isPublic: true, gym: filterGymName, name: filterWallName })
+                    dal.walls.List({ isPublic: true, latest: true, gym: filterGymName, name: filterWallName })
                         .map(wall =>
                             <TouchableOpacity
                                 key={wall.id}
