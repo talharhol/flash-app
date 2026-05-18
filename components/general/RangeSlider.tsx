@@ -30,6 +30,11 @@ export const RangeSlider: React.FC<{
   // Keep between 0.10 and 0.40 for best user experience
   const manualOffsetBetweenSlider = 0.10;
 
+  const iconSize = (displayVal: number) => {
+    const ratio = (displayVal - minBoundary) / (maxBoundary - minBoundary);
+    return Math.round(14 + ratio * 18); // 14 at min → 32 at max
+  };
+
   // ----------------- Common ----------------------- //
   const [forceRender, setForceRender] = React.useState(0);
   const [renderedAmounts, setRenderedAmounts] = React.useState(0);
@@ -209,7 +214,7 @@ export const RangeSlider: React.FC<{
       >
         <View style={s.circle}>
           <View style={s.icon}>
-            <MaterialCommunityIcons name={icon} size={20} color={colorHighlight} />
+            <MaterialCommunityIcons name={icon} size={iconSize(min_animState.displayVal)} color={colorHighlight} />
           </View>
           <View style={s.labelContainer}>
             <Text style={s.label}>{props.valueToLable?.(min_animState.displayVal) ?? min_animState.displayVal}</Text>
@@ -314,7 +319,7 @@ export const RangeSlider: React.FC<{
       >
         <View style={s.circle}>
           <View style={s.icon}>
-            <MaterialCommunityIcons name={icon} size={30} color={colorHighlight} />
+            <MaterialCommunityIcons name={icon} size={iconSize(max_animState.displayVal)} color={colorHighlight} />
           </View>
           <View style={s.labelContainer}>
             <Text style={s.label}>{props.valueToLable?.(max_animState.displayVal) ?? max_animState.displayVal}</Text>
@@ -371,7 +376,7 @@ const s = StyleSheet.create({
   {
     alignItems: "center",
     justifyContent: "center",
-    overflow: "hidden",
+    overflow: "visible",
     width:"100%",
     aspectRatio:4,
   },
@@ -379,7 +384,7 @@ const s = StyleSheet.create({
   {
     alignItems: "center",
     justifyContent: "center",
-    overflow: "hidden",
+    overflow: "visible",
     flex: 1,
     flexDirection: "row",
   },
@@ -400,7 +405,7 @@ const s = StyleSheet.create({
   {
     alignItems: "center",
     justifyContent: "center",
-    overflow: "hidden",
+    overflow: "visible",
     height:"100%",
     flex: 8,
   },
