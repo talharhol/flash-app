@@ -106,7 +106,7 @@ const ReplaceWallImageScreen: React.FC = () => {
                     style={{ position: 'absolute', left: 0, padding: 10 }}
                     onPress={() => router.back()}
                 />
-                <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Replace Image</ThemedText>
+                <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Replace Wall</ThemedText>
                 {step === 'preview' && (
                     <Ionicons
                         name="checkmark-circle-outline" size={35} color={Colors.backgroundExtraLite}

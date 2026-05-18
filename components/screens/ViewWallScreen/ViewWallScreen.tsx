@@ -122,13 +122,13 @@ const ViewWallScreen: React.FC = () => {
         ...(isOwner ? [
             {
                 icon: 'image-edit-outline' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
-                label: 'Replace image',
+                label: 'Replace wall',
                 onPress: () => { closeActions(); router.push({ pathname: "/ReplaceWallImage", params: { id: wall.id } }); },
                 isAdmin: true,
             },
             {
                 icon: 'camera-retake-outline' as React.ComponentProps<typeof MaterialCommunityIcons>['name'],
-                label: 'Update image',
+                label: 'Update wall',
                 onPress: () => { closeActions(); router.push({ pathname: "/UpdateWallImage", params: { id: wall.id } }); },
                 isAdmin: true,
             },

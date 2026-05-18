@@ -157,7 +157,7 @@ const UpdateWallImageScreen: React.FC = () => {
                     style={{ position: 'absolute', left: 0, padding: 10 }}
                     onPress={() => router.back()}
                 />
-                <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Update Image</ThemedText>
+                <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Update Wall</ThemedText>
                 {step === 'adjust' && (
                     <Ionicons
                         name="checkmark-circle-outline" size={35} color={Colors.backgroundExtraLite}
