@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 
 import BasicModal from "./BasicModal";
 import BasicButton from "../Button";
 import SwitchSelector from "react-native-switch-selector";
-import { grades } from "@/constants/consts";
+import { getGradeMap } from "@/constants/consts";
 import { RangeSlider } from "../RangeSlider";
 import { IDAL, ProblemFilter } from "@/DAL/IDAL";
 import { Colors } from "@/constants/Colors";
@@ -77,7 +77,7 @@ const FilterProblemssModal: React.FC<React.ComponentProps<typeof BasicModal> & {
                         minValue={0}
                         maxInitialValue={isNaN(Number(initialFilters.maxGrade)) ? 24 : initialFilters.maxGrade}
                         minInitialValue={isNaN(Number(initialFilters.minGrade)) ? 0 : initialFilters.minGrade}
-                        valueToLable={v => grades[v]}
+                        valueToLable={v => getGradeMap(dal.currentUser.gradingSystem)[v]}
                         onMaxValueChange={setMaxGrade}
                         onMinValueChange={setMinGrade}
                     />

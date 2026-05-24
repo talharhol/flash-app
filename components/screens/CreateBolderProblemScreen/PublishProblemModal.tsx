@@ -4,7 +4,7 @@ import { Slider } from '@miblanchard/react-native-slider';
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { getRandomName } from "@/scripts/randomNames";
 import BasicButton from "@/components/general/Button";
-import { grades } from "@/constants/consts";
+import { useGrades } from "@/hooks/useGrades";
 import { Colors } from "@/constants/Colors";
 
 const PublishProblemModal: React.FC<React.ComponentProps<typeof BasicModal> & {
@@ -12,6 +12,7 @@ const PublishProblemModal: React.FC<React.ComponentProps<typeof BasicModal> & {
 }> = ({ publishProblem, ...props }) => {
     const [selectedGrade, setSelectedGrade] = useState<number>(9);
     const [name, setName] = useState<string>('');
+    const gradeMap = useGrades();
     const onPublish = () => {
         publishProblem({ name: name || getRandomName(), grade: selectedGrade });
         props.closeModal();
@@ -34,10 +35,10 @@ const PublishProblemModal: React.FC<React.ComponentProps<typeof BasicModal> & {
 
             <View style={styles.fieldGroup}>
                 <Text style={styles.label}>Grade</Text>
-                <Text style={styles.gradeValue}>{grades[selectedGrade]}</Text>
+                <Text style={styles.gradeValue}>{gradeMap[selectedGrade]}</Text>
                 <Slider
                     minimumValue={0}
-                    maximumValue={Object.keys(grades).length - 1}
+                    maximumValue={24}
                     step={1}
                     value={selectedGrade}
                     onValueChange={(value) => setSelectedGrade(Array.isArray(value) ? value[0] : value)}

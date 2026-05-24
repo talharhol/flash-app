@@ -1,6 +1,7 @@
 import { ImageSourcePropType, Image } from "react-native";
 import { Entity, EntityProps } from "./BaseEntity";
 import { IDAL, ProblemFilter } from "../IDAL";
+import { GradingSystem } from "../../constants/consts";
 
 export type UserProps = EntityProps & { name?: string, image?: ImageSourcePropType }
 
@@ -65,6 +66,7 @@ export class User extends Entity {
         return {
             ...super.toRemoteDoc(),
             name: this.name,
+            gradingSystem: this.gradingSystem,
             owenedWalls: this.ownedWalls.filter(w => w.shouldPushToRemote()).map(w => w.id),
             viewerWalls: this.viewerWalls.filter(w => w.shouldPushToRemote()).map(w => w.id),
         }
@@ -129,6 +131,14 @@ export class User extends Entity {
 
     public toggleProblemTag(problemId: string, tag: string): void {
         this.getDAL().ticks.toggleTick(problemId, tag).catch(console.error);
+    }
+
+    public get gradingSystem(): GradingSystem {
+        return this.getDAL().users.getGradingSystem(this);
+    }
+
+    public set gradingSystem(value: GradingSystem) {
+        this.getDAL().users.setGradingSystem(this, value).catch(console.error);
     }
 
 };

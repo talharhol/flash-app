@@ -160,4 +160,7 @@ const migrations = [
         await UserConfigTable.createTable(db);
         await UserTicks.createTable(db);
     },
+    async (db: SQLite.SQLiteDatabase) => {
+        await db.execAsync(`ALTER TABLE user_config ADD COLUMN grading_system TEXT NOT NULL DEFAULT 'french'`);
+    },
 ];

@@ -1,7 +1,8 @@
 import BolderProblem, { BolderProblemComponent } from "@/components/general/BolderProblem";
 import { ThemedText } from "@/components/general/ThemedText";
 import ThemedView from "@/components/general/ThemedView";
-import { grades } from "@/constants/consts";
+import { getGradeMap } from "@/constants/consts";
+import { useGrades } from "@/hooks/useGrades";
 import { Problem } from "@/DAL/entities/problem";
 import { Wall } from "@/DAL/entities/wall";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -74,7 +75,7 @@ function RightAction(
                     const shareUrl = `https://flash-b9950.web.app/?wallId=${wall.id}&problemId=${problem.id}`;
                     await Share.open({
                         title: problem.name,
-                        message: `Check out "${problem.name}" (${grades[problem.grade]}) on Flash App!\n${shareUrl}`,
+                        message: `Check out "${problem.name}" (${getGradeMap(dal.currentUser.gradingSystem)[problem.grade]}) on Flash App!\n${shareUrl}`,
                         url: imageUri,
                         failOnCancel: false,
                     });
@@ -107,6 +108,7 @@ const BolderProblemPreview: React.FC<{
     const scale = compact ? 0.38 : 0.8;
     aspectRatio = aspectRatio ?? 1.5;
     const screenDimension = useWindowDimensions();
+    const gradeMap = useGrades();
     const [height, setHeight] = useState(0);
     const [width, setWidth] = useState(0);
     const [tags, setTags] = useState<string[]>(dal.currentUser.getProblemTags(problem.id));
@@ -183,7 +185,7 @@ const BolderProblemPreview: React.FC<{
                         {customTagCount > 0 &&
                             <MaterialCommunityIcons name="label" size={compact ? 10 : 16} color={Colors.backgroundExtraLite} />
                         }
-                        <ThemedText lite style={{ fontSize: compact ? 10 : 16 }}>{grades[problem.grade]}</ThemedText>
+                        <ThemedText lite style={{ fontSize: compact ? 10 : 16 }}>{gradeMap[problem.grade]}</ThemedText>
                     </View>
                 </ThemedView>
                 <BolderProblem

@@ -4,6 +4,7 @@ import { GroupMemberTable, ProblemTable, UserConfigTable, UserTable, UserWallTab
 import { BaseDAL } from "../BaseDAL";
 import { Timestamp } from "firebase/firestore";
 import { ProblemFilter } from "../IDAL";
+import { GradingSystem } from "../../constants/consts";
 
 
 export class UserDAL extends BaseDAL<User> {
@@ -110,6 +111,9 @@ export class UserDAL extends BaseDAL<User> {
         let currViewer = this._dal.currentUser.viewerWalls.map(w => w.id);
         let remote = await this._dal.users.FetchSingleDoc(this._dal.currentUser.id);
         this._dal.currentUser.name = remote.name;
+        if (remote.gradingSystem) {
+            await this.setGradingSystem(this._dal.currentUser, remote.gradingSystem);
+        }
         await Promise.all(remote.owenedWalls.map(async (wallId: string) => {
             if (currOwned.includes(wallId)) return;
             await this._dal.currentUser.addWall(wallId, "owner", false).catch(e => console.error(`failed adding wall ${wallId} to user`, e));
@@ -193,5 +197,22 @@ export class UserDAL extends BaseDAL<User> {
             { filters: filters },
             this._dal.db!
         );
+    }
+
+    public getGradingSystem(user: User): GradingSystem {
+        let config = UserConfigTable.query()
+            .Filter(UserConfigTable.getField("user_id")!.eq(user.id))
+            .Select([UserConfigTable.getField("grading_system")!])
+            .All<{ grading_system: string }>(this._dal.db!)[0];
+        return (config?.grading_system as GradingSystem) ?? 'french';
+    }
+
+    public async setGradingSystem(user: User, value: GradingSystem): Promise<void> {
+        await UserConfigTable.update(
+            [UserConfigTable.getField("user_id")!.eq(user.id)],
+            { grading_system: value },
+            this._dal.db!
+        );
+        this.UpdateRemote(user).catch(console.error);
     }
 }

@@ -7,13 +7,15 @@ import ActionValidationModal from '@/components/general/modals/ActionValidationM
 import EditUserModal from './EditUserModal';
 import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/general/ThemedText';
+import { GradingSystem } from '@/constants/consts';
 
 const SettingsScreen: React.FC = () => {
     const router = useRouter();
-    const dal = useDal(() => setUser(dal.currentUser));
+    const dal = useDal(() => { setUser(dal.currentUser); setGradingSystem(dal.currentUser.gradingSystem); });
     const [logoutModal, setLogoutModal] = useState(false);
     const [editModal, setEditModal] = useState(false);
     const [user, setUser] = useState(dal.currentUser);
+    const [gradingSystem, setGradingSystem] = useState<GradingSystem>(dal.currentUser.gradingSystem);
 
     return (
         <View style={styles.container}>
@@ -54,6 +56,35 @@ const SettingsScreen: React.FC = () => {
                     </View>
                     <Ionicons name="chevron-forward" size={20} color={Colors.backgroundExtraLite} />
                 </TouchableOpacity>
+
+                <ThemedText type="defaultSemiBold2" style={styles.sectionLabel}>PREFERENCES</ThemedText>
+
+                <View style={styles.preferenceCard}>
+                    <View style={styles.preferenceInfo}>
+                        <Ionicons name="stats-chart-outline" size={20} color={Colors.textLite} />
+                        <ThemedText type="defaultSemiBold" style={styles.preferenceLabel}>Grading System</ThemedText>
+                    </View>
+                    <View style={styles.gradingToggle}>
+                        {(['french', 'v'] as GradingSystem[]).map(system => (
+                            <TouchableOpacity
+                                key={system}
+                                style={[styles.gradingOption, gradingSystem === system && styles.gradingOptionActive]}
+                                onPress={() => {
+                                    dal.currentUser.gradingSystem = system;
+                                    setGradingSystem(system);
+                                }}
+                                activeOpacity={0.8}
+                            >
+                                <ThemedText
+                                    type="defaultSemiBold"
+                                    style={[styles.gradingOptionText, gradingSystem === system && styles.gradingOptionTextActive]}
+                                >
+                                    {system === 'french' ? 'French' : 'V-Scale'}
+                                </ThemedText>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </View>
 
                 <ThemedText type="defaultSemiBold2" style={styles.sectionLabel}>CREATE</ThemedText>
 
@@ -179,6 +210,45 @@ const styles = StyleSheet.create({
     actionSub: {
         color: Colors.backgroundExtraLite,
         textAlign: 'center',
+    },
+    preferenceCard: {
+        backgroundColor: Colors.backgroundDark,
+        borderRadius: 16,
+        padding: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderWidth: 1,
+        borderColor: Colors.backgroundExtraDark,
+    },
+    preferenceInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    preferenceLabel: {
+        color: Colors.textLite,
+    },
+    gradingToggle: {
+        flexDirection: 'row',
+        borderRadius: 10,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: Colors.backgroundExtraDark,
+    },
+    gradingOption: {
+        paddingVertical: 6,
+        paddingHorizontal: 14,
+        backgroundColor: Colors.backgroundDark,
+    },
+    gradingOptionActive: {
+        backgroundColor: Colors.backgroundDeep,
+    },
+    gradingOptionText: {
+        color: Colors.backgroundExtraLite,
+    },
+    gradingOptionTextActive: {
+        color: Colors.textLite,
     },
     logoutButton: {
         backgroundColor: Colors.surface,
