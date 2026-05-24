@@ -11,8 +11,11 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NotifierWrapper } from 'react-native-notifier';
 import dalService, { DalContext } from '@/DAL/DALService';
-import { View } from 'react-native';
+import { Text, TextInput, View } from 'react-native';
 import { runMigrations } from '@/DAL/migrations';
+
+(Text as any).defaultProps = { ...((Text as any).defaultProps ?? {}), allowFontScaling: false };
+(TextInput as any).defaultProps = { ...((TextInput as any).defaultProps ?? {}), allowFontScaling: false };
 import LoginView from '@/components/screens/LoginScreen/LoginView';
 import DonationView from '@/components/general/DonationView';
 

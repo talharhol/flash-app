@@ -35,6 +35,7 @@ const CreateWallScreen: React.FC = ({ }) => {
     const [fetchingLocation, setFetchingLocation] = useState(false);
     const [showTooManyPublicModal, setShowTooManyPublicModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [focusKey, setFocusKey] = useState(0);
     useFocusEffect(
         useCallback(
             () => {
@@ -46,6 +47,7 @@ const CreateWallScreen: React.FC = ({ }) => {
                 setLat('');
                 setLng('');
                 setShowTooManyPublicModal(false);
+                setFocusKey(k => k + 1);
             }, []
         )
     );
@@ -192,6 +194,7 @@ const CreateWallScreen: React.FC = ({ }) => {
             </View>
             <View style={{ alignSelf: "center", height: 50, width: "50%", marginTop: 0 }}>
                 <SwitchSelector
+                    key={focusKey}
                     initial={0}
                     textColor={Colors.backgroundDark}
                     selectedColor={Colors.backgroundExtraLite}
