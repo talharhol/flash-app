@@ -11,8 +11,9 @@ import { ThemedText } from '@/components/general/ThemedText';
 import { Image } from 'react-native';
 import CornerAdjustCanvas, { AnchorPoint, CornerAdjustRef, CornerPoint, defaultCorners } from './CornerAdjustCanvas';
 import { CameraWithOverlay } from './CameraWithOverlay';
+import BolderProblem from '@/components/general/BolderProblem';
 
-type Step = 'pick' | 'camera' | 'adjust' | 'saving';
+type Step = 'pick' | 'camera' | 'adjust' | 'confirm' | 'saving';
 
 const UpdateWallImageScreen: React.FC = () => {
     const router = useRouter();
@@ -29,6 +30,9 @@ const UpdateWallImageScreen: React.FC = () => {
     const [isAligning, setIsAligning] = useState(false);
     const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
     const [originalNewImageUri, setOriginalNewImageUri] = useState<string | null>(null);
+    const [capturedUri, setCapturedUri] = useState<string | null>(null);
+    const [showHolds, setShowHolds] = useState(true);
+    const [isCapturing, setIsCapturing] = useState(false);
     const adjustRef = useRef<CornerAdjustRef>(null);
     const canvasSizeRef = useRef(canvasSize);
     canvasSizeRef.current = canvasSize;
@@ -44,10 +48,12 @@ const UpdateWallImageScreen: React.FC = () => {
             setCorners([]);
             setAnchors([]);
             setCanvasSize({ width: 0, height: 0 });
-            setOldImageSize(null);
             setIsAligning(false);
             setDownloadProgress(null);
             setOriginalNewImageUri(null);
+            setCapturedUri(null);
+            setShowHolds(true);
+            setIsCapturing(false);
           }, []
         )
     );
@@ -122,19 +128,33 @@ const UpdateWallImageScreen: React.FC = () => {
         }
     };
 
-    const save = async () => {
-        setStep('saving');
+    const proceedToConfirm = async () => {
+        if (isCapturing) return;
+        setIsCapturing(true);
         try {
             const uri = await adjustRef.current?.capture();
-            if (!uri) { setStep('adjust'); return; }
-            wall.image = Image.resolveAssetSource({ uri });
+            if (!uri) return;
+            setCapturedUri(uri);
+            setStep('confirm');
+        } catch {
+            // stay on adjust
+        } finally {
+            setIsCapturing(false);
+        }
+    };
+
+    const save = async () => {
+        if (!capturedUri) return;
+        setStep('saving');
+        try {
+            wall.image = Image.resolveAssetSource({ uri: capturedUri });
             if (wall.isPublic) {
                 wall.remoteImage = await wall.uploadImage(wall.image);
             }
             await dal.walls.Update(wall);
             router.back();
         } catch {
-            setStep('adjust');
+            setStep('confirm');
         }
     };
 
@@ -153,16 +173,20 @@ const UpdateWallImageScreen: React.FC = () => {
             {/* Header */}
             <View style={styles.header}>
                 <Ionicons
-                    name="close-circle-outline" size={35} color={Colors.backgroundExtraLite}
+                    name={step === 'confirm' ? 'arrow-back-outline' : 'close-circle-outline'}
+                    size={35}
+                    color={Colors.backgroundExtraLite}
                     style={{ position: 'absolute', left: 0, padding: 10 }}
-                    onPress={() => router.back()}
+                    onPress={step === 'confirm' ? () => setStep('adjust') : () => router.back()}
                 />
-                <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Update Wall</ThemedText>
+                <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>
+                    {step === 'confirm' ? 'Confirm Update' : 'Update Wall'}
+                </ThemedText>
                 {step === 'adjust' && (
                     <Ionicons
                         name="checkmark-circle-outline" size={35} color={Colors.backgroundExtraLite}
                         style={{ position: 'absolute', right: 0, padding: 10 }}
-                        onPress={save}
+                        onPress={proceedToConfirm}
                     />
                 )}
             </View>
@@ -175,38 +199,42 @@ const UpdateWallImageScreen: React.FC = () => {
                     onCanvasLayout(width, height);
                 }}
             >
-                {step === 'adjust' && canvasSize.width > 0 && (
-                    <CornerAdjustCanvas
-                        ref={adjustRef}
-                        oldImageUri={oldImageUri}
-                        newImageUri={newImageUri}
-                        width={canvasSize.width}
-                        height={canvasSize.height}
-                        corners={corners}
-                        onCornersChange={setCorners}
-                        anchors={anchors}
-                        onAnchorsChange={setAnchors}
-                        showOverlay
-                    />
+                {(step === 'adjust' || step === 'confirm') && canvasSize.width > 0 && (
+                    <View
+                        style={StyleSheet.absoluteFill}
+                        pointerEvents={step === 'confirm' ? 'none' : 'auto'}
+                    >
+                        <CornerAdjustCanvas
+                            ref={adjustRef}
+                            oldImageUri={oldImageUri}
+                            newImageUri={newImageUri}
+                            width={canvasSize.width}
+                            height={canvasSize.height}
+                            corners={corners}
+                            onCornersChange={setCorners}
+                            anchors={anchors}
+                            onAnchorsChange={setAnchors}
+                            showOverlay={step === 'adjust'}
+                        />
+                    </View>
                 )}
-                {step === 'saving' && canvasSize.width > 0 && (
-                    // Render clean (no ghost/handles) for capture, invisible behind spinner
-                    <CornerAdjustCanvas
-                        ref={adjustRef}
-                        oldImageUri={oldImageUri}
-                        newImageUri={newImageUri}
-                        width={canvasSize.width}
-                        height={canvasSize.height}
-                        corners={corners}
-                        onCornersChange={setCorners}
-                        anchors={anchors}
-                        onAnchorsChange={setAnchors}
-                        showOverlay={false}
-                    />
+                {step === 'confirm' && capturedUri && (
+                    <View style={StyleSheet.absoluteFill}>
+                        <BolderProblem
+                            wallImage={{ uri: capturedUri }}
+                            existingHolds={showHolds ? wall.configuredHolds : []}
+                            aspectRatio={canvasSize.height / canvasSize.width}
+                        />
+                    </View>
                 )}
                 {(step === 'pick' || step === 'saving') && (
                     <View style={[StyleSheet.absoluteFill, styles.overlay]} pointerEvents="none">
                         {step === 'saving' && <ActivityIndicator size="large" color={Colors.backgroundExtraLite} />}
+                    </View>
+                )}
+                {isCapturing && (
+                    <View style={[StyleSheet.absoluteFill, styles.overlay]} pointerEvents="none">
+                        <ActivityIndicator size="large" color={Colors.backgroundExtraLite} />
                     </View>
                 )}
             </View>
@@ -221,6 +249,26 @@ const UpdateWallImageScreen: React.FC = () => {
                     <TouchableOpacity style={styles.pickBtn} onPress={pickFromLibrary}>
                         <Ionicons name="image-outline" size={32} color={Colors.backgroundExtraLite} />
                         <ThemedText style={styles.pickLabel}>Gallery</ThemedText>
+                    </TouchableOpacity>
+                </View>
+            )}
+            {step === 'confirm' && (
+                <View style={styles.confirmBar}>
+                    <TouchableOpacity style={styles.toggleHoldsBtn} onPress={() => setShowHolds(v => !v)}>
+                        <Ionicons
+                            name={showHolds ? 'eye-outline' : 'eye-off-outline'}
+                            size={20}
+                            color={Colors.backgroundExtraLite}
+                        />
+                        <ThemedText style={styles.toggleHoldsLabel}>
+                            {showHolds ? 'Hide holds' : 'Show holds'}
+                        </ThemedText>
+                    </TouchableOpacity>
+                    <ThemedText style={styles.warningText}>
+                        Once updated, this cannot be reverted.
+                    </ThemedText>
+                    <TouchableOpacity style={styles.confirmBtn} onPress={save}>
+                        <ThemedText style={styles.confirmBtnLabel}>Update Wall</ThemedText>
                     </TouchableOpacity>
                 </View>
             )}
@@ -301,4 +349,41 @@ const styles = StyleSheet.create({
     magicBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
     aligningRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     rePickBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    confirmBar: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 12,
+        paddingHorizontal: 20,
+        paddingVertical: 16,
+        backgroundColor: Colors.backgroundExtraDark,
+    },
+    toggleHoldsBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        alignSelf: 'flex-start',
+    },
+    toggleHoldsLabel: {
+        color: Colors.backgroundExtraLite,
+        fontSize: 14,
+    },
+    warningText: {
+        color: Colors.backgroundExtraLite,
+        fontSize: 13,
+        opacity: 0.75,
+        textAlign: 'center',
+    },
+    confirmBtn: {
+        backgroundColor: Colors.confirm,
+        borderRadius: 8,
+        paddingHorizontal: 32,
+        paddingVertical: 12,
+        alignSelf: 'stretch',
+        alignItems: 'center',
+    },
+    confirmBtnLabel: {
+        color: Colors.textLite,
+        fontSize: 16,
+        fontWeight: '600',
+    },
 });
