@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 import {
+    ActivityIndicator,
     Image,
     Text,
     TextInput,
@@ -46,6 +47,7 @@ const ConfigGroupScreen: React.FC = ({ }) => {
     const [selectedWalls, setSelectedWalls] = useState<string[]>(group ? group.walls : []);
 
     const allUsers = useMemo(() => dal.users.List({}).filter(u => u.id !== dal.currentUser.id), []);
+    const [isLoading, setIsLoading] = useState(false);
 
     useFocusEffect(
         useCallback(
@@ -79,14 +81,15 @@ const ConfigGroupScreen: React.FC = ({ }) => {
             walls: selectedWalls,
             problems: group?.problems ?? [],
         });
+        setIsLoading(true);
         if (!group)
             dal.groups.Add(new_group).then(
                 () => router.push({ pathname: "/MyGroupsScreen" })
-            );
+            ).finally(() => setIsLoading(false));
         else
             dal.groups.Update(new_group).then(
                 () => router.push({ pathname: "/MyGroupsScreen" })
-            ).catch(console.log);
+            ).catch(console.log).finally(() => setIsLoading(false));
     };
 
     const SaveGroupImage: (uri: string) => void = (uri) => {
@@ -153,10 +156,16 @@ const ConfigGroupScreen: React.FC = ({ }) => {
         </ParallaxScrollView>
         <TouchableOpacity
             onPress={createGroup}
-            style={{ position: "absolute", bottom: 30, right: 20, backgroundColor: Colors.backgroundExtraLite, borderRadius: 50, padding: 14 }}
+            disabled={isLoading}
+            style={{ position: "absolute", bottom: 30, right: 20, backgroundColor: Colors.backgroundExtraLite, borderRadius: 50, padding: 14, opacity: isLoading ? 0.5 : 1 }}
         >
             <Ionicons name="save" size={28} color="black" />
         </TouchableOpacity>
+        {isLoading && (
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.35)', justifyContent: 'center', alignItems: 'center', zIndex: 999 }}>
+                <ActivityIndicator size="large" color={Colors.backgroundExtraLite} />
+            </View>
+        )}
         </View>
     );
 };

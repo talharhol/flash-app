@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/general/ParallaxScrollView';
 import { ThemedText } from '@/components/general/ThemedText';
@@ -18,6 +18,7 @@ const SelectWallScreen: React.FC = () => {
     const dal = useDal();
     const group = dal.groups.Get({ id: useLocalSearchParams().id as string });
     const [selectImageModal, setSelectImageModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     useFocusEffect(
         useCallback(
@@ -35,15 +36,18 @@ const SelectWallScreen: React.FC = () => {
             isPublic: false,
             owner: group.id
         });
-        dal.walls.Add(wall);
-        group.AddWall({ wall_id: wall.id });
-        createProblem(wall);
+        setIsLoading(true);
+        dal.walls.Add(wall).then(() => {
+            group.AddWall({ wall_id: wall.id });
+            createProblem(wall);
+        }).finally(() => setIsLoading(false));
     };
     const createProblem = (wall: Wall) => {
         router.push({ pathname: "/CreateBolderProblem", params: { id: wall.id, groupId: group.id } })
     }
 
     return (
+        <View style={{ flex: 1 }}>
         <ParallaxScrollView
             headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
             headerImage={
@@ -105,6 +109,12 @@ const SelectWallScreen: React.FC = () => {
                     )
             }
         </ParallaxScrollView>
+        {isLoading && (
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.35)', justifyContent: 'center', alignItems: 'center', zIndex: 999 }}>
+                <ActivityIndicator size="large" color={Colors.backgroundExtraLite} />
+            </View>
+        )}
+        </View>
     );
 }
 

@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
 import {
+  ActivityIndicator,
   Platform,
   StyleSheet,
   Text,
@@ -37,6 +38,7 @@ const CreateProblemScreen: React.FC = () => {
   const [aspectRatio, setAspectRatio] = useState(1.5);
   const [isCycle, _setIsCycle] = useState(false);
   const [holdDetectionEnabled, setHoldDetectionEnabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const setIsCycle = (value: boolean) => {
     if (value) setDrawingHoldType(new HoldType(HoldTypes.route));
@@ -107,6 +109,7 @@ const CreateProblemScreen: React.FC = () => {
       type: isCycle ? "cycle" : "bolder",
       wallVersion: wall.version,
     });
+    setIsLoading(true);
     dal.problems.Add(problem).then(
       () => {
         if (targetGroup) {
@@ -118,7 +121,7 @@ const CreateProblemScreen: React.FC = () => {
         else
           router.navigate({ pathname: "/ViewWall", params: { id: wall.id } });
       }
-    );
+    ).finally(() => setIsLoading(false));
 
   }
 
@@ -171,7 +174,7 @@ const CreateProblemScreen: React.FC = () => {
         <TouchableOpacity
           onPress={() => setIsPublishModal(true)}
           style={[styles.headerIconBtn, holds.length > 0 && styles.publishBtnActive]}
-          disabled={holds.length === 0}
+          disabled={holds.length === 0 || isLoading}
         >
           {holds.length > 0 && (
             <View style={styles.holdsBadge}>
@@ -237,6 +240,11 @@ const CreateProblemScreen: React.FC = () => {
           </>
         )}
       </View>
+      {isLoading && (
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.35)', justifyContent: 'center', alignItems: 'center', zIndex: 999 }}>
+          <ActivityIndicator size="large" color={Colors.backgroundExtraLite} />
+        </View>
+      )}
     </View>
   );
 };

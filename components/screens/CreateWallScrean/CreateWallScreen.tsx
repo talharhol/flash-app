@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
 import {
+    ActivityIndicator,
     Image,
     StyleSheet,
     TextInput,
@@ -13,7 +14,6 @@ import { ThemedText } from "@/components/general/ThemedText";
 import SelectImageModal from "@/components/general/modals/SelectImageModal";
 import TooManyPublicWallsModal from "@/components/general/modals/TooManyPublicWallsModal";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
-import BasicButton from "@/components/general/Button";
 import { Wall } from "@/DAL/entities/wall";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useDal } from "@/DAL/DALService";
@@ -34,6 +34,7 @@ const CreateWallScreen: React.FC = ({ }) => {
     const [lng, setLng] = useState('');
     const [fetchingLocation, setFetchingLocation] = useState(false);
     const [showTooManyPublicModal, setShowTooManyPublicModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     useFocusEffect(
         useCallback(
             () => {
@@ -78,9 +79,10 @@ const CreateWallScreen: React.FC = ({ }) => {
             lat: latNum,
             lng: lngNum,
         });
+        setIsLoading(true);
         dal.walls.Add(wall).then(
             () => router.push({ pathname: "/CreateWallHolds", params: { id: wall.id } })
-        );
+        ).finally(() => setIsLoading(false));
     };
     const createWall = () => {
         if (!selectedImage) { alert("missing image"); return; }
@@ -206,10 +208,16 @@ const CreateWallScreen: React.FC = ({ }) => {
         </ParallaxScrollView>
         <TouchableOpacity
             onPress={createWall}
-            style={{ position: "absolute", bottom: 30, right: 20, backgroundColor: Colors.backgroundExtraLite, borderRadius: 50, padding: 14 }}
+            disabled={isLoading}
+            style={{ position: "absolute", bottom: 30, right: 20, backgroundColor: Colors.backgroundExtraLite, borderRadius: 50, padding: 14, opacity: isLoading ? 0.5 : 1 }}
         >
             <Ionicons name="save" size={28} color="black" />
         </TouchableOpacity>
+        {isLoading && (
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.35)', justifyContent: 'center', alignItems: 'center', zIndex: 999 }}>
+                <ActivityIndicator size="large" color={Colors.backgroundExtraLite} />
+            </View>
+        )}
         </View>
     );
 };

@@ -28,7 +28,7 @@ export class BaseDAL<
     }
 
     public async AddToRemote(obj: ObjType): Promise<void> {
-        if (!!this.remoteCollection) obj.addToRemote(this.remoteCollection);
+        if (!!this.remoteCollection) await obj.addToRemote(this.remoteCollection);
     }
 
     public async Add(obj: ObjType): Promise<ObjType> {
