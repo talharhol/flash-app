@@ -29,7 +29,8 @@ export default {
         "backgroundColor": "#ffffff"
       },
       "googleServicesFile": process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
-      "package": "com.climbing.flashApp"
+      "package": "com.climbing.flashApp",
+      "versionCode": 1
     },
     "web": {
       "bundler": "metro",
