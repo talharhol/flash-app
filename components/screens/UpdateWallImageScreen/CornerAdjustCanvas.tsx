@@ -9,6 +9,7 @@ import {
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import * as FileSystem from 'expo-file-system';
 import { useCanvasRef } from '@shopify/react-native-skia';
+import { Colors } from '@/constants/Colors';
 
 export type CornerPoint = { x: number; y: number };
 export type AnchorPoint = { x: number; y: number; tx: number; ty: number };
@@ -159,8 +160,8 @@ export interface CornerAdjustRef {
 
 const SNAP_RADIUS = 52;
 const HANDLE_R = 14;
-const CORNER_COLORS = ['#FF5252', '#4CAF50', '#2196F3', '#FF9800'] as const;
-const ANCHOR_COLOR = '#CE93D8';
+const CORNER_COLORS = [Colors.backgroundDark, Colors.backgroundDark, Colors.backgroundDark, Colors.backgroundDark] as const;
+const ANCHOR_COLOR = Colors.backgroundExtraDark;
 
 const CornerAdjustCanvas = forwardRef<CornerAdjustRef, Props>(({
     oldImageUri, newImageUri, width, height, corners, onCornersChange,
@@ -274,13 +275,20 @@ const CornerAdjustCanvas = forwardRef<CornerAdjustRef, Props>(({
         .onUpdate((e) => {
             const active = activeRef.current;
             if (active === null) return;
-            const x = Math.max(0, Math.min(width, e.x));
-            const y = Math.max(0, Math.min(height, e.y));
             if (active < 4) {
+                const x = Math.max(0, Math.min(width, e.x));
+                const y = Math.max(0, Math.min(height, e.y));
                 onCornersChange(cornersRef.current.map((c, j) =>
                     j === active ? { x, y } : c
                 ));
             } else {
+                const cs = cornersRef.current;
+                const minX = Math.min(...cs.map(c => c.x));
+                const maxX = Math.max(...cs.map(c => c.x));
+                const minY = Math.min(...cs.map(c => c.y));
+                const maxY = Math.max(...cs.map(c => c.y));
+                const x = Math.max(minX + 1, Math.min(maxX - 1, e.x));
+                const y = Math.max(minY + 1, Math.min(maxY - 1, e.y));
                 const ai = active - 4;
                 onAnchorsChange?.(anchorsRef.current.map((a, j) =>
                     j === ai ? { ...a, x, y } : a
