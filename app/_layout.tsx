@@ -9,6 +9,7 @@ import { SQLiteProvider } from 'expo-sqlite';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NotifierWrapper } from 'react-native-notifier';
 import dalService, { DalContext } from '@/DAL/DALService';
 import { Text, TextInput, View } from 'react-native';
@@ -56,6 +57,7 @@ export default function RootLayout() {
   }
 
   return (
+    <SafeAreaProvider>
     <GestureHandlerRootView>
       <Suspense fallback={<View style={{ flex: 1, backgroundColor: "grey" }} />}>
         <SQLiteProvider databaseName="flashLocalDB.db" onInit={runMigrations} useSuspense>
@@ -77,5 +79,6 @@ export default function RootLayout() {
         </SQLiteProvider>
       </Suspense>
     </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }
