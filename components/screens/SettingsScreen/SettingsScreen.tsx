@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Platform, StyleSheet, TouchableOpacity, View, Image, ScrollView } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Image, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useDal } from '@/DAL/DALService';
@@ -10,6 +11,7 @@ import { ThemedText } from '@/components/general/ThemedText';
 import { GradingSystem } from '@/constants/consts';
 
 const SettingsScreen: React.FC = () => {
+    const insets = useSafeAreaInsets();
     const router = useRouter();
     const dal = useDal(() => { setUser(dal.currentUser); setGradingSystem(dal.currentUser.gradingSystem); });
     const [logoutModal, setLogoutModal] = useState(false);
@@ -19,7 +21,7 @@ const SettingsScreen: React.FC = () => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
+            <View style={[styles.header, { paddingTop: insets.top }]}>
                 <ThemedText type="title" style={styles.headerTitle}>Settings</ThemedText>
             </View>
 
@@ -121,7 +123,6 @@ const styles = StyleSheet.create({
     },
     header: {
         height: 100,
-        paddingTop: Platform.OS === 'ios' ? 50 : 20,
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: Colors.backgroundDark,

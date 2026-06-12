@@ -30,7 +30,7 @@ export default {
       },
       "googleServicesFile": process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
       "package": "com.climbing.flashApp",
-      "versionCode": 1
+      "versionCode": 2
     },
     "web": {
       "bundler": "metro",
@@ -55,6 +55,15 @@ export default {
         "expo-location",
         {
           "locationWhenInUsePermission": "Allow flash-app to use your location to tag walls and find walls near you."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35
+          }
         }
       ]
     ],

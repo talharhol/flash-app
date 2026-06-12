@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Hold, HoldInterface, HoldType, HoldTypes } from "../../../DAL/hold";
 import EditHoldModal from "./EditHoldModal";
 import BolderProblem from "@/components/general/BolderProblem";
@@ -26,6 +26,7 @@ import ActionValidationModal from "@/components/general/modals/ActionValidationM
 
 
 const CreateProblemScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const dal = useDal();
   const wall = dal.walls.Get({ id: useLocalSearchParams().id as string });
@@ -150,7 +151,7 @@ const CreateProblemScreen: React.FC = () => {
               editHold={(holdType, isDeleted) => editHold(editedHold, holdType, isDeleted)} />
         )
       }
-      <ThemedView style={styles.headerContainer}>
+      <ThemedView style={[styles.headerContainer, { paddingTop: insets.top, height: 72 + insets.top }]}>
         <View style={{ width: 48 }} />
         <View style={styles.headerCenter}>
           <ThemedText type="title" style={styles.headerTitle}>Create</ThemedText>
@@ -262,9 +263,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.backgroundExtraDark,
     width: "100%",
     flexDirection: "row",
-    paddingTop: Platform.OS === 'ios' ? 50 : 0,
     paddingHorizontal: 8,
-    height: Platform.OS === 'ios' ? 100 : 72,
     elevation: 6,
     shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 3 },

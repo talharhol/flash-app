@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { autoAlignLightGlue } from './autoAlign';
 import { isModelDownloaded, downloadModel } from './lightGlueLocal';
 import * as ImagePicker from 'expo-image-picker';
@@ -16,6 +17,7 @@ import BolderProblem from '@/components/general/BolderProblem';
 type Step = 'pick' | 'camera' | 'adjust' | 'confirm' | 'saving';
 
 const UpdateWallImageScreen: React.FC = () => {
+    const insets = useSafeAreaInsets();
     const router = useRouter();
     const dal = useDal();
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -171,7 +173,7 @@ const UpdateWallImageScreen: React.FC = () => {
     return (
         <View style={styles.container}>
             {/* Header */}
-            <View style={styles.header}>
+            <View style={[styles.header, { paddingTop: insets.top }]}>
                 <Ionicons
                     name={step === 'confirm' ? 'arrow-back-outline' : 'close-circle-outline'}
                     size={35}
@@ -323,7 +325,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: Colors.backgroundExtraDark,
         width: '100%',
-        paddingTop: Platform.OS === 'ios' ? 50 : 0,
         height: 100,
     },
     canvasArea: { flex: 1, backgroundColor: Colors.backgroundDark },

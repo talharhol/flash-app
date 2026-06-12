@@ -1,10 +1,10 @@
 import React, { useCallback, useState, useEffect } from "react";
 import {
-    Platform,
     StyleSheet,
     TouchableOpacity,
     View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { HoldInterface, HoldType, HoldTypes, holdTypeToHoldColor } from "../../../DAL/hold";
 import BolderProblem from "@/components/general/BolderProblem";
 import { Notifier, Easing } from "react-native-notifier";
@@ -19,6 +19,7 @@ import { Colors } from "@/constants/Colors";
 
 
 const CreateWallHoldsScreen: React.FC = ({ }) => {
+    const insets = useSafeAreaInsets();
     const dal = useDal();
     const { id } = useLocalSearchParams();
     const wall = dal.walls.Get({ id });
@@ -73,7 +74,7 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
 
     return (
         <View style={styles.container}>
-            <ThemedView style={styles.headerContainer}>
+            <ThemedView style={[styles.headerContainer, { paddingTop: insets.top, height: 72 + insets.top }]}>
                 <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Create Holds</ThemedText>
             </ThemedView>
             {
@@ -149,9 +150,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.backgroundExtraDark,
         width: "100%",
         flexDirection: "row",
-        paddingTop: Platform.OS === 'ios' ? 50 : 0,
         paddingHorizontal: 8,
-        height: Platform.OS === 'ios' ? 100 : 72,
         elevation: 6,
         shadowColor: Colors.shadow,
         shadowOffset: { width: 0, height: 3 },

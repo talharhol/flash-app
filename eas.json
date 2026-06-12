@@ -19,7 +19,8 @@
   "submit": {
     "production": {
       "android": {
-        "track": "alpha" 
+        "track": "alpha",
+        "releaseStatus": "draft"
       }
     }
   }

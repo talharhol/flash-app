@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Modal, Platform, StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Image, Modal, StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 
@@ -12,6 +13,7 @@ import { ThemedText } from '@/components/general/ThemedText';
 type Step = 'pick' | 'preview' | 'saving';
 
 const ReplaceWallImageScreen: React.FC = () => {
+    const insets = useSafeAreaInsets();
     const router = useRouter();
     const dal = useDal();
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -100,7 +102,7 @@ const ReplaceWallImageScreen: React.FC = () => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
+            <View style={[styles.header, { paddingTop: insets.top }]}>
                 <Ionicons
                     name="close-circle-outline" size={35} color={Colors.backgroundExtraLite}
                     style={{ position: 'absolute', left: 0, padding: 10 }}
@@ -154,7 +156,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: Colors.backgroundExtraDark,
         width: '100%',
-        paddingTop: Platform.OS === 'ios' ? 50 : 0,
         height: 100,
     },
     imageArea: {
