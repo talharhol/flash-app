@@ -12,8 +12,15 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NotifierWrapper } from 'react-native-notifier';
 import dalService, { DalContext } from '@/DAL/DALService';
-import { Text, TextInput, View } from 'react-native';
+import { I18nManager, Text, TextInput, View } from 'react-native';
+import * as Updates from 'expo-updates';
 import { runMigrations } from '@/DAL/migrations';
+
+I18nManager.allowRTL(false);
+I18nManager.forceRTL(false);
+if (I18nManager.isRTL) {
+  Updates.reloadAsync();
+}
 
 (Text as any).defaultProps = { ...((Text as any).defaultProps ?? {}), allowFontScaling: false };
 (TextInput as any).defaultProps = { ...((TextInput as any).defaultProps ?? {}), allowFontScaling: false };
