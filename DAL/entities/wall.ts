@@ -96,17 +96,18 @@ export class Wall extends Entity {
         return this.dal!.users.GetWalls({user_id: this.id});
     }
     public static fromRemoteDoc(data: {[key: string]: any}, old?: Wall, dal?: IDAL): Wall {
-        const imageChanged = old?.remoteImage
-            ? data.image.full !== old.remoteImage.full || data.image.commpressed !== old.remoteImage.commpressed
+        const remoteImage = data.image ?? null;
+        const imageChanged = old?.remoteImage && remoteImage
+            ? remoteImage.full !== old.remoteImage.full || remoteImage.commpressed !== old.remoteImage.commpressed
             : false;
-        let image = data.image.commpressed ? {uri: data.image.commpressed} : null;
-        if (imageChanged) {           
+        let image = remoteImage?.commpressed ? {uri: remoteImage.commpressed} : null;
+        if (imageChanged) {
             let isInWalls = old?.dal!.currentUser.walls.some(w => w.id === old.id);
             if (isInWalls) {
-                image = {uri: data.image.full};
+                image = {uri: remoteImage!.full};
             }
         } else {
-            image = old?.image ?? {uri: data.image.commpressed};
+            image = old?.image ?? (remoteImage?.commpressed ? {uri: remoteImage.commpressed} : null);
         }
 
         if (data.activeWallId && !old) {
