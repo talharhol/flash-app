@@ -1,6 +1,7 @@
 import { ConvertToCycle, Hold, HoldInterface, HoldType, SortHolds, holdTypeToHoldColor } from "@/DAL/hold";
 import { imageSize } from "../general/SizeContext";
 import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import { cancelAnimation, Easing, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import {
   ActivityIndicator,
   Image,
@@ -13,7 +14,7 @@ import {
   ImageSourcePropType,
   ViewProps,
 } from "react-native";
-import { Canvas, Group, Skia } from "@shopify/react-native-skia";
+import { Canvas, Circle, Group, Path, RoundedRect, Skia } from "@shopify/react-native-skia";
 import Zoomable from "./Zoomable";
 import DrawHold from "./DrawHold";
 import SkiaHold from "./SkiaHold";
@@ -34,21 +35,59 @@ interface BolderProblemProps extends ViewProps {
   aspectRatio?: number;
   cycle?: boolean;
   useHoldDetection?: boolean;
+  scanCell?: { row: number; col: number } | null;
   onDrawHoldFinish?: (hold: HoldInterface) => void;
   onDrawHoldCancel?: () => void;
   onConfiguredHoldClick?: (hold_id: string) => void;
   onHoldClick?: (hold_id: string) => void;
 }
 
+const ScanCellIndicator: React.FC<{ x: number; y: number; cellW: number; cellH: number }> = ({ x, y, cellW, cellH }) => {
+  const opacity = useSharedValue(1);
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withTiming(0.1, { duration: 700, easing: Easing.inOut(Easing.sin) }),
+      -1,
+      true,
+    );
+    return () => { cancelAnimation(opacity); };
+  }, []);
+
+  const arm = Math.min(cellW, cellH) * 0.32;
+  const brackets = useMemo(() => {
+    const p = Skia.Path.Make();
+    p.moveTo(x, y + arm);         p.lineTo(x, y);           p.lineTo(x + arm, y);
+    p.moveTo(x + cellW - arm, y); p.lineTo(x + cellW, y);   p.lineTo(x + cellW, y + arm);
+    p.moveTo(x + cellW, y + cellH - arm); p.lineTo(x + cellW, y + cellH); p.lineTo(x + cellW - arm, y + cellH);
+    p.moveTo(x + arm, y + cellH); p.lineTo(x, y + cellH);   p.lineTo(x, y + cellH - arm);
+    return p;
+  }, [x, y, cellW, cellH, arm]);
+
+  return (
+    <Group>
+      <RoundedRect x={x} y={y} width={cellW} height={cellH} r={2} color="rgba(0, 0, 0, 0.5)" />
+      <Group opacity={opacity}>
+        <Path path={brackets} style="stroke" strokeWidth={2} color="rgba(255, 240, 80, 1)" strokeJoin="miter" />
+        <Circle cx={x + cellW / 2} cy={y + cellH / 2} r={2.5} color="rgba(255, 240, 80, 0.9)" />
+      </Group>
+    </Group>
+  );
+};
+
 export interface BolderProblemComponent {
   exportProblem: () => void;
   getProblemUrl: () => Promise<string>;
+  detectHold: (nx: number, ny: number, svgW: number, svgH: number) => Promise<{ svgPath: string | null; mask: Float32Array | null; score: number }>;
+  isReady: boolean;
+  imageWidth: number;
+  imageHeight: number;
 }
 
 
 const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
   (
-    { wallImage, configuredHolds, existingHolds, drawingHoldType, disableMovment, scale, fullScreen, bindToImage, aspectRatio, cycle, useHoldDetection: enableHoldDetection, onDrawHoldFinish, onDrawHoldCancel, onConfiguredHoldClick, onHoldClick, ...props }
+    { wallImage, configuredHolds, existingHolds, drawingHoldType, disableMovment, scale, fullScreen, bindToImage, aspectRatio, cycle, useHoldDetection: enableHoldDetection, scanCell, onDrawHoldFinish, onDrawHoldCancel, onConfiguredHoldClick, onHoldClick, ...props }
     , ref
   ) => {
     const screenDimension = useWindowDimensions();
@@ -112,8 +151,12 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
             quality: 1,
           })
         },
+        detectHold: (nx, ny, svgW, svgH) => detectHold(nx, ny, svgW, svgH),
+        isReady,
+        imageWidth,
+        imageHeight,
       };
-    }, []);
+    }, [isReady, imageWidth, imageHeight]);
     const getHeight = () => {
       if (fullScreen) return screenDimension.height;
       if (bindToImage) return imageHeight;
@@ -228,6 +271,19 @@ const BolderProblem = forwardRef<BolderProblemComponent, BolderProblemProps>(
                         path={path}
                       />
                     ))}
+                    {scanCell && imageWidth > 0 && imageHeight > 0 && (() => {
+                      const svgH = 1000 * (imageHeight / imageWidth);
+                      const cellW = 1000 / 40;
+                      const cellH = svgH / 40;
+                      return (
+                        <ScanCellIndicator
+                          x={scanCell.col * cellW}
+                          y={scanCell.row * cellH}
+                          cellW={cellW}
+                          cellH={cellH}
+                        />
+                      );
+                    })()}
                   </Group>
                 </Canvas>
                 <Image style={[styles.problemImage, { width: imageWidth, height: imageHeight }]} source={wallImage} />
