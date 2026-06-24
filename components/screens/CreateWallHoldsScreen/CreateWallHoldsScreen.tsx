@@ -18,6 +18,7 @@ import { ThemedText } from "@/components/general/ThemedText";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDal } from "@/DAL/DALService";
 import { Colors } from "@/constants/Colors";
+import { extractHolds } from "@/utils/extractHolds";
 
 
 const CreateWallHoldsScreen: React.FC = ({ }) => {
@@ -80,6 +81,17 @@ const CreateWallHoldsScreen: React.FC = ({ }) => {
 
         const svgWidth = 1000;
         const svgHeight = 1000 * (bp.imageHeight / bp.imageWidth);
+
+        try {
+            const aiHolds = await extractHolds(wall.image!.uri, svgWidth, svgHeight);
+            if (aiHolds.length > 0) {
+                setHolds(prev => [...prev, ...aiHolds]);
+                setIsLuckyScanRunning(false);
+                return;
+            }
+        } catch {
+            // fall through to local ML scan
+        }
 
         type BBox = { x: number; y: number; width: number; height: number };
         const knownBBoxes: BBox[] = holds.flatMap(h => {
