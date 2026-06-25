@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import { Platform, StyleSheet, useColorScheme } from 'react-native';
+import { StyleSheet, useColorScheme } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedRef,
@@ -10,6 +10,7 @@ import Animated, {
 import ThemedView from '@/components/general/ThemedView';
 import { Colors } from '@/constants/Colors';
 import React from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const HEADER_HEIGHT = 250;
 
@@ -31,6 +32,7 @@ const ParallaxScrollView: React.FC<React.ComponentProps<typeof ThemedView> & {
   gap
 }) => {
     const colorScheme = 'dark';
+    const insets = useSafeAreaInsets();
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
     const scrollOffset = useScrollViewOffset(scrollRef);
 
@@ -57,7 +59,7 @@ const ParallaxScrollView: React.FC<React.ComponentProps<typeof ThemedView> & {
           <Animated.View
             style={[
               styles.header,
-              { backgroundColor: Colors.backgroundDark },
+              { backgroundColor: Colors.backgroundDark, paddingTop: insets.top, height: 100 + insets.top },
               headerAnimatedStyle,
             ]}>
             {headerImage}
@@ -78,7 +80,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.backgroundLite
   },
   header: {
-    paddingTop: Platform.OS === "ios" ? 50 : 0,
     height: 100,
     alignItems: 'center',
     justifyContent: 'center',
