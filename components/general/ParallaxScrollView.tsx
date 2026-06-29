@@ -59,7 +59,7 @@ const ParallaxScrollView: React.FC<React.ComponentProps<typeof ThemedView> & {
           <Animated.View
             style={[
               styles.header,
-              { backgroundColor: Colors.backgroundDark, paddingTop: insets.top, height: 100 + insets.top },
+              { backgroundColor: Colors.backgroundDark, paddingTop: insets.top },
               headerAnimatedStyle,
             ]}>
             {headerImage}
@@ -80,9 +80,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.backgroundLite
   },
   header: {
-    height: 100,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 20,
     overflow: 'hidden',
   },
   content: {

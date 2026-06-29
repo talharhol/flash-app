@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity, View, Image, ScrollView } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, TouchableOpacity, View, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useDal } from '@/DAL/DALService';
@@ -9,9 +8,10 @@ import EditUserModal from './EditUserModal';
 import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/general/ThemedText';
 import { GradingSystem } from '@/constants/consts';
+import ParallaxScrollView from '@/components/general/ParallaxScrollView';
+import ThemedView from '@/components/general/ThemedView';
 
 const SettingsScreen: React.FC = () => {
-    const insets = useSafeAreaInsets();
     const router = useRouter();
     const dal = useDal(() => { setUser(dal.currentUser); setGradingSystem(dal.currentUser.gradingSystem); });
     const [logoutModal, setLogoutModal] = useState(false);
@@ -20,31 +20,35 @@ const SettingsScreen: React.FC = () => {
     const [gradingSystem, setGradingSystem] = useState<GradingSystem>(dal.currentUser.gradingSystem);
 
     return (
-        <View style={styles.container}>
-            <View style={[styles.header, { paddingTop: insets.top }]}>
-                <ThemedText type="title" style={styles.headerTitle}>Settings</ThemedText>
-            </View>
-
-            {logoutModal && (
-                <ActionValidationModal
-                    text="Log out?"
-                    subText="You can always login again :)"
-                    approveAction={() => dal.signout()}
-                    closeModal={() => setLogoutModal(false)}
-                />
-            )}
-            {editModal && (
-                <EditUserModal
-                    closeModal={() => setEditModal(false)}
-                    user={dal.currentUser}
-                    editUser={u => {
-                        dal.users.Update(u);
-                        setEditModal(false);
-                    }}
-                />
-            )}
-
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={{ flex: 1 }}>
+            <ParallaxScrollView
+                headerBackgroundColor={{ light: Colors.backgroundDark, dark: Colors.backgroundDark }}
+                headerImage={
+                    <ThemedView style={styles.title}>
+                        <ThemedText type="title" style={{ backgroundColor: 'transparent' }}>Settings</ThemedText>
+                    </ThemedView>
+                }
+                padding={20}
+                gap={14}
+            >
+                {logoutModal && (
+                    <ActionValidationModal
+                        text="Log out?"
+                        subText="You can always login again :)"
+                        approveAction={() => dal.signout()}
+                        closeModal={() => setLogoutModal(false)}
+                    />
+                )}
+                {editModal && (
+                    <EditUserModal
+                        closeModal={() => setEditModal(false)}
+                        user={dal.currentUser}
+                        editUser={u => {
+                            dal.users.Update(u);
+                            setEditModal(false);
+                        }}
+                    />
+                )}
                 <TouchableOpacity style={styles.profileCard} onPress={() => setEditModal(true)} activeOpacity={0.8}>
                     <View style={styles.avatarWrap}>
                         <Image source={user.image} style={styles.avatar} />
@@ -111,29 +115,15 @@ const SettingsScreen: React.FC = () => {
                     <Ionicons name="log-out-outline" size={20} color={Colors.danger} />
                     <ThemedText type="defaultSemiBold" style={styles.logoutText}>Log Out</ThemedText>
                 </TouchableOpacity>
-            </ScrollView>
+            </ParallaxScrollView>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: Colors.backgroundLite,
-    },
-    header: {
-        height: 100,
+    title: {
         alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: Colors.backgroundDark,
-    },
-    headerTitle: {
-        color: Colors.textLite,
-    },
-    scrollContent: {
-        padding: 20,
-        paddingBottom: 40,
-        gap: 14,
+        backgroundColor: 'transparent',
     },
     profileCard: {
         backgroundColor: Colors.backgroundDark,

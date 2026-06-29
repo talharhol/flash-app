@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.border,
         paddingHorizontal: 8,
-        height: 38,
+        height: 48,
     },
     searchIcon: {
         marginRight: 4,
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
         flex: 1,
         height: '100%',
         color: Colors.textDark,
-        fontSize: 14,
+        fontSize: 16,
     },
     emptyState: {
         alignItems: 'center',
